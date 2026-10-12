@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Apunta quién te debe dinero, registra pagos y reparte gastos de grupo.">
+<meta name="theme-color" content="#f5f6f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0e0d" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Deudas">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Reparto de Deudas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: una columna minimalista para iPhone; título grande, cifra protagonista, listas agrupadas sin bordes, barra inferior con + central, hojas que suben desde abajo */
+:root{
+  --ah:165; --as:1; --fs:1; --pad:13px; --gap:10px; --rad:18px; --rad-s:13px;
+  --bg:#f5f6f5; --surface:#ffffff; --surface-2:#eef0ef; --ink:#111816; --muted:#6b7673; --faint:#a3aca9;
+  --line:rgba(17,24,22,.08);
+  --accent:hsl(var(--ah) calc(var(--as)*72%) 27%); --accent-ink:#ffffff; --accent-soft:hsl(var(--ah) calc(var(--as)*38%) 93%);
+  --sw-s:72%; --sw-l:30%;
+  --warn:#9a5600; --warn-soft:#fbecd6; --bad:#b4232c; --bad-soft:#fbe3e4; --ok:#0f6b55; --ok-soft:#ddf0ea;
+  --av-l:90%; --av-fg:28%;
+  --shade:rgba(8,12,11,.32); --bar-bg:rgba(245,246,245,.82); --shadow:0 1px 2px rgba(17,24,22,.04);
+  --ease:cubic-bezier(.32,.72,0,1);
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", -apple-system, system-ui, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b0e0d; --surface:#151a19; --surface-2:#1e2423; --ink:#eef2f1; --muted:#8f9b98; --faint:#5c6764;
+  --line:rgba(255,255,255,.07);
+  --accent:hsl(var(--ah) calc(var(--as)*50%) 58%); --accent-ink:hsl(var(--ah) 60% 8%); --accent-soft:hsl(var(--ah) calc(var(--as)*35%) 15%);
+  --sw-s:50%; --sw-l:58%;
+  --warn:#f0a94a; --warn-soft:#33240f; --bad:#f07a80; --bad-soft:#3a181b; --ok:#4cc2a0; --ok-soft:#12302a;
+  --av-l:24%; --av-fg:84%;
+  --shade:rgba(0,0,0,.55); --bar-bg:rgba(11,14,13,.82); --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b0e0d; --surface:#151a19; --surface-2:#1e2423; --ink:#eef2f1; --muted:#8f9b98; --faint:#5c6764;
+  --line:rgba(255,255,255,.07);
+  --accent:hsl(var(--ah) calc(var(--as)*50%) 58%); --accent-ink:hsl(var(--ah) 60% 8%); --accent-soft:hsl(var(--ah) calc(var(--as)*35%) 15%);
+  --sw-s:50%; --sw-l:58%;
+  --warn:#f0a94a; --warn-soft:#33240f; --bad:#f07a80; --bad-soft:#3a181b; --ok:#4cc2a0; --ok-soft:#12302a;
+  --av-l:24%; --av-fg:84%;
+  --shade:rgba(0,0,0,.55); --bar-bg:rgba(11,14,13,.82); --shadow:none; color-scheme:dark}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.wrap{max-width:540px;margin:0 auto;padding-inline:16px;padding-block:10px calc(116px + env(safe-area-inset-bottom,0px))}
+#view, header.top{zoom:var(--fs)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;font-weight:700}
+.tnum{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-user-select:none;user-select:none}
+button:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.press{transition:transform .18s var(--ease), background-color .18s, opacity .18s}
+.press:active{transform:scale(.97)}
+
+/* Cabecera */
+header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-top:6px}
+header.top h1{font-size:34px;letter-spacing:-.03em;line-height:1.05}
+.store-note{font-size:12px;color:var(--faint);margin-top:4px}
+.iconbtn{flex:none;width:40px;height:40px;border-radius:99px;border:0;background:var(--surface);color:var(--ink);display:grid;place-items:center;box-shadow:var(--shadow)}
+.iconbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.view{display:flex;flex-direction:column;gap:22px;padding-top:18px}
+
+/* Cifra protagonista */
+.summary{display:flex;flex-direction:column;gap:10px}
+.summary .lbl{font-size:13px;color:var(--muted);font-weight:500}
+.summary .big{font-family:var(--f-display);font-weight:700;font-size:clamp(40px,12vw,52px);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.stack{display:flex;height:6px;border-radius:99px;overflow:hidden;background:var(--surface-2);gap:2px}
+.stack i{display:block;height:100%;border-radius:99px;transform-origin:left}
+.stack .s-late{background:var(--bad)}.stack .s-soon{background:var(--warn)}.stack .s-pend{background:var(--accent)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend span::before{content:"";width:7px;height:7px;border-radius:99px;background:var(--c)}
+.legend b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.stats b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;margin-right:4px}
+body.no-hero .summary{display:none}
+
+/* Búsqueda y filtros */
+.tools{display:flex;flex-direction:column;gap:10px}
+.search{width:100%;padding:11px 14px 11px 38px;border-radius:99px;border:0;background:var(--surface);color:var(--ink);font:inherit;font-size:16px;box-shadow:var(--shadow);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:14px 50%}
+.seg{position:relative;display:flex;background:var(--surface-2);border-radius:99px;padding:3px;gap:0;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{position:relative;z-index:1;flex:1 0 auto;border:0;background:transparent;border-radius:99px;padding:7px 12px;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;min-height:34px;transition:color .2s}
+.seg button[aria-pressed="true"]{color:var(--ink)}
+.seg .ind{position:absolute;z-index:0;top:3px;bottom:3px;left:0;width:0;border-radius:99px;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.1);transition:transform .32s var(--ease), width .32s var(--ease)}
+.seg .c{margin-left:5px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+/* Listas agrupadas */
+.sec-t{font-size:13px;color:var(--muted);font-weight:500;margin:0 0 -12px 4px}
+.glist{background:var(--surface);border-radius:var(--rad);overflow:hidden;box-shadow:var(--shadow)}
+.row{display:flex;gap:12px;align-items:center;width:100%;padding:var(--pad) 14px;border:0;background:transparent;text-align:left;position:relative;transition:background-color .15s}
+.row + .row::before{content:"";position:absolute;top:0;left:68px;right:0;height:1px;background:var(--line)}
+body.no-av .row + .row::before{left:14px}
+button.row:active{background:var(--surface-2)}
+.row .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .name{font-weight:500;font-size:16px;overflow-wrap:anywhere;line-height:1.3}
+.row .sub{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.row .side{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none;max-width:48%}
+.row .amt{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .meta{font-size:12px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:5px}
+.row .meta.late{color:var(--bad)}.row .meta.soon{color:var(--warn)}.row .meta.done{color:var(--ok)}
+.row .meta.late::before,.row .meta.soon::before,.row .meta.done::before{content:"";width:6px;height:6px;border-radius:99px;background:currentColor}
+.row .prog{position:absolute;left:68px;right:14px;bottom:0;height:2px;background:transparent}
+body.no-av .row .prog{left:14px}
+.row .prog i{display:block;height:100%;background:var(--accent);opacity:.55;border-radius:99px}
+body.no-bars .row .prog{display:none}
+body.no-av .row > .av{display:none}
+.chev{color:var(--faint);flex:none}
+.ex-tag{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);border:1px dashed var(--faint);border-radius:99px;padding:1px 6px}
+
+.av{flex:none;width:40px;height:40px;border-radius:99px;display:grid;place-items:center;font-weight:600;font-size:14px;background:hsl(var(--h) 50% var(--av-l));color:hsl(var(--h) 55% var(--av-fg));font-family:var(--f-display)}
+.av.sm{width:30px;height:30px;font-size:12px}
+.av.sq{border-radius:calc(var(--rad) * .6)}
+
+.empty{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:8px 4px}
+.empty h3{font-size:22px;letter-spacing:-.02em}
+.empty p{margin:0;color:var(--muted);max-width:40ch}
+
+.btn{border:0;border-radius:99px;padding:12px 18px;font-weight:600;background:var(--accent);color:var(--accent-ink);min-height:46px;transition:transform .18s var(--ease), opacity .2s, background-color .2s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.soft{background:var(--accent-soft);color:var(--accent)}
+.btn.danger{background:var(--bad);color:var(--surface)}
+.btn.small{padding:8px 14px;font-size:13px;min-height:36px}
+.btn.wide{width:100%}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:6px 2px;font-size:14px}
+
+/* Tarjeta de reparto rápido */
+.quick{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;border-radius:var(--rad);padding:16px;background:var(--accent);color:var(--accent-ink)}
+.quick .qi{width:42px;height:42px;border-radius:99px;background:color-mix(in srgb,var(--accent-ink) 16%,transparent);display:grid;place-items:center;flex:none}
+.quick .qi svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.quick b{display:block;font-size:16px}
+.quick span{font-size:13px;opacity:.82}
+
+/* Barra inferior */
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--bar-bg);-webkit-backdrop-filter:saturate(1.6) blur(20px);backdrop-filter:saturate(1.6) blur(20px);border-top:1px solid var(--line);padding:4px 16px calc(4px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;z-index:10}
+.tabbar .in{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;width:100%;max-width:380px;align-items:center}
+.tab{border:0;background:transparent;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:500;color:var(--faint);min-height:50px;transition:color .2s}
+.tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--ink)}
+.add{border:0;width:56px;height:56px;border-radius:99px;background:var(--ink);color:var(--bg);display:grid;place-items:center;margin-top:-18px;box-shadow:0 10px 24px rgba(0,0,0,.18);transition:transform .25s var(--ease)}
+.add svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;fill:none;transition:transform .3s var(--ease)}
+.add:active{transform:scale(.92)}
+.add:active svg{transform:rotate(90deg)}
+
+/* Hoja inferior */
+.shade{position:fixed;inset:0;background:var(--shade);display:flex;align-items:flex-end;justify-content:center;z-index:20;opacity:0;transition:opacity .32s ease}
+.shade.open{opacity:1}
+.shade[hidden]{display:none}
+.sheet{background:var(--bg);width:100%;max-width:540px;max-height:calc(100% - 44px - env(safe-area-inset-top,0px));overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border-radius:24px 24px 0 0;padding:6px 16px calc(24px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .42s var(--ease)}
+.shade.open .sheet{transform:translateY(0)}
+.grab{width:36px;height:5px;border-radius:9px;background:var(--faint);opacity:.5;margin:2px auto 10px}
+.sc{display:flex;flex-direction:column;gap:16px;zoom:var(--fs)}
+.sc.swap{animation:swap .34s var(--ease)}
+@keyframes swap{from{opacity:0;transform:translateX(18px)}}
+.sc.back{animation:back .34s var(--ease)}
+@keyframes back{from{opacity:0;transform:translateX(-18px)}}
+.sheet-head{display:flex;align-items:center;gap:10px;min-height:40px}
+.sheet-head .t{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.sheet-head h2{font-size:22px;letter-spacing:-.02em;min-width:0;overflow-wrap:anywhere;line-height:1.15}
+.x{border:0;background:var(--surface-2);border-radius:99px;width:34px;height:34px;font-size:15px;flex:none;color:var(--muted);display:grid;place-items:center}
+.x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+form{display:flex;flex-direction:column;gap:14px}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;color:var(--muted)}
+input,textarea,select{font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid transparent;border-radius:var(--rad-s);padding:12px 13px;width:100%;min-width:0;min-height:46px;box-shadow:var(--shadow);transition:border-color .2s, box-shadow .2s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input[type="date"]{-webkit-appearance:none;appearance:none}
+textarea{resize:vertical;min-height:72px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.err{color:var(--bad);font-size:13px;margin:0}
+.hint{color:var(--muted);font-size:13px;margin:0}
+.notice{background:var(--accent-soft);border-radius:var(--rad-s);padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--ink);align-items:flex-start}
+.card{background:var(--surface);border-radius:var(--rad);padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.step-t{font-size:15px;font-weight:600;color:var(--ink);margin:0}
+
+/* Importe grande */
+.amountbox{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 4px}
+.amountbox .q{font-size:14px;color:var(--muted)}
+.amount-in{font-family:var(--f-display);font-weight:700;font-size:48px;letter-spacing:-.03em;text-align:center;border:0;background:transparent;box-shadow:none;padding:4px 0;min-height:64px;width:100%;font-variant-numeric:tabular-nums}
+.amount-in:focus{box-shadow:none;border-color:transparent}
+.amount-in::placeholder{color:var(--faint)}
+.amountbox .cur{font-size:13px;color:var(--faint);letter-spacing:.06em}
+
+/* Chips de personas */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid transparent;background:var(--surface);border-radius:99px;padding:5px 13px 5px 5px;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:7px;min-height:40px;box-shadow:var(--shadow);transition:background-color .2s, border-color .2s, transform .18s var(--ease), opacity .2s}
+.chip:active{transform:scale(.95)}
+.chip .av{width:30px;height:30px;font-size:12px;transition:transform .25s var(--ease)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.chip[aria-pressed="true"] .av{transform:scale(1.04)}
+.chip[aria-pressed="false"]{opacity:.5}
+.chip.plain{padding:5px 13px}
+.chip.sugg{background:transparent;border:1px dashed var(--faint);box-shadow:none;color:var(--muted);padding:5px 13px}
+.chip .tick{width:16px;height:16px;border-radius:99px;background:var(--accent);color:var(--accent-ink);display:none;place-items:center;margin-left:-2px}
+.chip .tick svg{width:10px;height:10px;stroke:currentColor;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.chip[aria-pressed="true"] .tick{display:grid}
+.addperson{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+
+/* Resultado del reparto */
+.result{display:flex;flex-direction:column}
+.result .r{display:flex;align-items:center;gap:10px;padding:9px 0}
+.result .r + .r{border-top:1px solid var(--line)}
+.result .r .n{flex:1;min-width:0;font-size:15px;overflow-wrap:anywhere}
+.result .r .n small{display:block;color:var(--muted);font-size:12px}
+.result .r .v{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.result .r input{width:110px;min-height:40px;padding:8px 10px;text-align:right}
+.balance-line{font-size:14px;padding:10px 12px;border-radius:var(--rad-s);background:var(--surface-2);color:var(--muted)}
+.balance-line.ok{background:var(--ok-soft);color:var(--ok)}
+.balance-line.bad{background:var(--bad-soft);color:var(--bad)}
+
+/* Detalle */
+.hero-d{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0 2px;text-align:center}
+.hero-d .big{font-family:var(--f-display);font-weight:700;font-size:44px;letter-spacing:-.04em;line-height:1.05;font-variant-numeric:tabular-nums}
+.hero-d .lbl{font-size:14px;color:var(--muted)}
+.hero-d .bar{width:min(240px,80%);margin-top:8px}
+.bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .6s var(--ease)}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
+.kv .k{font-size:12px;color:var(--muted)}
+.kv .v{font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+.info{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.info b{color:var(--ink);font-weight:500}
+.lines{list-style:none;margin:0;padding:0}
+.lines li{display:flex;justify-content:space-between;gap:10px;padding:11px 0;align-items:center}
+.lines li + li{border-top:1px solid var(--line)}
+.lines .l{display:flex;gap:10px;align-items:center;min-width:0}
+.lines .l > div{min-width:0}
+.lines .t1{font-weight:500;overflow-wrap:anywhere}
+.lines .d{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.lines .a{font-weight:600;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.mv{flex:none;width:30px;height:30px;border-radius:99px;display:grid;place-items:center;font-weight:700}
+.mv.in{background:var(--ok-soft);color:var(--ok)}
+.mv.out{background:var(--warn-soft);color:var(--warn)}
+.mv.start{background:var(--surface-2);color:var(--muted)}
+.rm{border:0;background:none;color:var(--faint);font-size:13px;padding:4px 2px;min-height:28px}
+.msg{background:var(--surface-2);border-radius:var(--rad-s);padding:12px 14px;font-size:14px;white-space:pre-wrap;user-select:all;-webkit-user-select:all}
+.confirm{background:var(--bad-soft);border-radius:var(--rad);padding:14px;display:flex;flex-direction:column;gap:10px;color:var(--bad);font-size:14px;animation:swap .3s var(--ease)}
+.picker{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick{border:0;background:var(--surface);border-radius:var(--rad);padding:16px 14px;text-align:left;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);transition:transform .18s var(--ease)}
+.pick:active{transform:scale(.97)}
+.pick .pi{width:36px;height:36px;border-radius:99px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.pick .pi svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pick b{font-size:15px;font-weight:600}
+.pick span{color:var(--muted);font-size:12px;line-height:1.35}
+
+/* Reparto: filas de quién paga a quién */
+.settle{display:flex;flex-direction:column;gap:10px;padding:12px 0}
+.settle + .settle{border-top:1px solid var(--line)}
+.settle .s1{display:flex;align-items:center;gap:10px}
+.settle .s1 .txt{flex:1;min-width:0;font-size:15px;line-height:1.35}
+.settle .s1 .txt b{font-weight:600}
+.settle .s1 .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.settle .acts{display:flex;gap:8px;flex-wrap:wrap;padding-left:40px}
+.pos{color:var(--ok)}.neg{color:var(--bad)}.zero{color:var(--muted)}
+
+/* Personalización */
+.opt{display:flex;flex-direction:column;gap:8px}
+.opt + .opt{padding-top:4px}
+.opt > .lab{font-size:14px;font-weight:500;color:var(--ink)}
+.opt > .sub{font-size:12px;color:var(--muted);margin-top:-5px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:38px;height:38px;border-radius:99px;border:0;background:hsl(var(--sh) calc(var(--ss)*var(--sw-s)) var(--sw-l));transition:transform .2s var(--ease), box-shadow .2s}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--ink);transform:scale(1.05)}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 0;font-size:14px;font-weight:500;color:var(--ink);flex-direction:row}
+.switch input{appearance:none;-webkit-appearance:none;width:51px;height:31px;min-height:31px;border-radius:99px;background:var(--surface-2);border:0;padding:0;position:relative;flex:none;box-shadow:inset 0 0 0 1px var(--line);transition:background .25s}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:99px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .3s var(--ease)}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(20px)}
+.ph{font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:6px;padding:1px 5px}
+
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:99px;font-size:14px;font-weight:500;z-index:30;max-width:calc(100% - 32px);text-align:center;transform:translate(-50%,16px);opacity:0;pointer-events:none;transition:transform .35s var(--ease), opacity .25s}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+/* Entrada escalonada */
+.enter .stg{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0) * 35ms)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+.enter .stack i{animation:grow .8s var(--ease) both .1s}
+@keyframes grow{from{transform:scaleX(0)}}
+.tab[aria-selected="true"] svg{animation:pop .35s var(--ease)}
+@keyframes pop{40%{transform:scale(.86)}}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1 id="title">Reparto de Deudas</h1>
+      <div class="store-note" id="storeNote">Abriendo tu libreta…</div>
+    </div>
+    <button class="iconbtn press" id="settingsBtn" type="button" aria-label="Personalizar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    </button>
+  </header>
+  <main id="view" class="view"></main>
+</div>
+
+<nav class="tabbar" aria-label="Secciones">
+  <div class="in">
+    <button class="tab" type="button" data-tab="debts" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg>Me deben</button>
+    <button class="add" type="button" id="addBtn" aria-label="Añadir">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="tab" type="button" data-tab="split" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c.6-3 2.6-5 5-5s4.4 2 5 5M14 18.5c.5-2.2 1.7-3.6 3-3.6s2.7 1.4 3.2 3.6"/></svg>Repartir</button>
+  </div>
+</nav>
+
+<div class="shade" id="shade" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const reduced = (()=>{ try{ return matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){ return false; } })();
+  const ICON = {
+    x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    back:'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+    chev:'<svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5l5 5-5 5"/></svg>',
+    tick:'<svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>',
+    person:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></svg>',
+    plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+    coin:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 12l2 2 4-4"/></svg>',
+    split:'<svg viewBox="0 0 24 24"><path d="M12 3v7M12 10l-6 7M12 10l6 7M4 21h4M16 21h4"/></svg>',
+    group:'<svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c.6-3 2.6-5 5-5s4.4 2 5 5M14 18.5c.5-2.2 1.7-3.6 3-3.6s2.7 1.4 3.2 3.6"/></svg>'
+  };
+
+  // ---------- personalización ----------
+  const DEFAULT_TPL = "Hola {nombre}, ¿qué tal? Te escribo por lo de {concepto}. Me quedan pendientes {falta} de {total}. ¿Cuándo te viene bien? Gracias. {firma}";
+  const DEFAULTS = {theme:"system", accent:"verde", fs:1, density:"comoda", corners:"redondo", hero:true, avatars:true, bars:true,
+    sort:"urgencia", soonDays:7, defaultDue:0, currency:"EUR", startTab:"debts", myName:"", template:DEFAULT_TPL, hideDone:false};
+  const ACCENTS = [["verde",165,1],["azul",212,1],["índigo",240,1],["morado",280,1],["rosa",330,1],["rojo",355,1],["naranja",22,1],["mostaza",42,1],["oliva",80,.8],["grafito",200,.12]];
+  const CURRENCIES = [["EUR","Euro (€)"],["USD","Dólar estadounidense ($)"],["MXN","Peso mexicano"],["COP","Peso colombiano"],["ARS","Peso argentino"],["CLP","Peso chileno"],["PEN","Sol peruano"],["DOP","Peso dominicano"],["CUP","Peso cubano"],["VES","Bolívar venezolano"],["GBP","Libra esterlina (£)"],["CHF","Franco suizo"]];
+  const DENS = {compacta:["9px","8px"], comoda:["13px","10px"], amplia:["17px","14px"]};
+  const CORN = {recto:["6px","6px"], suave:["12px","10px"], redondo:["18px","13px"], pildora:["26px","20px"]};
+  let S = Object.assign({}, DEFAULTS);
+  try { const c = JSON.parse(localStorage.getItem("me-deben-ajustes")||"null"); if (c) S = Object.assign({}, DEFAULTS, c); } catch(e){}
+  const origTheme = document.documentElement.getAttribute("data-theme");
+  let fmt = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"});
+
+  function applySettings(){
+    const root = document.documentElement, b = document.body;
+    if (S.theme==="system"){ if (origTheme) root.setAttribute("data-theme", origTheme); else root.removeAttribute("data-theme"); }
+    else root.setAttribute("data-theme", S.theme);
+    const a = ACCENTS.find(x=>x[0]===S.accent) || ACCENTS[0];
+    root.style.setProperty("--ah", a[1]); root.style.setProperty("--as", a[2]);
+    root.style.setProperty("--fs", S.fs);
+    const dn = DENS[S.density]||DENS.comoda; root.style.setProperty("--pad", dn[0]); root.style.setProperty("--gap", dn[1]);
+    const cr = CORN[S.corners]||CORN.redondo; root.style.setProperty("--rad", cr[0]); root.style.setProperty("--rad-s", cr[1]);
+    b.classList.toggle("no-hero", !S.hero); b.classList.toggle("no-av", !S.avatars); b.classList.toggle("no-bars", !S.bars);
+    try { fmt = new Intl.NumberFormat("es-ES",{style:"currency",currency:S.currency}); } catch(e){ fmt = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}); }
+    const cur = fmt.formatToParts(0).find(p=>p.type==="currency"); curSym = cur ? cur.value : S.currency;
+  }
+  let curSym = "€";
+  let saveT = null;
+  function setSetting(k, v){
+    S[k] = v; applySettings();
+    try { localStorage.setItem("me-deben-ajustes", JSON.stringify(S)); } catch(e){}
+    render();
+    clearTimeout(saveT);
+    saveT = setTimeout(async ()=>{
+      if (mode==="db" && cols){ try { await cols.debts.doc("ajustes").set(JSON.parse(JSON.stringify(S))); } catch(e){} }
+      saveT = null;
+    }, 700);
+  }
+
+  // ---------- utilidades ----------
+  const r2 = n => Math.round((+n||0)*100)/100;
+  const money = n => fmt.format(r2(n));
+  const isoOf = d => { d = new Date(d); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+  const todayISO = () => isoOf(new Date());
+  const addDays = n => { const d=new Date(); d.setDate(d.getDate()+n); return isoOf(d); };
+  const fmtDate = iso => { if(!iso) return ""; const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}); };
+  const fmtShort = iso => { if(!iso) return ""; const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("es-ES",{day:"numeric",month:"short"}); };
+  const daysUntil = iso => { const [y,m,d]=iso.split("-").map(Number); const t=new Date(); t.setHours(0,0,0,0); return Math.round((new Date(y,m-1,d)-t)/86400000); };
+  const uid = p => (p||"d") + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const parseAmount = v => { const n = parseFloat(String(v).replace(/\s/g,"").replace(/[^\d,.\-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".")); return isFinite(n) ? r2(n) : NaN; };
+  const hue = s => { let h=0; for (const ch of String(s).replace(/\s*\(ejemplo\)/i,"").toLowerCase()) h=(h*31+ch.charCodeAt(0))%360; return h; };
+  const initials = s => { const w = String(s||"?").replace(/\(.*?\)/g,"").trim().split(/\s+/).filter(Boolean); return ((w[0]||"?")[0] + (w[1]?w[1][0]:"")).toUpperCase(); };
+  const avatar = (name, cls) => `<span class="av ${cls||""}" style="--h:${hue(name)}" aria-hidden="true">${esc(initials(name))}</span>`;
+  const norm = s => String(s||"").replace(/\s*\(ejemplo\)/i,"").trim().toLowerCase();
+  const clean = s => String(s||"").replace(/\s*\(ejemplo\)/i,"").trim();
+  const plural = (n, a, b) => n + " " + (n===1 ? a : b);
+
+  // ---------- deudas ----------
+  const extrasOf = d => r2((d.extras||[]).reduce((a,x)=>a+(+x.amount||0),0));
+  const totalOf = d => r2((+d.amount||0) + extrasOf(d));
+  const paidOf = d => r2((d.payments||[]).reduce((a,p)=>a+(+p.amount||0),0));
+  const restOf = d => Math.max(0, r2(totalOf(d) - paidOf(d)));
+  function statusOf(d){
+    if (restOf(d) <= 0) return {key:"done", label:"Saldada"};
+    if (d.dueOn){
+      const n = daysUntil(d.dueOn);
+      if (n < 0) return {key:"late", label: n===-1 ? "Venció ayer" : "Venció hace " + (-n) + " días"};
+      if (n <= S.soonDays) return {key:"soon", label: n===0 ? "Vence hoy" : n===1 ? "Vence mañana" : "Vence en " + n + " días"};
+      return {key:"pend", label:"Hasta el " + fmtShort(d.dueOn)};
+    }
+    return {key:"pend", label:"Sin fecha"};
+  }
+
+  // ---------- reparto ----------
+  const ME = "me";
+  function splitCents(cents, ids, mode, exact){
+    const out = {}; ids.forEach(id=>out[id]=0);
+    if (!ids.length) return {shares:out, diff:cents};
+    if (mode==="exact"){
+      let sum = 0; ids.forEach(id=>{ const v = Math.round((parseAmount(exact && exact[id])||0)*100); out[id]=Math.max(0,v); sum+=out[id]; });
+      return {shares:out, diff:cents-sum};
+    }
+    const base = Math.floor(cents/ids.length); let rem = cents - base*ids.length;
+    ids.forEach(id=>{ out[id] = base + (rem>0?1:0); if (rem>0) rem--; });
+    return {shares:out, diff:0};
+  }
+  function groupCalc(g){
+    const members = g.members || [];
+    const net = {}, paid = {}, share = {};
+    members.forEach(m=>{ net[m.id]=0; paid[m.id]=0; share[m.id]=0; });
+    let total = 0;
+    (g.expenses||[]).forEach(e=>{
+      const cents = Math.round((+e.amount||0)*100);
+      if (!cents) return;
+      if (e.type==="settle"){ if (e.from in net && e.to in net){ net[e.from]+=cents; net[e.to]-=cents; } return; }
+      const among = (e.among||[]).filter(id=>id in net);
+      if (!among.length || !(e.paidBy in net)) return;
+      total += cents; paid[e.paidBy] += cents; net[e.paidBy] += cents;
+      const sh = e.split==="exact" && e.shares ? splitCents(cents, among, "exact", e.shares).shares : splitCents(cents, among, "equal").shares;
+      among.forEach(id=>{ share[id]+=sh[id]; net[id]-=sh[id]; });
+    });
+    const cred = members.filter(m=>net[m.id]>0).map(m=>({id:m.id,v:net[m.id]})).sort((a,b)=>b.v-a.v);
+    const debt = members.filter(m=>net[m.id]<0).map(m=>({id:m.id,v:-net[m.id]})).sort((a,b)=>b.v-a.v);
+    const settle = []; let i=0,j=0;
+    while (i<debt.length && j<cred.length){
+      const x = Math.min(debt[i].v, cred[j].v);
+      if (x>0) settle.push({from:debt[i].id,to:cred[j].id,amount:x/100});
+      debt[i].v-=x; cred[j].v-=x;
+      if (!debt[i].v) i++;
+      if (!cred[j].v) j++;
+    }
+    const c = o => Object.fromEntries(Object.entries(o).map(([k,v])=>[k,v/100]));
+    return {total: total/100, net:c(net), paid:c(paid), share:c(share), settle};
+  }
+  const memberName = (g,id) => (g.members.find(m=>m.id===id)||{name:"?"}).name;
+  function knownPeople(exclude){
+    const ex = new Set((exclude||[]).map(norm)); const seen = new Map();
+    debts.forEach(d=>{ const k=norm(d.name); if (k && !ex.has(k) && !seen.has(k)) seen.set(k, clean(d.name)); });
+    groups.forEach(g=>(g.members||[]).forEach(m=>{ if (m.id===ME) return; const k=norm(m.name); if (k && !ex.has(k) && !seen.has(k)) seen.set(k, clean(m.name)); }));
+    return [...seen.values()].slice(0,8);
+  }
+
+  // ---------- almacenamiento ----------
+  let debts = [], groups = [];
+  let ready = false, mode = "local", cols = null;
+  const LS = {debts:"me-deben-v1", groups:"me-deben-grupos-v1"};
+  const lsRead = k => { try{ const r = localStorage.getItem(LS[k]); return r ? JSON.parse(r) : []; }catch(e){ return []; } };
+  const lsWrite = () => { try{ localStorage.setItem(LS.debts, JSON.stringify(debts)); localStorage.setItem(LS.groups, JSON.stringify(groups)); }catch(e){} };
+  const arr = kind => kind==="debts" ? debts : groups;
+  function putLocal(kind, obj){ const a = arr(kind); const i = a.findIndex(x=>x.id===obj.id); if (i>=0) a[i]=obj; else a.push(obj); }
+
+  async function save(kind, obj, quiet){
+    if (mode==="db"){
+      const body = JSON.parse(JSON.stringify(obj)); delete body.id;
+      const ref = cols[kind].doc(obj.id);
+      try { await ref.set(body); }
+      catch(e){
+        if (e && e.code==="unavailable"){ await new Promise(r=>setTimeout(r,500+Math.random()*700)); try{ await ref.set(body); }catch(e2){ toast("No se pudo guardar. Inténtalo de nuevo."); throw e2; } }
+        else { toast(e && e.code==="quota_exceeded" ? "No queda espacio. Borra cosas antiguas." : "No se pudo guardar. Inténtalo de nuevo."); throw e; }
+      }
+    }
+    putLocal(kind, obj); if (mode==="local") lsWrite(); if (!quiet) render();
+  }
+  async function remove(kind, id){
+    if (mode==="db"){ try{ await cols[kind].doc(id).delete(); }catch(e){ toast("No se pudo borrar. Inténtalo de nuevo."); throw e; } }
+    if (kind==="debts") debts = debts.filter(x=>x.id!==id); else groups = groups.filter(x=>x.id!==id);
+    if (mode==="local") lsWrite(); render();
+  }
+  function useLocal(note){ mode="local"; debts = lsRead("debts"); groups = lsRead("groups"); ready = true; animateNext = true; $("#storeNote").textContent = note; render(); }
+  async function boot(){
+    applySettings(); tab = S.startTab; render();
+    const c = window.claude;
+    if (!c || typeof c.use !== "function") { useLocal("Guardado en este dispositivo"); return; }
+    let db=null, user=null, id=null;
+    try { [db,user] = await Promise.all([c.use("db"), c.use("user")]); } catch(e){}
+    try { id = user ? await user.id() : null; } catch(e){}
+    if (!db || !id){ useLocal("Se guarda solo en este navegador"); return; }
+    mode = "db";
+    cols = { debts: db.collection("data/users/"+id), groups: db.doc("data/users/"+id+"/groups").collection("items") };
+    $("#storeNote").textContent = "Guardado en tu cuenta · solo lo ves tú";
+    let gotD = false, gotG = false, firstSettings = true;
+    const onErr = () => { $("#storeNote").textContent = "Sin conexión con tu cuenta. Recarga la página."; };
+    const markReady = () => { if (!ready && gotD && gotG){ ready = true; animateNext = true; } };
+    cols.debts.onSnapshot(s=>{
+      const st = s.docs.find(x=>x.id==="ajustes");
+      if (st && !saveT){
+        const incoming = Object.assign({}, DEFAULTS, st.data());
+        if (JSON.stringify(incoming)!==JSON.stringify(S)){
+          S = incoming; applySettings();
+          try{ localStorage.setItem("me-deben-ajustes", JSON.stringify(S)); }catch(e){}
+          if (firstSettings) tab = S.startTab;
+        }
+      }
+      firstSettings = false;
+      debts = s.docs.filter(x=>x.id!=="ajustes").map(x=>Object.assign({id:x.id}, x.data())).filter(d=>d.name!=null && d.amount!=null);
+      gotD = true; markReady(); refresh();
+    }, onErr);
+    cols.groups.onSnapshot(s=>{ groups = s.docs.map(x=>Object.assign({id:x.id}, x.data())); gotG = true; markReady(); refresh(); }, onErr);
+  }
+  function refresh(){ render(); if (sheetRef && !dirty && !sheet.querySelector(".confirm")) openRef(sheetRef, true); }
+
+  // ---------- vista ----------
+  let tab = "debts", filter = "open", query = "", animateNext = false;
+  try { filter = localStorage.getItem("me-deben-filter") || "open"; } catch(e){}
+  const FILTERS = [
+    ["open","Pendientes", d=>statusOf(d).key!=="done"],
+    ["late","Vencidas", d=>statusOf(d).key==="late"],
+    ["done","Saldadas", d=>statusOf(d).key==="done"],
+    ["all","Todas", ()=>true]
+  ];
+  const lastCount = {};
+
+  function render(){
+    if (!["debts","split"].includes(tab)) tab = "debts";
+    document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", String(t.dataset.tab===tab)));
+    $("#title").textContent = tab==="debts" ? "Reparto de Deudas" : "Repartir";
+    $("#addBtn").setAttribute("aria-label", tab==="debts" ? "Añadir" : "Repartir un gasto");
+    const v = $("#view");
+    const keepQ = document.activeElement && document.activeElement.id==="q";
+    v.classList.toggle("enter", animateNext && !reduced);
+    v.innerHTML = tab==="debts" ? viewDebts() : viewSplit();
+    animateNext = false;
+    if (keepQ){ const q=$("#q"); if(q) q.focus(); }
+    placeSegs(v); countUp(v);
+  }
+  function placeSegs(root){
+    root.querySelectorAll(".seg").forEach(seg=>{
+      let ind = seg.querySelector(".ind"); if (!ind){ ind = document.createElement("span"); ind.className="ind"; seg.prepend(ind); }
+      const on = seg.querySelector('button[aria-pressed="true"]');
+      if (!on){ ind.style.width="0"; return; }
+      const noAnim = !seg.dataset.placed; if (noAnim) ind.style.transition="none";
+      ind.style.width = on.offsetWidth + "px"; ind.style.transform = `translateX(${on.offsetLeft}px)`;
+      if (noAnim){ void ind.offsetWidth; ind.style.transition=""; seg.dataset.placed="1"; }
+    });
+  }
+  function moveSeg(btn){
+    const seg = btn.closest(".seg"); if (!seg) return;
+    seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", String(b===btn)));
+    seg.dataset.placed = "1"; placeSegs(seg.parentNode);
+  }
+  function countUp(root){
+    root.querySelectorAll("[data-count]").forEach(el=>{
+      const key = el.dataset.key, to = +el.dataset.count, from = key in lastCount ? lastCount[key] : 0;
+      lastCount[key] = to;
+      if (reduced || from===to || !ready){ el.textContent = money(to); return; }
+      const t0 = performance.now(), dur = 650;
+      const step = now => { const p = Math.min(1,(now-t0)/dur), e = 1-Math.pow(1-p,3); el.textContent = money(from + (to-from)*e); if (p<1 && el.isConnected) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    });
+  }
+
+  function viewDebts(){
+    const open = debts.filter(d=>statusOf(d).key!=="done");
+    const by = k => r2(open.filter(d=>statusOf(d).key===k).reduce((a,d)=>a+restOf(d),0));
+    const total = r2(open.reduce((a,d)=>a+restOf(d),0));
+    const late = by("late"), soon = by("soon"), pend = by("pend");
+    const paid = r2(debts.reduce((a,d)=>a+paidOf(d),0));
+    const people = new Set(open.map(d=>norm(d.name))).size;
+    const pct = v => total ? (v/total*100).toFixed(2) : 0;
+    let i = 0;
+    let h = `<section class="summary stg" style="--i:${i++}" aria-label="Resumen">
+        <div class="lbl">Te deben</div>
+        <div class="big" data-count="${total}" data-key="dtotal">${money(total)}</div>
+        ${total ? `<div class="stack" aria-hidden="true">${late?`<i class="s-late" style="width:${pct(late)}%"></i>`:""}${soon?`<i class="s-soon" style="width:${pct(soon)}%"></i>`:""}${pend?`<i class="s-pend" style="width:${pct(pend)}%"></i>`:""}</div>
+        <div class="legend">${late?`<span style="--c:var(--bad)">Vencido <b>${money(late)}</b></span>`:""}${soon?`<span style="--c:var(--warn)">Próximos ${S.soonDays} días <b>${money(soon)}</b></span>`:""}${pend?`<span style="--c:var(--accent)">Más adelante <b>${money(pend)}</b></span>`:""}</div>` : ""}
+        <div class="stats"><span><b>${people}</b>${people===1?"persona":"personas"}</span><span><b>${money(paid)}</b>cobrado</span></div>
+      </section>`;
+    if (!ready) return h + `<p class="hint">Cargando tus deudas…</p>`;
+    if (!debts.length) return h + `<div class="empty stg" style="--i:${i++}">
+        <h3>Nadie te debe nada todavía</h3>
+        <p>Toca el botón + de abajo para apuntar a quién le prestaste dinero y cuánto.</p>
+        <div class="btnrow"><button type="button" class="btn" data-act="newdebt">Apuntar una deuda</button>
+        <button type="button" class="btn ghost" data-act="exdebts">Ver un ejemplo</button></div></div>`;
+    const fl = S.hideDone ? FILTERS.filter(f=>f[0]!=="done") : FILTERS;
+    if (S.hideDone && filter==="done") filter = "open";
+    h += `<section class="tools stg" style="--i:${i++}">
+      <input class="search" id="q" type="search" placeholder="Buscar" aria-label="Buscar por nombre o concepto" value="${esc(query)}" autocomplete="off">
+      <div class="seg" role="group" aria-label="Filtrar">${fl.map(([k,l,fn])=>`<button type="button" data-f="${k}" aria-pressed="${filter===k}">${l}<span class="c">${debts.filter(fn).filter(d=>!(S.hideDone && k==="all" && statusOf(d).key==="done")).length}</span></button>`).join("")}</div>
+    </section>
+    <section class="glist stg" style="--i:${i++}" id="dlist" aria-live="polite">${debtRows()}</section>`;
+    return h;
+  }
+  function debtRows(){
+    const fn = (FILTERS.find(f=>f[0]===filter)||FILTERS[0])[2];
+    const q = query.trim().toLowerCase();
+    const rank = {late:0,soon:1,pend:2,done:3};
+    const sorters = {
+      urgencia:(a,b)=>rank[statusOf(a).key]-rank[statusOf(b).key] || (a.dueOn||"9999").localeCompare(b.dueOn||"9999") || (a.name||"").localeCompare(b.name||""),
+      importe:(a,b)=>restOf(b)-restOf(a) || totalOf(b)-totalOf(a),
+      nombre:(a,b)=>(a.name||"").localeCompare(b.name||"","es"),
+      reciente:(a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")
+    };
+    const rows = debts.filter(fn).filter(d=>!(S.hideDone && filter==="all" && statusOf(d).key==="done"))
+      .filter(d=>!q || (d.name+" "+(d.concept||"")).toLowerCase().includes(q))
+      .sort(sorters[S.sort]||sorters.urgencia);
+    return rows.length ? rows.map(rowDebt).join("") : `<div class="row"><span class="sub">No hay deudas que coincidan.</span></div>`;
+  }
+  function rowDebt(d){
+    const st = statusOf(d), t = totalOf(d), pct = t ? Math.min(100,paidOf(d)/t*100) : 0;
+    return `<button type="button" class="row" data-open="debt:${esc(d.id)}">
+      ${avatar(d.name)}
+      <div class="main"><div class="name">${esc(d.name)}</div><div class="sub">${esc(d.concept||"Sin concepto")}</div></div>
+      <div class="side"><span class="amt">${money(st.key==="done"?t:restOf(d))}</span><span class="meta ${st.key}">${esc(st.label)}</span></div>
+      ${pct>0 && pct<100 ? `<span class="prog" aria-hidden="true"><i style="width:${pct.toFixed(1)}%"></i></span>`:""}
+    </button>`;
+  }
+
+  function viewSplit(){
+    let toMe = 0, iOwe = 0;
+    const calcs = groups.map(g=>({g, c:groupCalc(g)}));
+    calcs.forEach(({c})=>{ const v = c.net[ME]||0; if (v>0) toMe+=v; else iOwe-=v; });
+    let i = 0;
+    let h = `<section class="summary stg" style="--i:${i++}" aria-label="Resumen de grupos">
+        <div class="lbl">Te deben en tus grupos</div>
+        <div class="big" data-count="${r2(toMe)}" data-key="gtotal">${money(toMe)}</div>
+        <div class="stats"><span><b>${money(iOwe)}</b>debes tú</span><span><b>${groups.length}</b>${groups.length===1?"grupo":"grupos"}</span></div>
+      </section>
+      <button type="button" class="quick press stg" style="--i:${i++}" data-act="quick">
+        <span class="qi">${ICON.split}</span>
+        <span style="flex:1;min-width:0"><b>Dividir una cuenta</b><span>Pagaste tú y quieres que cada uno te devuelva su parte.</span></span>
+        <span class="chev" style="color:inherit;opacity:.7">${ICON.chev}</span>
+      </button>`;
+    if (!ready) return h + `<p class="hint">Cargando tus grupos…</p>`;
+    if (!groups.length) return h + `<div class="empty stg" style="--i:${i++}">
+      <h3>Grupos para gastos que se repiten</h3>
+      <p>Para un viaje o el piso compartido, crea un grupo. Apuntas cada gasto con quién pagó y la app calcula quién debe a quién.</p>
+      <div class="btnrow"><button type="button" class="btn ghost" data-act="newgroup">Crear un grupo</button>
+      <button type="button" class="linkbtn" data-act="exgroups">Ver un ejemplo</button></div></div>`;
+    const sorted = calcs.slice().sort((a,b)=>(b.g.createdAt||"").localeCompare(a.g.createdAt||""));
+    h += `<p class="sec-t stg" style="--i:${i++}">Grupos</p><section class="glist stg" style="--i:${i++}">` + sorted.map(({g,c})=>{
+      const v = r2(c.net[ME]||0);
+      return `<button type="button" class="row" data-open="group:${esc(g.id)}">
+        <span class="av sq" style="--h:${hue(g.name)}" aria-hidden="true">${esc(initials(g.name))}</span>
+        <div class="main"><div class="name">${esc(g.name)}</div><div class="sub">${plural(g.members.length,"persona","personas")} · ${money(c.total)}</div></div>
+        <div class="side"><span class="amt ${v>0?"pos":v<0?"neg":"zero"}">${v===0?"En paz":(v>0?"+":"−")+money(Math.abs(v))}</span><span class="meta">${v>0?"te deben":v<0?"debes":""}</span></div>
+        <span class="chev">${ICON.chev}</span>
+      </button>`;
+    }).join("") + `</section>
+      <div class="stg" style="--i:${i++}"><button type="button" class="btn ghost wide" data-act="newgroup">Nuevo grupo</button></div>`;
+    return h;
+  }
+
+  // ---------- hoja ----------
+  let sheetRef = null, dirty = false, closeT = null;
+  const shade = $("#shade"), sheet = $("#sheet");
+  function openSheet(html, ref, opts){
+    opts = opts || {};
+    const wasOpen = !shade.hidden && shade.classList.contains("open");
+    const same = wasOpen && ref && sheetRef === ref;
+    const st = sheet.scrollTop;
+    clearTimeout(closeT);
+    sheetRef = ref || null; dirty = false;
+    const cls = !wasOpen || same || reduced ? "" : (opts.back ? "back" : "swap");
+    sheet.innerHTML = `<div class="grab" aria-hidden="true"></div><div class="sc ${cls}">` + html + `</div>`;
+    if (!wasOpen){
+      shade.hidden = false; sheet.style.transform = ""; document.body.style.overflow = "hidden";
+      void sheet.offsetWidth; shade.classList.add("open");
+    }
+    sheet.scrollTop = same ? st : 0;
+    placeSegs(sheet);
+    if (opts.focus){ const f = sheet.querySelector(opts.focus===true ? "input" : opts.focus); if (f) setTimeout(()=>f.focus({preventScroll:true}), wasOpen ? 60 : 380); }
+  }
+  function closeSheet(){
+    shade.classList.remove("open"); sheet.style.transform = "";
+    sheetRef = null; dirty = false; document.body.style.overflow = "";
+    if (document.activeElement && sheet.contains(document.activeElement)) document.activeElement.blur();
+    clearTimeout(closeT);
+    closeT = setTimeout(()=>{ shade.hidden = true; sheet.innerHTML = ""; }, reduced ? 0 : 420);
+  }
+  shade.addEventListener("click", e=>{ if (e.target===shade) closeSheet(); });
+  document.addEventListener("keydown", e=>{ if (e.key==="Escape" && !shade.hidden) closeSheet(); });
+  sheet.addEventListener("input", ()=>{ dirty = true; });
+  // arrastrar hacia abajo para cerrar
+  let dragY = null, dragDy = 0;
+  sheet.addEventListener("touchstart", e=>{ if (sheet.scrollTop > 0 || e.target.closest("input,textarea,select")) { dragY = null; return; } dragY = e.touches[0].clientY; dragDy = 0; }, {passive:true});
+  sheet.addEventListener("touchmove", e=>{
+    if (dragY===null) return;
+    dragDy = e.touches[0].clientY - dragY;
+    if (dragDy <= 0 || sheet.scrollTop > 0){ dragY = null; sheet.style.transition=""; sheet.style.transform=""; return; }
+    sheet.style.transition = "none"; sheet.style.transform = `translateY(${dragDy}px)`;
+  }, {passive:true});
+  sheet.addEventListener("touchend", ()=>{
+    if (dragY===null) return; dragY = null; sheet.style.transition = "";
+    if (dragDy > 110) closeSheet(); else sheet.style.transform = "";
+  });
+
+  const head = (title, opt) => { opt = opt||{};
+    return `<div class="sheet-head">${opt.back?`<button type="button" class="x press" data-open="${esc(opt.back)}" data-back="1" aria-label="Volver">${ICON.back}</button>`:""}
+      <div class="t">${opt.av||""}<h2>${esc(title)}</h2></div>
+      <button type="button" class="x press" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>`; };
+  function openRef(ref, refreshOnly, back){
+    const [k,id] = ref.split(":");
+    if (k==="debt") showDebt(id, undefined, back);
+    else if (k==="group") showGroup(id, back);
+    else if (k==="settings") showSettings(back);
+    else if (k==="quick" && !refreshOnly) quickSplit();
+  }
+
+  // --- menú de añadir ---
+  function addChooser(){
+    const open = debts.filter(d=>statusOf(d).key!=="done");
+    openSheet(head("Añadir") + `
+      <div class="picker">
+        <button type="button" class="pick" data-act="newdebt"><span class="pi">${ICON.person}</span><b>Le presté dinero</b><span>Apunta una deuda nueva.</span></button>
+        <button type="button" class="pick" data-act="moredebt" ${debts.length?"":"disabled"}><span class="pi">${ICON.plus}</span><b>Le presté más</b><span>Suma a una deuda que ya existe.</span></button>
+        <button type="button" class="pick" data-act="paypick" ${open.length?"":"disabled"}><span class="pi">${ICON.coin}</span><b>Me ha pagado</b><span>Apunta lo que te devolvió.</span></button>
+        <button type="button" class="pick" data-act="quick"><span class="pi">${ICON.split}</span><b>Dividir una cuenta</b><span>Pagaste tú por varios.</span></button>
+      </div>`, "add");
+  }
+  function pickDebt(purpose){
+    const list = debts.filter(d=> purpose==="pay" ? statusOf(d).key!=="done" : true).sort((a,b)=>(a.name||"").localeCompare(b.name||"","es"));
+    openSheet(head(purpose==="pay" ? "¿Quién te ha pagado?" : "¿A quién le prestas más?", {back:"add"}) + `
+      <div class="glist">${list.map(d=>`<button type="button" class="row" data-pick="${esc(d.id)}" data-purpose="${purpose}">${avatar(d.name)}<div class="main"><div class="name">${esc(d.name)}</div><div class="sub">${esc(d.concept||"Sin concepto")}</div></div><div class="side"><span class="amt">${money(restOf(d))}</span><span class="meta">falta</span></div></button>`).join("")}</div>
+      ${purpose==="more"?`<button type="button" class="linkbtn" data-act="newdebt" style="align-self:flex-start">No está en la lista: crear una deuda nueva</button>`:""}`, "pick:"+purpose);
+  }
+
+  // --- deuda: formulario ---
+  function debtForm(d){
+    const isNew = !d; d = d || {lentOn: todayISO(), dueOn: S.defaultDue ? addDays(S.defaultDue) : ""};
+    const sugg = isNew ? knownPeople() : [];
+    openSheet(head(isNew?"Nueva deuda":"Editar deuda", isNew?{back:"add"}:{back:"debt:"+d.id}) + `
+      <form id="debtForm" novalidate>
+        <div class="amountbox"><span class="q">${isNew?"¿Cuánto le prestaste?":"Importe inicial"}</span>
+          <input class="amount-in" id="fAmount" inputmode="decimal" autocomplete="off" value="${d.amount!=null?String(d.amount).replace(".",","):""}" placeholder="0" aria-label="Importe">
+          <span class="cur">${esc(curSym)}</span></div>
+        ${!isNew && (d.extras||[]).length ? `<p class="hint" style="text-align:center">Después le prestaste ${money(extrasOf(d))} más. Eso se cambia en Movimientos.</p>`:""}
+        <label>¿A quién?<input id="fName" required autocomplete="off" value="${esc(d.name||"")}" placeholder="Nombre"></label>
+        ${sugg.length?`<div class="chips" id="fSugg">${sugg.map(n=>`<button type="button" class="chip plain" data-fillname="${esc(n)}">${esc(n)}</button>`).join("")}</div>`:""}
+        <div id="fMatch"></div>
+        <label>¿Para qué?<input id="fConcept" value="${esc(d.concept||"")}" placeholder="Ej. entradas del concierto" autocomplete="off"></label>
+        <div class="grid2">
+          <label>Fecha<input id="fLent" type="date" value="${esc(d.lentOn||"")}"></label>
+          <label>Devolver antes del<input id="fDue" type="date" value="${esc(d.dueOn||"")}"></label>
+        </div>
+        <label>Teléfono (opcional)<input id="fPhone" inputmode="tel" autocomplete="off" value="${esc(d.phone||"")}"></label>
+        <label>Notas<textarea id="fNotes" placeholder="Acuerdos, cómo te lo va a pagar…">${esc(d.notes||"")}</textarea></label>
+        <p class="err" id="fErr" hidden></p>
+        <button class="btn wide" type="submit">${isNew?"Guardar deuda":"Guardar cambios"}</button>
+      </form>`, isNew ? "newdebt" : "editdebt:"+d.id, {focus: isNew ? "#fAmount" : null});
+    const check = () => {
+      if (!isNew) return;
+      const n = norm($("#fName").value), box = $("#fMatch");
+      const m = n && debts.find(x=>norm(x.name)===n && statusOf(x).key!=="done");
+      box.innerHTML = m ? `<div class="notice"><span><b>${esc(m.name)}</b> ya te debe ${money(restOf(m))}${m.concept?" por "+esc(m.concept):""}. ¿Lo sumas a esa deuda?</span>
+        <button type="button" class="btn small" data-mergeinto="${esc(m.id)}">Sumar a su deuda</button></div>` : "";
+    };
+    $("#fName").addEventListener("input", check);
+    const sg = $("#fSugg"); if (sg) sg.addEventListener("click", e=>{ const b = e.target.closest("[data-fillname]"); if (!b) return; $("#fName").value = b.dataset.fillname; dirty = true; check(); });
+    $("#debtForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const name = $("#fName").value.trim(), amount = parseAmount($("#fAmount").value), err = $("#fErr");
+      if (!(amount>0)){ err.textContent="Escribe cuánto le prestaste, por ejemplo 150 o 49,90."; err.hidden=false; $("#fAmount").focus(); return; }
+      if (!name){ err.textContent="Escribe el nombre de quien te debe."; err.hidden=false; $("#fName").focus(); return; }
+      const next = Object.assign({}, d, { id: d.id || uid("d"), name, amount,
+        concept: $("#fConcept").value.trim(), lentOn: $("#fLent").value, dueOn: $("#fDue").value,
+        phone: $("#fPhone").value.trim(), notes: $("#fNotes").value.trim(),
+        payments: d.payments || [], extras: d.extras || [], createdAt: d.createdAt || new Date().toISOString() });
+      if (!isNew) delete next.example;
+      if (restOf(next) > 0) delete next.settledAt;
+      try { await save("debts", next); } catch(_){ return; }
+      toast(isNew ? "Deuda guardada" : "Cambios guardados");
+      showDebt(next.id);
+    });
+  }
+
+  function reminderText(d){
+    const vars = {
+      nombre: clean(d.name),
+      concepto: d.concept ? d.concept.charAt(0).toLowerCase() + d.concept.slice(1) : "aquel dinero",
+      falta: money(restOf(d)), total: money(totalOf(d)), pagado: money(paidOf(d)),
+      fecha: d.dueOn ? fmtDate(d.dueOn) : "cuando puedas", firma: S.myName ? "— " + S.myName : ""
+    };
+    return (S.template || DEFAULT_TPL).replace(/\{(\w+)\}/g, (m,k)=> k in vars ? vars[k] : m).replace(/[ \t]+$/gm,"").trim();
+  }
+
+  // --- deuda: detalle ---
+  function showDebt(id, focus, back){
+    const d = debts.find(x=>x.id===id);
+    if (!d){ if (sheetRef==="debt:"+id) closeSheet(); return; }
+    const st = statusOf(d);
+    const moreMode = focus==="more" || st.key==="done";
+    const g = d.fromGroup ? groups.find(x=>x.id===d.fromGroup) : null;
+    const mv = [
+      ...(d.extras||[]).map(x=>({k:"out", id:x.id, amount:x.amount, date:x.date, note:x.note})),
+      ...(d.payments||[]).map(p=>({k:"in", id:p.id, amount:p.amount, date:p.date, note:p.note}))
+    ].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    mv.push({k:"start", amount:d.amount, date:d.lentOn});
+    const pct = totalOf(d) ? Math.min(100,paidOf(d)/totalOf(d)*100) : 0;
+    openSheet(head(d.name, {av:avatar(d.name,"sm")}) + `
+      <div class="hero-d">
+        <span class="lbl">${st.key==="done" ? "Deuda saldada" : "Te debe"}</span>
+        <span class="big">${money(st.key==="done" ? totalOf(d) : restOf(d))}</span>
+        <span class="lbl" style="color:${st.key==="late"?"var(--bad)":st.key==="soon"?"var(--warn)":st.key==="done"?"var(--ok)":"var(--muted)"}">${esc(d.concept||"Sin concepto")} · ${esc(st.label)}</span>
+        <div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div>
+      </div>
+      <div class="kv"><div><div class="k">Prestado</div><div class="v">${money(totalOf(d))}</div></div><div><div class="k">Devuelto</div><div class="v" style="color:var(--ok)">${money(paidOf(d))}</div></div><div><div class="k">Falta</div><div class="v">${money(restOf(d))}</div></div></div>
+
+      <div class="card">
+        <div class="seg" role="group" aria-label="Qué apuntar">
+          <button type="button" data-mode="pay" aria-pressed="${!moreMode}" ${st.key==="done"?"disabled":""}>Me ha pagado</button>
+          <button type="button" data-mode="more" aria-pressed="${moreMode}">Le presto más</button>
+        </div>
+        <form id="payForm" novalidate ${moreMode?"hidden":""}>
+          <div class="grid2">
+            <label>Cuánto<input id="pAmt" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+            <label>Cuándo<input id="pDate" type="date" value="${todayISO()}"></label>
+          </div>
+          <p class="err" id="pErr" hidden></p>
+          <div class="grid2"><button class="btn" type="submit">Apuntar pago</button>
+          <button type="button" class="btn soft" data-act="payall">Lo pagó todo</button></div>
+        </form>
+        <form id="moreForm" novalidate ${moreMode?"":"hidden"}>
+          <div class="grid2">
+            <label>Cuánto más<input id="mAmt" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+            <label>Cuándo<input id="mDate" type="date" value="${todayISO()}"></label>
+          </div>
+          <label>Para qué (opcional)<input id="mNote" autocomplete="off" placeholder="Ej. segunda parte del alquiler"></label>
+          <label>Devolver antes del<input id="mDue" type="date" value="${esc(d.dueOn||"")}"></label>
+          <p class="err" id="mErr" hidden></p>
+          <button class="btn wide" type="submit">Sumar a la deuda</button>
+        </form>
+      </div>
+
+      ${st.key!=="done"?`<div class="card">
+        <p class="step-t">Recordárselo</p>
+        <div class="msg" id="msg">${esc(reminderText(d))}</div>
+        <div class="grid2"><button type="button" class="btn soft" data-act="copy">Copiar mensaje</button><button type="button" class="btn ghost" data-act="settings">Cambiar texto</button></div>
+      </div>`:""}
+
+      <div class="card">
+        <p class="step-t">Movimientos</p>
+        <ul class="lines">${mv.map(x=>`<li><div class="l"><span class="mv ${x.k}" aria-hidden="true">${x.k==="in"?"−":x.k==="out"?"+":"·"}</span><div>
+          <div class="t1">${x.k==="in"?"Te pagó":x.k==="out"?"Le prestaste más":"Préstamo"}${x.note && x.k!=="start"?` <span style="color:var(--muted);font-weight:400">· ${esc(x.note)}</span>`:""}</div>
+          <div class="d">${x.date?fmtDate(x.date):"Sin fecha"}</div></div></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end"><span class="a" style="color:${x.k==="in"?"var(--ok)":x.k==="out"?"var(--warn)":"var(--ink)"}">${x.k==="in"?"− ":"+ "}${money(x.amount)}</span>
+          ${x.k!=="start"?`<button type="button" class="rm" data-rmmv="${x.k}:${esc(x.id)}">Quitar</button>`:""}</div></li>`).join("")}</ul>
+      </div>
+
+      <div class="info">
+        ${d.phone?`<span>Teléfono <b style="user-select:all;-webkit-user-select:all">${esc(d.phone)}</b></span>`:""}
+        ${d.lentOn?`<span>Prestado el <b>${fmtDate(d.lentOn)}</b></span>`:""}
+        ${g?`<span>Viene del grupo <b>${esc(g.name)}</b></span>`:""}
+        ${d.notes?`<span style="white-space:pre-wrap">${esc(d.notes)}</span>`:""}
+      </div>
+      <div class="grid2">
+        <button type="button" class="btn ghost" data-act="editdebt">Editar</button>
+        <button type="button" class="btn ghost" data-act="askdel" style="color:var(--bad)">Borrar</button>
+      </div>
+      <div id="confirmBox"></div>`, "debt:"+id, {back});
+    sheet.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click", ()=>{
+      const more = b.dataset.mode==="more"; moveSeg(b);
+      $("#payForm").hidden = more; $("#moreForm").hidden = !more;
+      const f = $(more?"#mAmt":"#pAmt"); if (f) f.focus({preventScroll:true});
+    }));
+    $("#payForm").addEventListener("submit", e=>{ e.preventDefault(); addPayment(d, parseAmount($("#pAmt").value), $("#pDate").value); });
+    $("#moreForm").addEventListener("submit", e=>{ e.preventDefault(); addExtra(d, parseAmount($("#mAmt").value), $("#mDate").value, $("#mNote").value.trim(), $("#mDue").value, $("#mErr")); });
+    if (focus==="more") setTimeout(()=>{ const f=$("#mAmt"); if (f) f.focus({preventScroll:true}); }, 400);
+  }
+
+  async function addPayment(d, amt, date){
+    const err = $("#pErr");
+    if (!(amt>0)){ err.textContent="Escribe cuánto te ha devuelto, por ejemplo 50."; err.hidden=false; return; }
+    const rest = restOf(d);
+    if (amt > rest + 0.001){ err.textContent=`El pago supera lo que falta (${money(rest)}).`; err.hidden=false; return; }
+    const next = Object.assign({}, d, {payments:[...(d.payments||[]), {id:uid("p"), amount:amt, date:date||todayISO()}]});
+    if (restOf(next) <= 0) next.settledAt = new Date().toISOString();
+    try { await save("debts", next); } catch(_){ return; }
+    toast(restOf(next)<=0 ? `${clean(d.name)} ha saldado la deuda` : `Pago de ${money(amt)} apuntado`);
+    showDebt(d.id);
+  }
+  async function addExtra(d, amt, date, note, due, err){
+    if (!(amt>0)){ if (err){ err.textContent="Escribe cuánto le prestas, por ejemplo 100."; err.hidden=false; } return; }
+    const next = Object.assign({}, d, {extras:[...(d.extras||[]), {id:uid("x"), amount:amt, date:date||todayISO(), note:note||""}]});
+    if (due !== undefined) next.dueOn = due;
+    delete next.settledAt;
+    try { await save("debts", next); } catch(_){ return; }
+    toast(`Sumados ${money(amt)}. Ahora te debe ${money(restOf(next))}`);
+    showDebt(d.id);
+  }
+
+  // ---------- editor de reparto (compartido) ----------
+  // st = {amount, payer, among:Set, mode, exact:{}, members:[{id,name}]}
+  function splitEditorHTML(st, opts){
+    return `
+      ${opts.showPayer ? `<div class="card"><p class="step-t">¿Quién pagó?</p><div class="chips" id="sePayer"></div></div>` : ""}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <p class="step-t">¿Entre quiénes?</p>
+          <button type="button" class="linkbtn" id="seAll">Todos</button>
+        </div>
+        <div class="chips" id="seAmong"></div>
+        ${opts.addPeople ? `<div class="addperson"><input id="seNew" autocomplete="off" placeholder="Añadir persona" aria-label="Nombre de la persona"><button type="button" class="btn ghost" id="seAdd">Añadir</button></div><div class="chips" id="seSugg"></div>` : ""}
+      </div>
+      <div class="card">
+        <div class="seg" role="group" aria-label="Cómo repartir">
+          <button type="button" data-semode="equal" aria-pressed="${st.mode==="equal"}">A partes iguales</button>
+          <button type="button" data-semode="exact" aria-pressed="${st.mode==="exact"}">Cada uno distinto</button>
+        </div>
+        <div class="result" id="seResult"></div>
+        <div id="seBalance"></div>
+      </div>`;
+  }
+  function mountSplitEditor(st, opts){
+    const nm = id => id===ME ? "Yo" : (st.members.find(m=>m.id===id)||{name:"?"}).name;
+    const ids = () => st.members.map(m=>m.id).filter(id=>st.among.has(id));
+    const chip = (m, pressed, attr) => `<button type="button" class="chip" ${attr}="${esc(m.id)}" aria-pressed="${pressed}">${avatar(m.name==="Yo"?"Yo":m.name)}${esc(m.id===ME?"Yo":m.name)}<span class="tick">${ICON.tick}</span></button>`;
+    const drawPeople = () => {
+      if (opts.showPayer) $("#sePayer").innerHTML = st.members.map(m=>chip(m, st.payer===m.id, "data-payer")).join("");
+      $("#seAmong").innerHTML = st.members.map(m=>chip(m, st.among.has(m.id), "data-among")).join("");
+      $("#seAll").textContent = ids().length===st.members.length ? "Ninguno" : "Todos";
+      if (opts.addPeople){
+        const s = knownPeople(st.members.map(m=>m.name));
+        $("#seSugg").innerHTML = s.map(n=>`<button type="button" class="chip sugg" data-sugg="${esc(n)}">+ ${esc(n)}</button>`).join("");
+      }
+    };
+    const drawResult = () => {
+      const list = ids();
+      const box = $("#seResult");
+      if (!list.length){ box.innerHTML = `<p class="hint" style="padding-top:10px">Elige al menos a una persona.</p>`; $("#seBalance").innerHTML=""; return; }
+      if (st.mode==="exact"){
+        box.innerHTML = list.map(id=>`<div class="r">${avatar(nm(id),"sm")}<span class="n">${esc(nm(id))}</span><input inputmode="decimal" data-exact="${esc(id)}" value="${esc(st.exact[id]||"")}" placeholder="0,00" aria-label="Parte de ${esc(nm(id))}"></div>`).join("");
+      }
+      drawNumbers();
+    };
+    const drawNumbers = () => {
+      const list = ids(), cents = Math.round((st.amount||0)*100);
+      const res = splitCents(cents, list, st.mode, st.exact);
+      if (st.mode==="equal" && list.length){
+        $("#seResult").innerHTML = list.map(id=>{
+          const v = res.shares[id]/100;
+          const owe = opts.owesLabel ? opts.owesLabel(id, v, st) : "";
+          return `<div class="r">${avatar(nm(id),"sm")}<span class="n">${esc(nm(id))}${owe?`<small>${owe}</small>`:""}</span><span class="v">${money(v)}</span></div>`;
+        }).join("");
+      }
+      const bal = $("#seBalance");
+      if (!cents){ bal.innerHTML = `<div class="balance-line">Escribe el importe arriba para ver cuánto le toca a cada uno.</div>`; return; }
+      if (st.mode==="exact"){
+        const d = res.diff/100;
+        bal.innerHTML = Math.abs(d)<0.005 ? `<div class="balance-line ok">Cuadra: suma ${money(st.amount)}.</div>`
+          : d>0 ? `<div class="balance-line">Falta repartir ${money(d)}.</div>` : `<div class="balance-line bad">Te pasas en ${money(-d)}.</div>`;
+      } else bal.innerHTML = `<div class="balance-line">${plural(list.length,"persona","personas")} · ${money(st.amount/list.length)} cada una</div>`;
+      if (opts.onChange) opts.onChange(res);
+    };
+    st.redraw = () => { drawPeople(); drawResult(); };
+    st.refreshNumbers = drawNumbers;
+    st.valid = () => { const list = ids(), cents = Math.round((st.amount||0)*100); if (!(cents>0)) return "Escribe el importe."; if (!list.length) return "Elige al menos a una persona."; if (st.mode==="exact" && splitCents(cents, list, "exact", st.exact).diff !== 0) return "Las partes tienen que sumar el total."; return ""; };
+    st.shares = () => { const list = ids(); const r = splitCents(Math.round((st.amount||0)*100), list, st.mode, st.exact); return Object.fromEntries(list.map(id=>[id, r.shares[id]/100])); };
+
+    const root = sheet.querySelector(".sc");
+    root.addEventListener("click", e=>{
+      const b = e.target.closest("button"); if (!b || !root.contains(b)) return;
+      if (b.dataset.payer){ st.payer = b.dataset.payer; drawPeople(); drawNumbers(); dirty = true; }
+      else if (b.dataset.among){ const k=b.dataset.among; st.among.has(k) ? st.among.delete(k) : st.among.add(k); drawPeople(); drawResult(); dirty = true; }
+      else if (b.id==="seAll"){ if (ids().length===st.members.length) st.among.clear(); else st.members.forEach(m=>st.among.add(m.id)); drawPeople(); drawResult(); dirty = true; }
+      else if (b.dataset.semode){ st.mode = b.dataset.semode; moveSeg(b); drawResult(); dirty = true; }
+      else if (b.dataset.sugg){ addPerson(b.dataset.sugg); }
+      else if (b.id==="seAdd"){ const i=$("#seNew"); addPerson(i.value); i.value=""; i.focus(); }
+    });
+    root.addEventListener("input", e=>{
+      if (e.target.dataset && e.target.dataset.exact){ st.exact[e.target.dataset.exact] = e.target.value; drawNumbers(); }
+    });
+    const addPerson = name => {
+      name = String(name||"").trim(); if (!name) return;
+      if (st.members.some(m=>norm(m.name)===norm(name)) || norm(name)==="yo"){ toast(name+" ya está en la lista"); return; }
+      const m = {id:uid("m"), name}; st.members.push(m); st.among.add(m.id); drawPeople(); drawResult(); dirty = true;
+    };
+    if (opts.addPeople) $("#seNew").addEventListener("keydown", e=>{ if (e.key==="Enter"){ e.preventDefault(); addPerson(e.target.value); e.target.value=""; } });
+    st.redraw();
+  }
+
+  // --- dividir una cuenta (reparto rápido) ---
+  function quickSplit(){
+    const st = {amount:0, payer:ME, among:new Set([ME]), mode:"equal", exact:{}, members:[{id:ME,name:"Yo"}]};
+    openSheet(head("Dividir una cuenta", {back: sheetRef==="add" ? "add" : null}) + `
+      <div class="amountbox"><span class="q">¿Cuánto pagaste?</span>
+        <input class="amount-in" id="qAmt" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Importe total">
+        <span class="cur">${esc(curSym)}</span></div>
+      <label>¿De qué era?<input id="qConcept" autocomplete="off" placeholder="Ej. cena del viernes"></label>
+      ${splitEditorHTML(st, {addPeople:true})}
+      <p class="err" id="qErr" hidden></p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button type="button" class="btn wide" id="qSave" disabled>Apuntar en Me deben</button>
+        <button type="button" class="linkbtn" id="qGroup" style="align-self:center">Guardar como grupo para seguir añadiendo gastos</button>
+      </div>`, "quick", {focus:"#qAmt"});
+    const btn = $("#qSave");
+    const others = () => [...st.among].filter(id=>id!==ME);
+    const update = () => {
+      const n = others().length;
+      btn.disabled = !!st.valid() || !n;
+      btn.textContent = n ? `Apuntar ${n===1?"1 deuda":n+" deudas"} en Me deben` : "Añade a quien te debe";
+    };
+    mountSplitEditor(st, {addPeople:true, owesLabel:(id)=> id===ME ? "tu parte" : "te debe", onChange:update});
+    $("#qAmt").addEventListener("input", e=>{ st.amount = parseAmount(e.target.value)||0; st.refreshNumbers(); update(); });
+    update();
+    btn.addEventListener("click", async ()=>{
+      const v = st.valid(); if (v){ const err=$("#qErr"); err.textContent=v; err.hidden=false; return; }
+      const concept = $("#qConcept").value.trim() || "Cuenta compartida";
+      const shares = st.shares(); let n = 0;
+      btn.disabled = true;
+      for (const id of others()){
+        const amt = shares[id]; if (!(amt>0)) continue;
+        const name = st.members.find(m=>m.id===id).name;
+        const existing = debts.find(x=>norm(x.name)===norm(name) && statusOf(x).key!=="done");
+        try {
+          if (existing) await save("debts", Object.assign({}, existing, {extras:[...(existing.extras||[]), {id:uid("x"), amount:amt, date:todayISO(), note:concept}]}), true);
+          else await save("debts", {id:uid("d"), name, amount:amt, concept, lentOn:todayISO(), dueOn: S.defaultDue ? addDays(S.defaultDue) : "", phone:"", notes:"", payments:[], extras:[], createdAt:new Date().toISOString()}, true);
+          n++;
+        } catch(_){ btn.disabled = false; return; }
+      }
+      closeSheet(); tab = "debts"; animateNext = true; render();
+      toast(n===1 ? "1 deuda apuntada" : `${n} deudas apuntadas`);
+    });
+    $("#qGroup").addEventListener("click", async ()=>{
+      const v = st.valid(); if (v){ const err=$("#qErr"); err.textContent=v; err.hidden=false; return; }
+      const concept = $("#qConcept").value.trim() || "Cuenta compartida";
+      const list = [...st.among];
+      const g = {id:uid("g"), name:concept, createdAt:new Date().toISOString(), members: st.members.map(m=>({id:m.id,name:m.name})),
+        expenses:[{id:uid("e"), concept, amount:st.amount, paidBy:ME, among:list, split:st.mode, shares: st.mode==="exact" ? st.shares() : undefined, date:todayISO()}]};
+      if (!g.expenses[0].shares) delete g.expenses[0].shares;
+      try { await save("groups", g); } catch(_){ return; }
+      tab = "split"; render(); toast("Grupo creado"); showGroup(g.id);
+    });
+  }
+
+  // --- grupo: formulario ---
+  function groupForm(g){
+    const isNew = !g;
+    let members = g ? g.members.map(m=>Object.assign({},m)) : [{id:ME,name:"Yo"}];
+    const used = id => g && (g.expenses||[]).some(e=>e.paidBy===id || e.from===id || e.to===id || (e.among||[]).includes(id));
+    const draw = () => {
+      $("#gMembers").innerHTML = members.map(m=>`<span class="chip" aria-pressed="true">${avatar(m.name)}${esc(m.name)}${m.id===ME?"":(used(m.id)?"":`<button type="button" class="rm" data-rmmember="${esc(m.id)}" aria-label="Quitar a ${esc(m.name)}" style="padding:0 0 0 2px;min-height:0">✕</button>`)}</span>`).join("");
+      const s = knownPeople(members.map(m=>m.name));
+      $("#gSugg").innerHTML = s.map(n=>`<button type="button" class="chip sugg" data-gsugg="${esc(n)}">+ ${esc(n)}</button>`).join("");
+    };
+    openSheet(head(isNew?"Nuevo grupo":"Editar grupo", g?{back:"group:"+g.id}:{back: sheetRef==="add"?"add":null}) + `
+      <form id="groupForm" novalidate>
+        <label>Nombre<input id="gName" autocomplete="off" value="${esc(g?g.name:"")}" placeholder="Ej. Viaje a Valencia"></label>
+        <div class="card">
+          <p class="step-t">¿Quiénes participan?</p>
+          <div class="chips" id="gMembers"></div>
+          <div class="addperson"><input id="gNew" autocomplete="off" placeholder="Añadir persona" aria-label="Nombre de la persona"><button type="button" class="btn ghost" id="gAdd">Añadir</button></div>
+          <div class="chips" id="gSugg"></div>
+        </div>
+        <p class="err" id="gErr" hidden></p>
+        <button class="btn wide" type="submit">${isNew?"Crear grupo":"Guardar"}</button>
+      </form>`, isNew ? "newgroup" : "editgroup:"+g.id, {focus: isNew ? "#gName" : null});
+    draw();
+    const addMember = n => {
+      n = String(n||"").trim(); if (!n) return;
+      if (members.some(m=>norm(m.name)===norm(n)) || norm(n)==="yo"){ $("#gErr").textContent = n+" ya está en el grupo."; $("#gErr").hidden=false; return; }
+      members.push({id:uid("m"), name:n}); $("#gErr").hidden=true; dirty = true; draw();
+    };
+    $("#gNew").addEventListener("keydown", e=>{ if (e.key==="Enter"){ e.preventDefault(); addMember(e.target.value); e.target.value=""; } });
+    $("#gAdd").addEventListener("click", ()=>{ const i=$("#gNew"); addMember(i.value); i.value=""; i.focus(); });
+    sheet.querySelector("form").addEventListener("click", e=>{
+      const r = e.target.closest("[data-rmmember]"); if (r){ members = members.filter(m=>m.id!==r.dataset.rmmember); draw(); return; }
+      const s = e.target.closest("[data-gsugg]"); if (s) addMember(s.dataset.gsugg);
+    });
+    $("#groupForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      if ($("#gNew").value.trim()){ addMember($("#gNew").value); $("#gNew").value=""; }
+      const name = $("#gName").value.trim(), err = $("#gErr");
+      if (!name){ err.textContent="Ponle un nombre al grupo."; err.hidden=false; return; }
+      if (members.length < 2){ err.textContent="Añade al menos a otra persona."; err.hidden=false; return; }
+      const next = Object.assign({}, g||{}, {id: g?g.id:uid("g"), name, members, expenses: g?g.expenses||[]:[], createdAt: g?g.createdAt:new Date().toISOString()});
+      if (!isNew) delete next.example;
+      try { await save("groups", next); } catch(_){ return; }
+      toast(isNew ? "Grupo creado" : "Grupo guardado");
+      if (isNew){ tab = "split"; render(); expenseForm(next.id); } else showGroup(next.id, true);
+    });
+  }
+
+  // --- grupo: gasto ---
+  function expenseForm(gid){
+    const g = groups.find(x=>x.id===gid); if (!g) return;
+    const st = {amount:0, payer:ME, among:new Set(g.members.map(m=>m.id)), mode:"equal", exact:{}, members:g.members.map(m=>({id:m.id,name:m.id===ME?"Yo":m.name}))};
+    openSheet(head("Nuevo gasto", {back:"group:"+gid}) + `
+      <div class="amountbox"><span class="q">¿Cuánto costó?</span>
+        <input class="amount-in" id="xAmt" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Importe">
+        <span class="cur">${esc(curSym)}</span></div>
+      <div class="grid2">
+        <label>¿Qué fue?<input id="xConcept" autocomplete="off" placeholder="Ej. supermercado"></label>
+        <label>Cuándo<input id="xDate" type="date" value="${todayISO()}"></label>
+      </div>
+      ${splitEditorHTML(st, {showPayer:true})}
+      <p class="err" id="xErr" hidden></p>
+      <button type="button" class="btn wide" id="xSave" disabled>Añadir gasto</button>`, "expense:"+gid, {focus:"#xAmt"});
+    const btn = $("#xSave");
+    mountSplitEditor(st, {showPayer:true, owesLabel:(id,v,s)=> id===s.payer ? "pagó" : "debe a " + (s.payer===ME ? "ti" : (s.members.find(m=>m.id===s.payer)||{}).name), onChange:()=>{ btn.disabled = !!st.valid(); }});
+    $("#xAmt").addEventListener("input", e=>{ st.amount = parseAmount(e.target.value)||0; st.refreshNumbers(); btn.disabled = !!st.valid(); });
+    btn.addEventListener("click", async ()=>{
+      const v = st.valid(); if (v){ const err=$("#xErr"); err.textContent=v; err.hidden=false; return; }
+      const list = [...st.among];
+      const exp = {id:uid("e"), concept:$("#xConcept").value.trim()||"Gasto", amount:st.amount, paidBy:st.payer, among:list, split:st.mode, date:$("#xDate").value||todayISO()};
+      if (st.mode==="exact") exp.shares = st.shares();
+      const cur = groups.find(x=>x.id===gid) || g;
+      try { await save("groups", Object.assign({}, cur, {expenses:[...(cur.expenses||[]), exp]})); } catch(_){ return; }
+      toast(`Gasto de ${money(st.amount)} añadido`); groupTab = "deben"; showGroup(gid, true);
+    });
+  }
+
+  // --- grupo: detalle ---
+  let groupTab = "deben";
+  function showGroup(id, back){
+    const g = groups.find(x=>x.id===id);
+    if (!g){ if (sheetRef==="group:"+id) closeSheet(); return; }
+    const c = groupCalc(g);
+    const nm = mid => mid===ME ? "Tú" : memberName(g, mid);
+    const mine = r2(c.net[ME]||0);
+    const items = (g.expenses||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    const settleHtml = c.settle.length ? c.settle.map(s=>{
+      const txt = s.from===ME ? `<b>Tú</b> le debes a <b>${esc(nm(s.to))}</b>` : s.to===ME ? `<b>${esc(nm(s.from))}</b> te debe` : `<b>${esc(nm(s.from))}</b> le debe a <b>${esc(nm(s.to))}</b>`;
+      const acts = s.to===ME
+        ? `<button type="button" class="btn small" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya me pagó</button><button type="button" class="btn small soft" data-tomedeben="${esc(s.from)}|${s.amount}">Pasar a Me deben</button>`
+        : `<button type="button" class="btn small ghost" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Marcar pagado</button>`;
+      return `<div class="settle"><div class="s1">${avatar(nm(s.from),"sm")}<span class="txt">${txt}</span><span class="v">${money(s.amount)}</span></div><div class="acts">${acts}</div></div>`;
+    }).join("") : `<p class="hint" style="padding:6px 0">${items.length ? "Todo cuadra. Nadie debe nada." : "Añade el primer gasto y aquí verás quién debe a quién."}</p>`;
+    const listHtml = items.length ? `<ul class="lines">${items.map(e=> e.type==="settle"
+      ? `<li><div class="l"><span class="mv in" aria-hidden="true">✓</span><div><div class="t1">${esc(nm(e.from))} pagó a ${esc(nm(e.to)==="Tú"?"ti":nm(e.to))}</div><div class="d">${fmtShort(e.date)}${e.note?" · "+esc(e.note):""}</div></div></div>
+         <div style="display:flex;flex-direction:column;align-items:flex-end"><span class="a" style="color:var(--ok)">${money(e.amount)}</span><button type="button" class="rm" data-rmexp="${esc(e.id)}">Deshacer</button></div></li>`
+      : `<li><div class="l">${avatar(nm(e.paidBy),"sm")}<div><div class="t1">${esc(e.concept||"Gasto")}</div><div class="d">Pagó ${esc(nm(e.paidBy))} · ${fmtShort(e.date)} · ${(e.among||[]).length===g.members.length?"entre todos":"entre "+(e.among||[]).map(nm).join(", ")}${e.split==="exact"?" · partes distintas":""}</div></div></div>
+         <div style="display:flex;flex-direction:column;align-items:flex-end"><span class="a">${money(e.amount)}</span><button type="button" class="rm" data-rmexp="${esc(e.id)}">Quitar</button></div></li>`).join("")}</ul>` : `<p class="hint" style="padding:6px 0">Aún no hay gastos.</p>`;
+    const peopleHtml = `<ul class="lines">${g.members.map(m=>{ const v=r2(c.net[m.id]||0); return `<li><div class="l">${avatar(m.name,"sm")}<div><div class="t1">${esc(m.id===ME?"Tú":m.name)}</div><div class="d">Pagó ${money(c.paid[m.id]||0)} · le toca ${money(c.share[m.id]||0)}</div></div></div><span class="a ${v>0?"pos":v<0?"neg":"zero"}">${v===0?"En paz":(v>0?"+":"−")+money(Math.abs(v))}</span></li>`; }).join("")}</ul>
+      <div class="addperson"><input id="gpNew" autocomplete="off" placeholder="Añadir persona al grupo" aria-label="Nombre"><button type="button" class="btn ghost" data-act="gpadd">Añadir</button></div>`;
+
+    openSheet(head(g.name, {av:`<span class="av sm sq" style="--h:${hue(g.name)}" aria-hidden="true">${esc(initials(g.name))}</span>`}) + `
+      <div class="hero-d">
+        <span class="lbl">${mine>0?"Te deben":mine<0?"Debes":"Estás en paz"}</span>
+        <span class="big ${mine>0?"pos":mine<0?"neg":""}">${money(Math.abs(mine))}</span>
+        <span class="lbl">${money(c.total)} gastados entre ${plural(g.members.length,"persona","personas")}</span>
+      </div>
+      <button type="button" class="btn wide" data-act="addexp">Añadir gasto</button>
+      <div class="seg" role="group" aria-label="Ver">
+        <button type="button" data-gtab="deben" aria-pressed="${groupTab==="deben"}">Quién debe</button>
+        <button type="button" data-gtab="gastos" aria-pressed="${groupTab==="gastos"}">Gastos<span class="c">${items.filter(e=>e.type!=="settle").length}</span></button>
+        <button type="button" data-gtab="personas" aria-pressed="${groupTab==="personas"}">Personas<span class="c">${g.members.length}</span></button>
+      </div>
+      <div class="card" id="gPane" style="padding-block:6px 10px">${groupTab==="deben"?settleHtml:groupTab==="gastos"?listHtml:peopleHtml}</div>
+      ${g.example?'<p class="hint" style="text-align:center">Este grupo es un ejemplo. Bórralo cuando quieras.</p>':""}
+      <div class="grid2">
+        <button type="button" class="btn ghost" data-act="editgroup">Editar</button>
+        <button type="button" class="btn ghost" data-act="askdelgroup" style="color:var(--bad)">Borrar</button>
+      </div>
+      <div id="confirmBox"></div>`, "group:"+id, {back});
+    sheet.querySelectorAll("[data-gtab]").forEach(b=>b.addEventListener("click", ()=>{
+      groupTab = b.dataset.gtab; moveSeg(b);
+      const p = $("#gPane"); p.innerHTML = groupTab==="deben"?settleHtml:groupTab==="gastos"?listHtml:peopleHtml;
+      if (!reduced){ p.style.animation="none"; void p.offsetWidth; p.style.animation="rise .35s var(--ease)"; }
+    }));
+  }
+
+  // --- personalización ---
+  function showSettings(back){
+    const seg = (key, opts) => `<div class="seg" role="group">${opts.map(([v,l])=>`<button type="button" data-set="${key}" data-val="${esc(String(v))}" aria-pressed="${String(S[key])===String(v)}">${l}</button>`).join("")}</div>`;
+    const sw = (key, label, sub) => `<label class="switch"><span>${label}${sub?`<br><span class="hint">${sub}</span>`:""}</span><input type="checkbox" data-toggle="${key}" ${S[key]?"checked":""}></label>`;
+    const sample = debts.find(d=>statusOf(d).key!=="done") || {name:"Carlos", concept:"Entradas del concierto", amount:85, payments:[{amount:25}], dueOn:addDays(10)};
+    openSheet(head("Personalizar") + `
+      <div class="card">
+        <p class="step-t">Apariencia</p>
+        <div class="opt"><span class="lab">Tema</span>${seg("theme",[["system","Automático"],["light","Claro"],["dark","Oscuro"]])}</div>
+        <div class="opt"><span class="lab">Color</span>
+          <div class="swatches">${ACCENTS.map(([n,h,s])=>`<button type="button" class="sw" style="--sh:${h};--ss:${s}" data-set="accent" data-val="${n}" aria-pressed="${S.accent===n}" aria-label="${n}" title="${n}"></button>`).join("")}</div></div>
+        <div class="opt"><span class="lab">Tamaño del texto</span>${seg("fs",[[0.92,"Pequeño"],[1,"Normal"],[1.1,"Grande"],[1.22,"Muy grande"]])}</div>
+        <div class="opt"><span class="lab">Espaciado de la lista</span>${seg("density",[["compacta","Compacto"],["comoda","Normal"],["amplia","Amplio"]])}</div>
+        <div class="opt"><span class="lab">Esquinas</span>${seg("corners",[["recto","Rectas"],["suave","Suaves"],["redondo","Redondas"],["pildora","Muy redondas"]])}</div>
+      </div>
+      <div class="card">
+        <p class="step-t">Pantalla principal</p>
+        ${sw("hero","Mostrar el total arriba")}
+        ${sw("avatars","Mostrar iniciales")}
+        ${sw("bars","Mostrar progreso del pago")}
+        ${sw("hideDone","Ocultar deudas saldadas")}
+        <div class="opt"><span class="lab">Ordenar por</span>${seg("sort",[["urgencia","Urgencia"],["importe","Importe"],["nombre","Nombre"],["reciente","Recientes"]])}</div>
+        <div class="opt"><span class="lab">Abrir la app en</span>${seg("startTab",[["debts","Me deben"],["split","Repartir"]])}</div>
+      </div>
+      <div class="card">
+        <p class="step-t">Deudas y fechas</p>
+        <div class="opt"><span class="lab">Avisar «vence pronto»</span><span class="sub">Días antes de la fecha límite</span>${seg("soonDays",[[3,"3"],[7,"7"],[14,"14"],[30,"30"]])}</div>
+        <div class="opt"><span class="lab">Plazo para deudas nuevas</span>${seg("defaultDue",[[0,"Ninguno"],[7,"1 sem."],[15,"15 días"],[30,"1 mes"],[90,"3 meses"]])}</div>
+        <label>Moneda<select id="sCurrency">${CURRENCIES.map(([c,l])=>`<option value="${c}" ${S.currency===c?"selected":""}>${l}</option>`).join("")}</select></label>
+      </div>
+      <div class="card">
+        <p class="step-t">Mensaje de recordatorio</p>
+        <label>Tu nombre para firmar<input id="sName" autocomplete="off" value="${esc(S.myName)}" placeholder="Opcional"></label>
+        <label>Texto<textarea id="sTpl" rows="4">${esc(S.template)}</textarea></label>
+        <p class="hint">Huecos: <span class="ph">{nombre}</span> <span class="ph">{concepto}</span> <span class="ph">{falta}</span> <span class="ph">{total}</span> <span class="ph">{pagado}</span> <span class="ph">{fecha}</span> <span class="ph">{firma}</span></p>
+        <div class="msg" id="tplPrev" style="user-select:text;-webkit-user-select:text">${esc(reminderText(sample))}</div>
+        <button type="button" class="linkbtn" data-act="resettpl" style="align-self:flex-start">Volver al texto original</button>
+      </div>
+      <div class="card">
+        <p class="step-t">Datos</p>
+        <p class="hint">${mode==="db"?"Todo se guarda en tu cuenta y solo lo ves tú.":canFiles?"Tus datos se guardan solo en este dispositivo. Haz una copia de vez en cuando para no perderlos.":"Tus datos se guardan solo en este navegador."}</p>
+        ${canFiles?`<div class="grid2"><button type="button" class="btn soft" data-act="export">Exportar copia</button>
+        <label class="btn ghost" style="display:grid;place-items:center;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer">Importar copia<input type="file" id="importFile" accept="application/json,.json" hidden></label></div>`:""}
+        <div class="grid2"><button type="button" class="btn ghost" data-act="clearex">Borrar ejemplos</button>
+        <button type="button" class="btn ghost" data-act="resetsettings">Restablecer</button></div>
+      </div>
+      <div id="confirmBox"></div>`, "settings", {back});
+    $("#sCurrency").addEventListener("change", e=>{ setSetting("currency", e.target.value); showSettings(); });
+    let tT; const tplUpd = () => { clearTimeout(tT); tT = setTimeout(()=>{ S.myName = $("#sName").value.trim(); setSetting("template", $("#sTpl").value || DEFAULT_TPL); $("#tplPrev").textContent = reminderText(sample); }, 300); };
+    $("#sTpl").addEventListener("input", tplUpd); $("#sName").addEventListener("input", tplUpd);
+    sheet.querySelectorAll("[data-toggle]").forEach(i=>i.addEventListener("change", ()=>setSetting(i.dataset.toggle, i.checked)));
+    const imp = $("#importFile");
+    if (imp) imp.addEventListener("change", async ()=>{
+      const file = imp.files && imp.files[0]; imp.value = ""; if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!data || !Array.isArray(data.debts) || !Array.isArray(data.groups)) throw new Error("formato");
+        pendingImport = data;
+        $("#confirmBox").innerHTML = `<div class="confirm"><span>La copia tiene ${plural(data.debts.length,"deuda","deudas")} y ${plural(data.groups.length,"grupo","grupos")}. Sustituirá todo lo que tienes ahora. ¿Continuar?</span>
+          <div class="grid2"><button type="button" class="btn danger small" data-act="doimport">Importar</button><button type="button" class="btn ghost small" data-act="nodel">Cancelar</button></div></div>`;
+        $("#confirmBox").scrollIntoView({block:"nearest", behavior: reduced ? "auto" : "smooth"});
+      } catch(_){ toast("Ese archivo no es una copia de Reparto de Deudas"); }
+    });
+  }
+  const canFiles = !window.claude;
+  let pendingImport = null;
+  function exportData(){
+    const blob = new Blob([JSON.stringify({app:"reparto-de-deudas", version:1, exportedAt:new Date().toISOString(), debts, groups, settings:S}, null, 2)], {type:"application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "reparto-de-deudas-" + todayISO() + ".json";
+    document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    toast("Copia descargada");
+  }
+  function importData(){
+    const data = pendingImport; pendingImport = null; if (!data) return;
+    debts = data.debts.filter(d=>d && d.id && d.name!=null && d.amount!=null);
+    groups = data.groups.filter(g=>g && g.id && Array.isArray(g.members));
+    if (data.settings) { S = Object.assign({}, DEFAULTS, data.settings); applySettings(); try{ localStorage.setItem("me-deben-ajustes", JSON.stringify(S)); }catch(e){} }
+    lsWrite(); animateNext = true; render(); showSettings(); toast("Copia importada");
+  }
+
+  // ---------- ejemplos ----------
+  async function loadDebtExamples(){
+    const ex = [
+      {name:"Carlos (ejemplo)", concept:"Entradas del concierto", amount:85, lentOn:addDays(-40), dueOn:addDays(-5), payments:[], extras:[]},
+      {name:"Lucía (ejemplo)", concept:"Fianza del piso", amount:600, lentOn:addDays(-60), dueOn:addDays(30), payments:[{id:uid("p"),amount:200,date:addDays(-30)},{id:uid("p"),amount:150,date:addDays(-2)}], extras:[{id:uid("x"),amount:120,date:addDays(-15),note:"Gastos de la mudanza"}]},
+      {name:"Andrés (ejemplo)", concept:"Cena de cumpleaños", amount:42.5, lentOn:addDays(-10), dueOn:addDays(4), payments:[], extras:[]},
+      {name:"Marta (ejemplo)", concept:"Gasolina del viaje", amount:30, lentOn:addDays(-20), dueOn:"", payments:[{id:uid("p"),amount:30,date:addDays(-8)}], extras:[]}
+    ];
+    for (const e of ex){ try{ await save("debts", Object.assign({id:uid("d"), example:true, createdAt:new Date().toISOString(), phone:"", notes:""}, e), true); }catch(_){ return; } }
+    animateNext = true; render(); toast("Ejemplos cargados");
+  }
+  async function loadGroupExample(){
+    const L=uid("m"), A=uid("m"), M=uid("m"); const all=[ME,L,A,M];
+    const g = {id:uid("g"), example:true, name:"Casa rural (ejemplo)", createdAt:new Date().toISOString(),
+      members:[{id:ME,name:"Yo"},{id:L,name:"Lucía"},{id:A,name:"Andrés"},{id:M,name:"Marta"}],
+      expenses:[
+        {id:uid("e"), concept:"Alquiler de la casa", amount:320, paidBy:ME, among:all, split:"equal", date:addDays(-6)},
+        {id:uid("e"), concept:"Supermercado", amount:86.4, paidBy:L, among:all, split:"equal", date:addDays(-5)},
+        {id:uid("e"), concept:"Gasolina", amount:54, paidBy:A, among:[ME,A,M], split:"equal", date:addDays(-5)},
+        {id:uid("e"), concept:"Cena del sábado", amount:112, paidBy:ME, among:all, split:"exact", shares:{[ME]:30,[L]:24,[A]:30,[M]:28}, date:addDays(-4)}
+      ]};
+    try { await save("groups", g); } catch(_){ return; }
+    toast("Grupo de ejemplo cargado"); showGroup(g.id);
+  }
+  async function clearExamples(){
+    const dx = debts.filter(d=>d.example).map(d=>d.id), gx = groups.filter(g=>g.example).map(g=>g.id);
+    if (!dx.length && !gx.length){ toast("No hay ejemplos que borrar"); return; }
+    for (const id of dx){ try{ await remove("debts", id); }catch(_){ return; } }
+    for (const id of gx){ try{ await remove("groups", id); }catch(_){ return; } }
+    toast("Ejemplos borrados");
+  }
+
+  // ---------- eventos ----------
+  document.addEventListener("click", async e=>{
+    const t = e.target.closest("button"); if (!t || t.disabled) return;
+    if (t.dataset.tab){ if (tab!==t.dataset.tab){ tab = t.dataset.tab; animateNext = true; render(); window.scrollTo({top:0}); } return; }
+    if (t.dataset.f){ filter = t.dataset.f; try{localStorage.setItem("me-deben-filter",filter);}catch(_){} moveSeg(t); const l=$("#dlist"); if (l){ l.innerHTML = debtRows(); if(!reduced){ l.style.animation="none"; void l.offsetWidth; l.style.animation="rise .35s var(--ease)"; } } return; }
+    if (t.dataset.open){ const r = t.dataset.open; if (r==="add") addChooser(); else if (r.startsWith("pick:")) pickDebt(r.slice(5)); else openRef(r, false, !!t.dataset.back); return; }
+    if (t.dataset.set){ const v = t.dataset.val; const num = ["fs","soonDays","defaultDue"].includes(t.dataset.set); if (t.closest(".seg")) moveSeg(t); setSetting(t.dataset.set, num ? +v : v); if (t.dataset.set==="accent"||t.dataset.set==="theme"||t.dataset.set==="fs"||t.dataset.set==="corners") showSettings(); else sheet.querySelectorAll(`[data-set="${t.dataset.set}"]`).forEach(b=>b.setAttribute("aria-pressed", String(b===t))); return; }
+    if (t.dataset.pick){ showDebt(t.dataset.pick, t.dataset.purpose==="more" ? "more" : undefined); return; }
+    if (t.dataset.mergeinto){
+      const m = debts.find(x=>x.id===t.dataset.mergeinto); if (!m) return;
+      const amt = parseAmount($("#fAmount").value);
+      if (!(amt>0)){ const err=$("#fErr"); err.textContent="Escribe primero el importe que quieres sumar."; err.hidden=false; $("#fAmount").focus(); return; }
+      await addExtra(m, amt, $("#fLent").value, $("#fConcept").value.trim(), $("#fDue").value || m.dueOn || "");
+      return;
+    }
+    const cur = sheetRef ? sheetRef.split(":") : [];
+    const d = cur[0]==="debt" ? debts.find(x=>x.id===cur[1]) : null;
+    const g = cur[0]==="group" ? groups.find(x=>x.id===cur[1]) : null;
+    if (t.dataset.rmmv && d){
+      const [k,id] = t.dataset.rmmv.split(":");
+      const next = Object.assign({}, d);
+      if (k==="in") next.payments = (d.payments||[]).filter(p=>p.id!==id); else next.extras = (d.extras||[]).filter(x=>x.id!==id);
+      if (restOf(next) > 0) delete next.settledAt;
+      try { await save("debts", next); } catch(_){ return; } toast("Movimiento quitado"); showDebt(d.id); return;
+    }
+    if (t.dataset.rmexp && g){
+      try { await save("groups", Object.assign({}, g, {expenses:(g.expenses||[]).filter(x=>x.id!==t.dataset.rmexp)})); } catch(_){ return; }
+      toast("Hecho"); showGroup(g.id); return;
+    }
+    if (t.dataset.settle && g){
+      const [from,to,amt] = t.dataset.settle.split("|");
+      try { await save("groups", Object.assign({}, g, {expenses:[...(g.expenses||[]), {id:uid("s"), type:"settle", from, to, amount:+amt, date:todayISO()}]})); } catch(_){ return; }
+      toast("Pago apuntado en el grupo"); showGroup(g.id); return;
+    }
+    if (t.dataset.tomedeben && g){
+      const [from, amt] = t.dataset.tomedeben.split("|"); const a = +amt; const name = memberName(g, from);
+      const existing = debts.find(x=>norm(x.name)===norm(name) && statusOf(x).key!=="done");
+      try {
+        if (existing) await save("debts", Object.assign({}, existing, {extras:[...(existing.extras||[]), {id:uid("x"), amount:a, date:todayISO(), note:"Grupo " + g.name}]}), true);
+        else await save("debts", {id:uid("d"), name, amount:a, concept:g.name, lentOn:todayISO(), dueOn: S.defaultDue ? addDays(S.defaultDue) : "", phone:"", notes:"Viene de un reparto en grupo.", payments:[], extras:[], fromGroup:g.id, createdAt:new Date().toISOString(), example: g.example || undefined}, true);
+        await save("groups", Object.assign({}, g, {expenses:[...(g.expenses||[]), {id:uid("s"), type:"settle", from, to:ME, amount:a, date:todayISO(), note:"pasado a Me deben"}]}));
+      } catch(_){ return; }
+      toast(`${clean(name)} ahora está en Me deben`); showGroup(g.id); return;
+    }
+    const act = t.dataset.act; if (!act) return;
+    if (act==="close") closeSheet();
+    else if (act==="newdebt") { if (ready) debtForm(); }
+    else if (act==="moredebt") pickDebt("more");
+    else if (act==="paypick") pickDebt("pay");
+    else if (act==="quick") { if (ready) quickSplit(); }
+    else if (act==="newgroup") { if (ready) groupForm(); }
+    else if (act==="exdebts") loadDebtExamples();
+    else if (act==="exgroups") loadGroupExample();
+    else if (act==="editdebt" && d) debtForm(d);
+    else if (act==="editgroup" && g) groupForm(g);
+    else if (act==="addexp" && g) expenseForm(g.id);
+    else if (act==="gpadd" && g){
+      const inp = $("#gpNew"), n = inp.value.trim(); if (!n) return;
+      if (g.members.some(m=>norm(m.name)===norm(n))){ toast(n+" ya está en el grupo"); return; }
+      try { await save("groups", Object.assign({}, g, {members:[...g.members, {id:uid("m"), name:n}]})); } catch(_){ return; }
+      toast(n+" añadido al grupo"); showGroup(g.id);
+    }
+    else if (act==="payall" && d) addPayment(d, restOf(d), todayISO());
+    else if (act==="settings") showSettings();
+    else if (act==="export") exportData();
+    else if (act==="doimport") importData();
+    else if (act==="resettpl"){ setSetting("template", DEFAULT_TPL); showSettings(); }
+    else if (act==="clearex"){ await clearExamples(); if (sheetRef==="settings") showSettings(); }
+    else if (act==="resetsettings"){
+      $("#confirmBox").innerHTML = `<div class="confirm"><span>¿Volver a los ajustes de fábrica? Tus deudas y grupos no se borran.</span>
+        <div class="grid2"><button type="button" class="btn danger small" data-act="doreset">Restablecer</button><button type="button" class="btn ghost small" data-act="nodel">Cancelar</button></div></div>`;
+      $("#confirmBox").scrollIntoView({block:"nearest", behavior: reduced ? "auto" : "smooth"});
+    }
+    else if (act==="doreset"){ S = Object.assign({}, DEFAULTS); setSetting("theme", "system"); showSettings(); toast("Ajustes restablecidos"); }
+    else if (act==="copy" && d){
+      const txt = reminderText(d);
+      try { await navigator.clipboard.writeText(txt); toast("Mensaje copiado"); }
+      catch(_){ const r=document.createRange(); r.selectNodeContents($("#msg")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast("Texto seleccionado: cópialo con el menú del iPhone"); }
+    }
+    else if ((act==="askdel" && d) || (act==="askdelgroup" && g)){
+      const what = d ? `la deuda de <b>${esc(d.name)}</b> con todos sus movimientos` : `el grupo <b>${esc(g.name)}</b> y todos sus gastos`;
+      $("#confirmBox").innerHTML = `<div class="confirm"><span>¿Borrar ${what}? No se puede deshacer.</span>
+        <div class="grid2"><button type="button" class="btn danger small" data-act="${d?"del":"delgroup"}">Sí, borrar</button><button type="button" class="btn ghost small" data-act="nodel">Cancelar</button></div></div>`;
+      $("#confirmBox").scrollIntoView({block:"nearest", behavior: reduced ? "auto" : "smooth"});
+    }
+    else if (act==="nodel") $("#confirmBox").innerHTML = "";
+    else if (act==="del" && d){ const n=d.name; try{ await remove("debts", d.id); }catch(_){ return; } closeSheet(); toast(`Deuda de ${clean(n)} borrada`); }
+    else if (act==="delgroup" && g){ const n=g.name; try{ await remove("groups", g.id); }catch(_){ return; } closeSheet(); toast(`Grupo ${clean(n)} borrado`); }
+  });
+  $("#addBtn").addEventListener("click", ()=>{ if (!ready) return; tab==="debts" ? addChooser() : quickSplit(); });
+  $("#settingsBtn").addEventListener("click", ()=>showSettings());
+  document.addEventListener("input", e=>{ if (e.target.id==="q"){ query = e.target.value; const l=$("#dlist"); if (l) l.innerHTML = debtRows(); } });
+  window.addEventListener("resize", ()=>{ placeSegs(document); });
+
+  let tt; function toast(m){ const el=$("#toast"); el.textContent=m; el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"), 2600); }
+
+  boot();
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+  }
+</script>
+</body>
+</html>
