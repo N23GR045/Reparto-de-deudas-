@@ -1,0 +1,88 @@
+name: Crear APK
+
+# Se ejecuta cada vez que se sube un cambio a main, o a mano desde la pestaña Actions.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar dependencias
+        run: npm install --no-audit --no-fund
+
+      - name: Copiar la app web
+        run: npm run web
+
+      - name: Crear el proyecto Android
+        run: npx cap add android
+
+      - name: Generar iconos y pantalla de carga
+        run: npx capacitor-assets generate --android
+        continue-on-error: true
+
+      - name: Sincronizar
+        run: npx cap sync android
+
+      - name: Poner número de versión
+        run: |
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"1.${{ github.run_number }}\"/" android/app/build.gradle
+          grep -E "versionCode|versionName" android/app/build.gradle
+
+      - name: Usar siempre la misma firma
+        # Así cada APK nuevo se instala encima del anterior sin borrar tus datos.
+        run: |
+          mkdir -p ~/.android
+          cp android-config/debug.keystore ~/.android/debug.keystore
+
+      - name: Compilar el APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Renombrar el APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk reparto-de-deudas.apk
+
+      - name: Guardar el APK en esta ejecución
+        uses: actions/upload-artifact@v4
+        with:
+          name: reparto-de-deudas-apk
+          path: reparto-de-deudas.apk
+
+      - name: Publicar el APK en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-v${{ github.run_number }}
+          name: Reparto de Deudas 1.${{ github.run_number }}
+          make_latest: true
+          files: reparto-de-deudas.apk
+          body: |
+            APK para Android generado automáticamente a partir de `main` (commit ${{ github.sha }}).
+
+            **Instalar:** descarga `reparto-de-deudas.apk` en el móvil Android, ábrelo y permite instalar apps de origen desconocido si te lo pide.
+            Si ya tenías una versión anterior, esta se instala encima sin borrar tus datos.

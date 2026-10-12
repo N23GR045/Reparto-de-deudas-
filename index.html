@@ -1220,7 +1220,8 @@ textarea{resize:vertical;min-height:72px}
         <p class="step-t">Datos</p>
         <p class="hint">${mode==="db"?"Todo se guarda en tu cuenta y solo lo ves tú.":canFiles?"Tus datos se guardan solo en este dispositivo. Haz una copia de vez en cuando para no perderlos.":"Tus datos se guardan solo en este navegador."}</p>
         ${canFiles?`<div class="grid2"><button type="button" class="btn soft" data-act="export">Exportar copia</button>
-        <label class="btn ghost" style="display:grid;place-items:center;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer">Importar copia<input type="file" id="importFile" accept="application/json,.json" hidden></label></div>`:""}
+        <label class="btn ghost" style="display:grid;place-items:center;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer">Importar copia<input type="file" id="importFile" accept="application/json,.json,text/plain" hidden></label></div>
+        <button type="button" class="linkbtn" data-act="pastecopy" style="align-self:flex-start">Pegar una copia en texto</button>`:""}
         <div class="grid2"><button type="button" class="btn ghost" data-act="clearex">Borrar ejemplos</button>
         <button type="button" class="btn ghost" data-act="resetsettings">Restablecer</button></div>
       </div>
@@ -1232,20 +1233,29 @@ textarea{resize:vertical;min-height:72px}
     const imp = $("#importFile");
     if (imp) imp.addEventListener("change", async ()=>{
       const file = imp.files && imp.files[0]; imp.value = ""; if (!file) return;
-      try {
-        const data = JSON.parse(await file.text());
+      try { askImport(JSON.parse(await file.text())); } catch(_){ toast("Ese archivo no es una copia de Reparto de Deudas"); }
+    });
+  }
+  function askImport(data){
         if (!data || !Array.isArray(data.debts) || !Array.isArray(data.groups)) throw new Error("formato");
         pendingImport = data;
         $("#confirmBox").innerHTML = `<div class="confirm"><span>La copia tiene ${plural(data.debts.length,"deuda","deudas")} y ${plural(data.groups.length,"grupo","grupos")}. Sustituirá todo lo que tienes ahora. ¿Continuar?</span>
           <div class="grid2"><button type="button" class="btn danger small" data-act="doimport">Importar</button><button type="button" class="btn ghost small" data-act="nodel">Cancelar</button></div></div>`;
         $("#confirmBox").scrollIntoView({block:"nearest", behavior: reduced ? "auto" : "smooth"});
-      } catch(_){ toast("Ese archivo no es una copia de Reparto de Deudas"); }
-    });
   }
   const canFiles = !window.claude;
   let pendingImport = null;
-  function exportData(){
-    const blob = new Blob([JSON.stringify({app:"reparto-de-deudas", version:1, exportedAt:new Date().toISOString(), debts, groups, settings:S}, null, 2)], {type:"application/json"});
+  async function exportData(){
+    const json = JSON.stringify({app:"reparto-de-deudas", version:1, exportedAt:new Date().toISOString(), debts, groups, settings:S});
+    if (window.Capacitor){
+      try { await navigator.clipboard.writeText(json); toast("Copia copiada. Pégala en una nota o en WhatsApp para guardarla."); }
+      catch(_){
+        $("#confirmBox").innerHTML = `<div class="notice"><span>Mantén pulsado el texto para copiarlo y guárdalo donde quieras.</span><textarea readonly rows="5" id="expText"></textarea></div>`;
+        $("#expText").value = json; $("#expText").select();
+      }
+      return;
+    }
+    const blob = new Blob([json], {type:"application/json"});
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "reparto-de-deudas-" + todayISO() + ".json";
     document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
     toast("Copia descargada");
@@ -1355,6 +1365,11 @@ textarea{resize:vertical;min-height:72px}
     else if (act==="payall" && d) addPayment(d, restOf(d), todayISO());
     else if (act==="settings") showSettings();
     else if (act==="export") exportData();
+    else if (act==="pastecopy"){
+      $("#confirmBox").innerHTML = `<div class="notice"><span>Pega aquí el texto de tu copia.</span><textarea rows="5" id="pasteText" placeholder='{"app":"reparto-de-deudas"…'></textarea><button type="button" class="btn small" data-act="checkpaste">Revisar copia</button></div>`;
+      $("#pasteText").focus();
+    }
+    else if (act==="checkpaste"){ try { askImport(JSON.parse($("#pasteText").value)); } catch(_){ toast("Ese texto no es una copia de Reparto de Deudas"); } }
     else if (act==="doimport") importData();
     else if (act==="resettpl"){ setSetting("template", DEFAULT_TPL); showSettings(); }
     else if (act==="clearex"){ await clearExamples(); if (sheetRef==="settings") showSettings(); }
@@ -1386,12 +1401,22 @@ textarea{resize:vertical;min-height:72px}
 
   let tt; function toast(m){ const el=$("#toast"); el.textContent=m; el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"), 2600); }
 
+  // Botón «atrás» de Android (solo en la app instalada desde el APK)
+  try {
+    const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+    if (App) App.addListener("backButton", ()=>{
+      if (!shade.hidden && shade.classList.contains("open")){ const b = sheet.querySelector("[data-back]"); if (b) b.click(); else closeSheet(); }
+      else if (tab!=="debts"){ tab = "debts"; animateNext = true; render(); }
+      else App.exitApp();
+    });
+  } catch(e){}
+
   boot();
 })();
 </script>
 
 <script>
-  if ("serviceWorker" in navigator && location.protocol === "https:") {
+  if ("serviceWorker" in navigator && location.protocol === "https:" && !window.Capacitor) {
     window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
   }
 </script>

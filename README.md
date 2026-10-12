@@ -1,6 +1,6 @@
 # Reparto de Deudas
 
-App web para el móvil donde apuntas quién te debe dinero, registras lo que te van devolviendo y repartes gastos compartidos entre amigos. Está pensada para el iPhone y se puede instalar en la pantalla de inicio como si fuera una app.
+App web para el móvil donde apuntas quién te debe dinero, registras lo que te van devolviendo y repartes gastos compartidos entre amigos. Funciona en Android como APK y en el iPhone como app web instalada en la pantalla de inicio.
 
 Es un único archivo HTML, sin servidor ni base de datos: tus datos se guardan en tu propio dispositivo.
 
@@ -30,24 +30,36 @@ Es un único archivo HTML, sin servidor ni base de datos: tus datos se guardan e
 
 Abre `index.html` en el navegador con un doble clic. Funciona sin instalar nada.
 
-## Dónde está publicada
+## Descargar el APK para Android
 
-La app se publica sola con GitHub Pages desde la rama `main`:
+Cada vez que se sube un cambio a `main`, GitHub compila un APK nuevo y lo publica en **Releases**.
 
-**https://n23gr045.github.io/Reparto-de-deudas-/**
+- Descarga directa de la última versión: **https://github.com/N23GR045/Reparto-de-deudas-/releases/latest/download/reparto-de-deudas.apk**
+- Todas las versiones: https://github.com/N23GR045/Reparto-de-deudas-/releases
 
-Cada vez que subes un cambio a `main`, la web se actualiza en uno o dos minutos.
+Para instalarlo, abre el enlace desde el móvil Android, descarga el archivo y ábrelo. Si Android lo pide, permite instalar apps de este origen. Las versiones nuevas se instalan encima de la anterior y conservan tus datos.
 
-## Instalarla en el iPhone
+El proceso está en `.github/workflows/apk.yml` y usa [Capacitor](https://capacitorjs.com/) para meter la app web en una app de Android. Puedes lanzarlo a mano desde la pestaña **Actions → Crear APK → Run workflow**.
 
-1. Abre **https://n23gr045.github.io/Reparto-de-deudas-/** en **Safari**.
+## Versión web (iPhone y ordenador)
+
+La versión web se publica con GitHub Pages. Para activarla una sola vez:
+
+1. En el repositorio, ve a **Settings → Pages**.
+2. En **Source** elige **Deploy from a branch**, en **Branch** elige `main` y `/ (root)`, y pulsa **Save**.
+
+En uno o dos minutos estará en **https://n23gr045.github.io/Reparto-de-deudas-/**.
+
+### Instalarla en el iPhone
+
+1. Abre la dirección de la versión web en **Safari**.
 2. Pulsa el botón **Compartir** y elige **Añadir a pantalla de inicio**.
 3. Se abrirá a pantalla completa, con su icono, y funcionará también sin conexión.
 
 ## Tus datos
 
 - Todo se guarda en el almacenamiento local del navegador del dispositivo donde uses la app. No se envía nada a ningún servidor.
-- Si borras los datos de Safari o cambias de móvil, se pierden. Usa **Personalizar → Exportar copia** de vez en cuando y guarda el archivo en iCloud Drive o donde prefieras. Con **Importar copia** lo recuperas.
+- Si borras los datos de la app o del navegador, o cambias de móvil, se pierden. Usa **Personalizar → Exportar copia** de vez en cuando. En la web se descarga un archivo; en el APK la copia se pone en el portapapeles para que la pegues en una nota. Para recuperarla usa **Importar copia** o **Pegar una copia en texto**.
 - La app de la pantalla de inicio y Safari guardan sus datos por separado en el iPhone. Usa siempre la misma.
 
 ## Estructura
@@ -55,8 +67,13 @@ Cada vez que subes un cambio a `main`, la web se actualiza en uno o dos minutos.
 ```
 index.html              La app completa (HTML, CSS y JavaScript)
 manifest.webmanifest    Nombre, colores e iconos para instalarla
-sw.js                   Permite abrirla sin conexión
-icons/                  Iconos de la app
+sw.js                   Permite abrir la web sin conexión
+icons/                  Iconos de la web
+assets/                 Icono y pantalla de carga del APK
+android-config/         Firma fija del APK, para que las actualizaciones se instalen encima
+capacitor.config.json   Configuración de la app Android
+package.json            Dependencias para compilar el APK
+.github/workflows/      Compilación automática del APK
 ```
 
 ## Licencia

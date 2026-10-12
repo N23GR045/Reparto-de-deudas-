@@ -1,0 +1,20 @@
+{
+  "name": "reparto-de-deudas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App para apuntar quién te debe dinero y repartir gastos de grupo.",
+  "license": "MIT",
+  "scripts": {
+    "web": "node -e \"const fs=require('fs');fs.rmSync('www',{recursive:true,force:true});fs.mkdirSync('www');for(const f of ['index.html','manifest.webmanifest','sw.js'])fs.copyFileSync(f,'www/'+f);fs.cpSync('icons','www/icons',{recursive:true})\"",
+    "android": "npm run web && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "6.2.0",
+    "@capacitor/app": "6.0.2",
+    "@capacitor/core": "6.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "6.2.0"
+  }
+}

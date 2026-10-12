@@ -1,0 +1,8 @@
+{
+  "appId": "com.n23gr045.repartodedeudas",
+  "appName": "Reparto de Deudas",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#f5f6f5"
+  }
+}
