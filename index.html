@@ -1558,7 +1558,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   }
 
   // --- grupo: detalle ---
-  let groupTab = "gastos";
+  let groupTab = "deben";
   const ARROW = '<svg viewBox="0 0 24 24"><path d="M4 12h15M14 6l6 6-6 6"/></svg>';
   function dayLabel(iso){
     if (!iso) return "Sin fecha";
@@ -1571,7 +1571,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   function showGroup(id, back){
     const g = groups.find(x=>x.id===id);
     if (!g){ if (sheetRef==="group:"+id) closeSheet(); return; }
-    if (!["gastos","deben","saldos"].includes(groupTab)) groupTab = "gastos";
+    if (!["gastos","deben","saldos"].includes(groupTab)) groupTab = "deben";
     const c = groupCalc(g);
     const nm = mid => mid===ME ? "Tú" : memberName(g, mid);
     const avName = mid => mid===ME ? "Yo" : memberName(g, mid);
@@ -1672,8 +1672,8 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         </div>
       </div>
       <div class="seg utabs" role="group" aria-label="Ver">
-        <button type="button" data-gtab="gastos" aria-pressed="${groupTab==="gastos"}">Gastos<span class="c">${exps.length}</span></button>
         <button type="button" data-gtab="deben" aria-pressed="${groupTab==="deben"}">Quién debe${c.settle.length?`<span class="c">${c.settle.length}</span>`:""}</button>
+        <button type="button" data-gtab="gastos" aria-pressed="${groupTab==="gastos"}">Gastos<span class="c">${exps.length}</span></button>
         <button type="button" data-gtab="saldos" aria-pressed="${groupTab==="saldos"}">Saldos</button>
       </div>
       <div id="gPane" class="${reduced?"":"enter-bar"}">${groupTab==="gastos"?gastosHtml:groupTab==="deben"?debenHtml:saldosHtml}</div>
@@ -1999,7 +1999,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const t = e.target.closest("button"); if (!t || t.disabled) return;
     if (t.dataset.tab){ if (tab!==t.dataset.tab){ tab = t.dataset.tab; animateNext = true; render(); window.scrollTo({top:0}); } return; }
     if (t.dataset.f){ filter = t.dataset.f; try{localStorage.setItem("me-deben-filter",filter);}catch(_){} moveSeg(t); const l=$("#dlist"); if (l){ l.innerHTML = debtRows(); if(!reduced){ l.style.animation="none"; void l.offsetWidth; l.style.animation="rise .35s var(--ease)"; } } return; }
-    if (t.dataset.open){ const r = t.dataset.open; if (r==="add") addChooser(); else if (r.startsWith("pick:")) pickDebt(r.slice(5)); else openRef(r, false, !!t.dataset.back); return; }
+    if (t.dataset.open){ const r = t.dataset.open; if (r.startsWith("group:") && !t.dataset.back) groupTab = "deben"; if (r==="add") addChooser(); else if (r.startsWith("pick:")) pickDebt(r.slice(5)); else openRef(r, false, !!t.dataset.back); return; }
     if (t.dataset.set){ const v = t.dataset.val; const num = ["fs","soonDays","defaultDue"].includes(t.dataset.set); if (t.closest(".seg")) moveSeg(t); setSetting(t.dataset.set, num ? +v : v); if (t.dataset.set==="accent"||t.dataset.set==="theme"||t.dataset.set==="fs"||t.dataset.set==="corners") showSettings(); else sheet.querySelectorAll(`[data-set="${t.dataset.set}"]`).forEach(b=>b.setAttribute("aria-pressed", String(b===t))); return; }
     if (t.dataset.pick){ showDebt(t.dataset.pick, t.dataset.purpose==="more" ? "more" : undefined); return; }
     if (t.dataset.mergeinto){
