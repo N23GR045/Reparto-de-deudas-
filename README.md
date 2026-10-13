@@ -17,9 +17,12 @@ Es un único archivo HTML, sin servidor ni base de datos: tus datos se guardan e
 
 **Repartir**
 - **Dividir una cuenta**: escribes lo que pagaste, eliges entre quiénes y cada parte se apunta como deuda en un toque.
-- **Grupos** para viajes, el piso o cualquier gasto que se repita: anotas quién pagó cada cosa y la app calcula quién debe a quién con el menor número de pagos.
-- Reparto a partes iguales o con cantidades distintas para cada persona.
-- «Ya me pagó» y «Pasar a Me deben» para cerrar las cuentas del grupo.
+- **Grupos** para viajes, el piso o cualquier gasto que se repita, con pestañas **Gastos**, **Quién debe** y **Saldos**.
+- Gastos con **categoría**, reparto **a partes iguales, por partes o por importes**, **varios pagadores** y **otra moneda** con su tipo de cambio.
+- **Mínimo de pagos**: el algoritmo agrupa a quienes se compensan entre sí para que haya el menor número de transferencias posible. Se puede desactivar («Simplificar deudas») para que cada uno pague directamente a quien pagó por él.
+- **Ajustes del grupo**: moneda, presupuesto con aviso al 80 % y al 100 %, y archivar.
+- **Estadísticas** de en qué se ha gastado, **historial** de cambios y **exportación** a CSV o a un resumen para WhatsApp.
+- «Ya me pagó», «Marcar como pagado» y «Pasar a Me deben» para cerrar las cuentas.
 
 **Personalizar**
 - Tema claro, oscuro o automático, 10 colores, tamaño del texto, espaciado y forma de las esquinas.
