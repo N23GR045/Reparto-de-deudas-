@@ -313,6 +313,20 @@ details.exp .foot{display:flex;justify-content:space-between;align-items:center;
 .settle-row-x{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
 .settle-row-x:first-child{border-top:0}
 
+/* Quién debe a quién (todos los grupos) */
+.row .pair{display:flex;align-items:center;gap:2px;flex:none}
+.row .pair .av{width:32px;height:32px;font-size:12px}
+.row .pair .arr{width:16px;height:16px;color:var(--faint);display:grid;place-items:center}
+.row .pair .arr svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.owes-list .row + .row::before{left:94px}
+.row .main .name b{font-weight:600}
+.row .main .name{font-weight:400}
+.owes-sum{display:flex;gap:8px;flex-wrap:wrap}
+.owes-sum span{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px}
+.owes-sum .p{background:var(--ok-soft);color:var(--ok)}
+.owes-sum .n{background:var(--bad-soft);color:var(--bad)}
+.owes-sum .z{background:var(--surface-2);color:var(--muted)}
+
 /* Actualizaciones */
 .upd{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border-radius:var(--rad);padding:14px 16px}
 .upd .u1{display:flex;align-items:center;gap:10px}
@@ -520,6 +534,32 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     return {total: total/100, net:c(net), paid:c(paid), share:c(share), sent:c(sent), recv:c(recv), settle};
   }
   const memberName = (g,id) => (g.members.find(m=>m.id===id)||{name:"?"}).name;
+  // Suma los pagos pendientes de todos los grupos entre cada par de personas
+  // (se reconoce a la misma persona por su nombre) y los compensa.
+  function allTransfers(){
+    const pairs = new Map();
+    groups.forEach(g=>{
+      groupCalc(g).settle.forEach(s=>{
+        const keyOf = id => id===ME ? ME : "p:" + norm(memberName(g,id));
+        const nameOf = id => id===ME ? "Tú" : clean(memberName(g,id));
+        const a = keyOf(s.from), b = keyOf(s.to); if (a===b) return;
+        const [k1,k2] = [a,b].sort(); const key = k1+"|"+k2;
+        const e = pairs.get(key) || {k1, k2, names:{}, cents:0, gids:[], gnames:[]};
+        e.names[a] = nameOf(s.from); e.names[b] = nameOf(s.to);
+        e.cents += (a===k1 ? 1 : -1) * Math.round(s.amount*100);
+        if (!e.gids.includes(g.id)){ e.gids.push(g.id); e.gnames.push(clean(g.name)); }
+        pairs.set(key, e);
+      });
+    });
+    const out = [];
+    pairs.forEach(e=>{
+      if (!e.cents) return;
+      const from = e.cents>0 ? e.k1 : e.k2, to = e.cents>0 ? e.k2 : e.k1;
+      out.push({from, to, fromName:e.names[from], toName:e.names[to], amount:Math.abs(e.cents)/100, gids:e.gids, gnames:e.gnames});
+    });
+    const rank = o => o.to===ME ? 0 : o.from===ME ? 1 : 2;
+    return out.sort((x,y)=> rank(x)-rank(y) || y.amount-x.amount);
+  }
   function knownPeople(exclude){
     const ex = new Set((exclude||[]).map(norm)); const seen = new Map();
     debts.forEach(d=>{ const k=norm(d.name); if (k && !ex.has(k) && !seen.has(k)) seen.set(k, clean(d.name)); });
@@ -714,6 +754,24 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       <div class="btnrow"><button type="button" class="btn ghost" data-act="newgroup">Crear un grupo</button>
       <button type="button" class="linkbtn" data-act="exgroups">Ver un ejemplo</button></div></div>`;
     const sorted = calcs.slice().sort((a,b)=>(b.g.createdAt||"").localeCompare(a.g.createdAt||""));
+    // Quién debe a quién, sumando todos los grupos
+    const owes = allTransfers();
+    const arrowSvg = '<svg viewBox="0 0 24 24"><path d="M4 12h15M14 6l6 6-6 6"/></svg>';
+    const toMeN = owes.filter(o=>o.to===ME).length, fromMeN = owes.filter(o=>o.from===ME).length, othersN = owes.length - toMeN - fromMeN;
+    h += `<p class="sec-t stg" style="--i:${i++}">Quién debe a quién</p>`;
+    h += owes.length ? `<section class="glist owes-list stg" style="--i:${i++}">` + owes.map(o=>{
+      const fromN = o.from===ME ? "Tú" : o.fromName, toN = o.to===ME ? "ti" : o.toName;
+      const txt = o.from===ME ? `<b>Tú</b> pagas a <b>${esc(o.toName)}</b>` : o.to===ME ? `<b>${esc(o.fromName)}</b> te paga` : `<b>${esc(o.fromName)}</b> paga a <b>${esc(o.toName)}</b>`;
+      const cls = o.to===ME ? "pos" : o.from===ME ? "neg" : "";
+      const tag = o.gids.length===1 ? `data-open="group:${esc(o.gids[0])}"` : "";
+      const inner = `<span class="pair">${avatar(o.from===ME?"Yo":o.fromName)}<span class="arr" aria-hidden="true">${arrowSvg}</span>${avatar(o.to===ME?"Yo":o.toName)}</span>
+        <div class="main"><div class="name">${txt}</div><div class="sub">${esc(o.gnames.join(" · "))}</div></div>
+        <div class="side"><span class="amt ${cls}">${money(o.amount)}</span></div>${o.gids.length===1?`<span class="chev">${ICON.chev}</span>`:""}`;
+      return o.gids.length===1 ? `<button type="button" class="row" ${tag} aria-label="${esc(fromN+" paga "+money(o.amount)+" a "+toN)}">${inner}</button>` : `<div class="row">${inner}</div>`;
+    }).join("") + `</section>
+      <div class="owes-sum stg" style="--i:${i++}">${toMeN?`<span class="p">${plural(toMeN,"persona te debe","personas te deben")}</span>`:""}${fromMeN?`<span class="n">Debes a ${plural(fromMeN,"persona","personas")}</span>`:""}${othersN?`<span class="z">${plural(othersN,"pago","pagos")} entre otros</span>`:""}</div>`
+      : `<p class="hint stg" style="--i:${i++};padding:0 4px">Todo cuadra: nadie debe nada en tus grupos.</p>`;
+
     h += `<p class="sec-t stg" style="--i:${i++}">Grupos</p><section class="glist stg" style="--i:${i++}">` + sorted.map(({g,c})=>{
       const v = r2(c.net[ME]||0);
       return `<button type="button" class="row" data-open="group:${esc(g.id)}">
