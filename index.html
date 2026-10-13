@@ -809,24 +809,6 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       <div class="btnrow"><button type="button" class="btn ghost" data-act="newgroup">Crear un grupo</button>
       <button type="button" class="linkbtn" data-act="exgroups">Ver un ejemplo</button></div></div>`;
     const sorted = calcs.slice().sort((a,b)=>(b.g.createdAt||"").localeCompare(a.g.createdAt||""));
-    // Quién debe a quién, sumando todos los grupos
-    const owes = allTransfers();
-    const arrowSvg = '<svg viewBox="0 0 24 24"><path d="M4 12h15M14 6l6 6-6 6"/></svg>';
-    const toMeN = owes.filter(o=>o.to===ME).length, fromMeN = owes.filter(o=>o.from===ME).length, othersN = owes.length - toMeN - fromMeN;
-    h += `<p class="sec-t stg" style="--i:${i++}">Quién debe a quién</p>`;
-    h += owes.length ? `<section class="glist owes-list stg" style="--i:${i++}">` + owes.map(o=>{
-      const fromN = o.from===ME ? "Tú" : o.fromName, toN = o.to===ME ? "ti" : o.toName;
-      const txt = o.from===ME ? `<b>Tú</b> pagas a <b>${esc(o.toName)}</b>` : o.to===ME ? `<b>${esc(o.fromName)}</b> te paga` : `<b>${esc(o.fromName)}</b> paga a <b>${esc(o.toName)}</b>`;
-      const cls = o.to===ME ? "pos" : o.from===ME ? "neg" : "";
-      const tag = o.gids.length===1 ? `data-open="group:${esc(o.gids[0])}"` : "";
-      const inner = `<span class="pair">${avatar(o.from===ME?"Yo":o.fromName)}<span class="arr" aria-hidden="true">${arrowSvg}</span>${avatar(o.to===ME?"Yo":o.toName)}</span>
-        <div class="main"><div class="name">${txt}</div><div class="sub">${esc(o.gnames.join(" · "))}</div></div>
-        <div class="side"><span class="amt ${cls}">${money(o.amount)}</span></div>${o.gids.length===1?`<span class="chev">${ICON.chev}</span>`:""}`;
-      return o.gids.length===1 ? `<button type="button" class="row" ${tag} aria-label="${esc(fromN+" paga "+money(o.amount)+" a "+toN)}">${inner}</button>` : `<div class="row">${inner}</div>`;
-    }).join("") + `</section>
-      <div class="owes-sum stg" style="--i:${i++}">${toMeN?`<span class="p">${plural(toMeN,"persona te debe","personas te deben")}</span>`:""}${fromMeN?`<span class="n">Debes a ${plural(fromMeN,"persona","personas")}</span>`:""}${othersN?`<span class="z">${plural(othersN,"pago","pagos")} entre otros</span>`:""}</div>`
-      : `<p class="hint stg" style="--i:${i++};padding:0 4px">Todo cuadra: nadie debe nada en tus grupos.</p>`;
-
     h += `<p class="sec-t stg" style="--i:${i++}">Grupos</p><section class="glist stg" style="--i:${i++}">` + sorted.map(({g,c})=>{
       const v = r2(c.net[ME]||0);
       return `<button type="button" class="row" data-open="group:${esc(g.id)}">
@@ -1336,7 +1318,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   function showGroup(id, back){
     const g = groups.find(x=>x.id===id);
     if (!g){ if (sheetRef==="group:"+id) closeSheet(); return; }
-    if (groupTab!=="gastos" && groupTab!=="saldos") groupTab = "gastos";
+    if (!["gastos","deben","saldos"].includes(groupTab)) groupTab = "gastos";
     const c = groupCalc(g);
     const nm = mid => mid===ME ? "Tú" : memberName(g, mid);
     const avName = mid => mid===ME ? "Yo" : memberName(g, mid);
@@ -1375,7 +1357,8 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       if (v<0) return `<div class="bal-row"><div class="bL"><div class="bb neg" style="width:${pct}%">−${money(-v)}</div></div><div class="bR">${label}</div></div>`;
       return `<div class="bal-row"><div class="bL">${label}</div><div class="bR"><div class="bb zero">${money(0)}</div></div></div>`;
     }).join("");
-    const transfers = c.settle.length ? c.settle.map(s=>{
+    const toMeN = c.settle.filter(s=>s.to===ME).length, fromMeN = c.settle.filter(s=>s.from===ME).length;
+    const transfers = c.settle.length ? c.settle.slice().sort((a,b)=>((a.to===ME?0:a.from===ME?1:2)-(b.to===ME?0:b.from===ME?1:2)) || b.amount-a.amount).map(s=>{
       const txt = s.from===ME ? `Pagas a <b>${esc(nm(s.to))}</b>` : s.to===ME ? `<b>${esc(nm(s.from))}</b> te paga` : `<b>${esc(nm(s.from))}</b> paga a <b>${esc(nm(s.to))}</b>`;
       const acts = s.to===ME
         ? `<button type="button" class="btn small" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya me pagó</button><button type="button" class="btn small soft" data-tomedeben="${esc(s.from)}|${s.amount}">Pasar a Me deben</button>`
@@ -1388,10 +1371,14 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <div class="paybar" role="img" aria-label="${esc(payers.map(m=>nm(m.id)+" "+money(c.paid[m.id])).join(", "))}">${payers.map(m=>`<i style="--h:${hue(avName(m.id))};width:${(c.paid[m.id]/c.total*100).toFixed(2)}%"></i>`).join("")}</div>
         <div class="legend">${payers.map(m=>`<span style="--c:hsl(${hue(avName(m.id))} 55% 52%)">${esc(nm(m.id))} <b>${money(c.paid[m.id])}</b></span>`).join("")}</div>
       </div>` : "";
+    const debenHtml = `<div class="pane">
+        <div class="card"><p class="step-t">Quién debe a quién</p>${transfers}</div>
+        ${c.settle.length ? `<div class="owes-sum">${toMeN?`<span class="p">${plural(toMeN,"persona te debe","personas te deben")}</span>`:""}${fromMeN?`<span class="n">Debes a ${plural(fromMeN,"persona","personas")}</span>`:""}${c.settle.length-toMeN-fromMeN?`<span class="z">${plural(c.settle.length-toMeN-fromMeN,"pago","pagos")} entre otros</span>`:""}</div>
+        <p class="hint" style="padding:0 4px">Es el menor número de pagos para que todos queden en paz. Cuando alguien pague, márcalo y el grupo se recalcula.</p>` : ""}
+      </div>`;
     const saldosHtml = `<div class="pane">
         <div class="card"><p class="step-t">Saldos</p><div class="bal-chart">${balRows}</div>
           <p class="formula">Verde: le deben dinero. Rojo: tiene que pagar. Saldo = lo que puso − lo que le toca.</p></div>
-        <div class="card"><p class="step-t">Cómo saldar las cuentas</p>${transfers}</div>
         ${whoPaid}
         <div class="addperson"><input id="gpNew" autocomplete="off" placeholder="Añadir persona al grupo" aria-label="Nombre"><button type="button" class="btn ghost" data-act="gpadd">Añadir</button></div>
       </div>`;
@@ -1404,9 +1391,10 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       </div>
       <div class="seg" role="group" aria-label="Ver">
         <button type="button" data-gtab="gastos" aria-pressed="${groupTab==="gastos"}">Gastos<span class="c">${exps.length}</span></button>
+        <button type="button" data-gtab="deben" aria-pressed="${groupTab==="deben"}">Quién debe${c.settle.length?`<span class="c">${c.settle.length}</span>`:""}</button>
         <button type="button" data-gtab="saldos" aria-pressed="${groupTab==="saldos"}">Saldos</button>
       </div>
-      <div id="gPane" class="${reduced?"":"enter-bar"}">${groupTab==="gastos"?gastosHtml:saldosHtml}</div>
+      <div id="gPane" class="${reduced?"":"enter-bar"}">${groupTab==="gastos"?gastosHtml:groupTab==="deben"?debenHtml:saldosHtml}</div>
       ${g.example?'<p class="hint" style="text-align:center">Este grupo es un ejemplo. Bórralo cuando quieras.</p>':""}
       <div class="grid2">
         <button type="button" class="btn ghost" data-act="editgroup">Editar grupo</button>
@@ -1420,7 +1408,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       </div>`, "group:"+id, {back});
     sheet.querySelectorAll("[data-gtab]").forEach(b=>b.addEventListener("click", ()=>{
       groupTab = b.dataset.gtab; moveSeg(b);
-      const p = $("#gPane"); p.innerHTML = groupTab==="gastos"?gastosHtml:saldosHtml;
+      const p = $("#gPane"); p.innerHTML = groupTab==="gastos"?gastosHtml:groupTab==="deben"?debenHtml:saldosHtml;
       if (!reduced){ p.style.animation="none"; void p.offsetWidth; p.style.animation="rise .35s var(--ease)"; }
     }));
   }
