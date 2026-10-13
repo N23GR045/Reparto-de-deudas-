@@ -392,6 +392,79 @@ details.archived > summary::-webkit-details-marker{display:none}
 .log li + li{border-top:1px solid var(--line)}
 .log .when{flex:none;width:78px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 
+/* ===== Repartir: nuevo aspecto ===== */
+.bal2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bal2 .t{border-radius:var(--rad);padding:14px 16px;display:flex;flex-direction:column;gap:4px;background:var(--surface);box-shadow:var(--shadow)}
+.bal2 .t span{font-size:13px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:6px}
+.bal2 .t span::before{content:"";width:8px;height:8px;border-radius:99px;background:currentColor}
+.bal2 .t.pos span{color:var(--ok)} .bal2 .t.neg span{color:var(--bad)}
+.bal2 .t.pos b{color:var(--ok)} .bal2 .t.neg b{color:var(--bad)} .bal2 .t.zero b{color:var(--muted)}
+.bal2 .t b{font-family:var(--f-display);font-weight:700;font-size:clamp(24px,7vw,30px);letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.bal2 .t.pos{background:color-mix(in srgb,var(--ok) 8%,var(--surface))}
+.bal2 .t.neg{background:color-mix(in srgb,var(--bad) 7%,var(--surface))}
+.acts2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act-tile{border:0;border-radius:var(--rad);padding:14px;text-align:left;display:flex;flex-direction:column;gap:10px;background:var(--surface);box-shadow:var(--shadow);transition:transform .18s var(--ease)}
+.act-tile:active{transform:scale(.97)}
+.act-tile .ai{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.act-tile .ai svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.act-tile b{font-size:15px;font-weight:600}
+.act-tile small{font-size:12px;color:var(--muted);line-height:1.35;margin-top:-6px}
+.act-tile.primary{background:var(--accent);color:var(--accent-ink)}
+.act-tile.primary .ai{background:color-mix(in srgb,var(--accent-ink) 18%,transparent);color:inherit}
+.act-tile.primary small{color:inherit;opacity:.8}
+.gcards{display:flex;flex-direction:column;gap:12px}
+.gcard{position:relative;overflow:hidden;border:0;width:100%;text-align:left;border-radius:calc(var(--rad) + 2px);padding:16px;display:flex;flex-direction:column;gap:14px;
+  background:linear-gradient(160deg, color-mix(in srgb,hsl(var(--h) 60% 55%) 18%,var(--surface)) 0%, var(--surface) 62%);box-shadow:var(--shadow);transition:transform .18s var(--ease)}
+.gcard:active{transform:scale(.98)}
+.gcard .gc-top{display:flex;align-items:center;gap:12px}
+.gc-ic{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:17px;color:#fff;background:hsl(var(--h) 52% 46%)}
+.gcard .gc-t{flex:1;min-width:0}
+.gcard .gc-t b{display:block;font-size:17px;font-weight:600;overflow-wrap:anywhere;line-height:1.25}
+.gcard .gc-t span{font-size:13px;color:var(--muted)}
+.gcard .gc-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.avstack{display:flex;align-items:center}
+.avstack .av{width:30px;height:30px;font-size:11px;box-shadow:0 0 0 2px var(--surface)}
+.avstack .av + .av{margin-left:-8px}
+.avstack .more{margin-left:6px;font-size:12px;color:var(--muted);font-weight:500}
+.gcard .gbudget{display:flex;flex-direction:column;gap:5px}
+.gcard .gbudget .bt{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.gcard .gbudget .bar{height:6px}
+.ghero{border-radius:calc(var(--rad) + 4px);padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+  background:linear-gradient(160deg, color-mix(in srgb,hsl(var(--h) 60% 55%) 20%,var(--surface)) 0%, var(--surface) 75%);box-shadow:var(--shadow)}
+.ghero .gh-lbl{font-size:14px;color:var(--muted)}
+.ghero .gh-big{font-family:var(--f-display);font-weight:700;font-size:44px;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.ghero .gh-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;padding-top:12px;border-top:1px solid var(--line)}
+.ghero .gh-stats div{display:flex;flex-direction:column;gap:2px}
+.ghero .gh-stats span{font-size:12px;color:var(--muted)}
+.ghero .gh-stats b{font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+.seg.utabs{position:sticky;top:-6px;z-index:3;background:var(--bg);border-radius:0;padding:0;margin:0 -16px;padding-inline:8px;border-bottom:1px solid var(--line)}
+.seg.utabs button{border-radius:0;font-weight:600;padding:13px 6px;min-height:46px}
+.seg.utabs .ind{top:auto;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--accent);box-shadow:none}
+.cat-ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,hsl(var(--ch) 60% 52%) 16%,var(--surface));color:hsl(var(--ch) 55% 42%)}
+:root[data-theme="dark"] .cat-ic{color:hsl(var(--ch) 60% 68%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cat-ic{color:hsl(var(--ch) 60% 68%)}}
+.cat-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+details.exp summary .side2{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none}
+details.exp summary .side2 .a{font-weight:600}
+details.exp summary .side2 small{font-size:12px;font-weight:500;white-space:nowrap}
+.day-h2{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:600;color:var(--muted);margin:6px 4px -8px}
+.day-h2 span:last-child{font-variant-numeric:tabular-nums;font-weight:500}
+.tcard{background:var(--surface);border-radius:var(--rad);padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.tcard.me-in{background:color-mix(in srgb,var(--ok) 7%,var(--surface))}
+.tcard.me-out{background:color-mix(in srgb,var(--bad) 6%,var(--surface))}
+.tc-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:6px}
+.tc-p{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;text-align:center}
+.tc-p .av{width:48px;height:48px;font-size:16px}
+.tc-p span{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.tc-mid{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:92px}
+.tc-mid b{font-family:var(--f-display);font-size:22px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tc-mid .ln{width:100%;height:14px;color:var(--faint)}
+.tc-mid .ln svg{width:100%;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tc-mid small{font-size:11px;color:var(--muted)}
+.tcard .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0}
+.tcard .acts .btn:only-child{grid-column:1/-1}
+.tlist{display:flex;flex-direction:column;gap:10px}
+
 /* Actualizaciones */
 .upd{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border-radius:var(--rad);padding:14px 16px}
 .upd .u1{display:flex;align-items:center;gap:10px}
@@ -588,6 +661,19 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     : e.split==="parts" && e.weights ? splitCents(cents, among, "parts", e.weights).shares : splitCents(cents, among, "equal").shares;
   const CATS = [["comida","Comida y bebida",25],["super","Supermercado",140],["transporte","Transporte",210],["alojamiento","Alojamiento",265],["ocio","Ocio y actividades",320],["casa","Casa y facturas",45],["compras","Compras",355],["otros","Otros",200]];
   const catOf = k => CATS.find(c=>c[0]===k) || CATS[CATS.length-1];
+  const CAT_ICON = {
+    comida:'<svg viewBox="0 0 24 24"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 21V3c-2.2 1-3.5 3.5-3.5 7 0 2 1.5 3 3.5 3"/></svg>',
+    super:'<svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 11h10.2l2-8H6.3"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg>',
+    transporte:'<svg viewBox="0 0 24 24"><path d="M5 16V11l2-5h10l2 5v5M5 16h14M5 16v2M19 16v2M4 11h16"/><circle cx="8" cy="13.5" r=".6"/><circle cx="16" cy="13.5" r=".6"/></svg>',
+    alojamiento:'<svg viewBox="0 0 24 24"><path d="M3 19V7M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7" cy="11" r="2"/></svg>',
+    ocio:'<svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>',
+    casa:'<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5M10 20v-5h4v5"/></svg>',
+    compras:'<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+    otros:'<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg>'
+  };
+  const catIcon = k => { const c = catOf(k); return `<span class="cat-ic" style="--ch:${c[2]}" aria-hidden="true">${CAT_ICON[c[0]]}</span>`; };
+  const avStack = (g, max) => { const ms = g.members||[]; max = max||5;
+    return `<span class="avstack" aria-label="${esc(ms.map(m=>m.id===ME?"Tú":m.name).join(", "))}">${ms.slice(0,max).map(m=>avatar(m.id===ME?"Yo":m.name)).join("")}${ms.length>max?`<span class="more">+${ms.length-max}</span>`:""}</span>`; };
   const gcur = g => (g && g.currency) || S.currency;
   const payersCents = (e, cents) => {
     if (e.payers && Object.keys(e.payers).length){ const o = {}; Object.entries(e.payers).forEach(([k,v])=>{ const c = Math.round((+v||0)*100); if (c>0) o[k]=c; }); return o; }
@@ -882,37 +968,34 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     calcs.forEach(({g,c})=>{ if (g.archived) return; if (gcur(g)!==S.currency){ otherCur++; return; } const v = c.net[ME]||0; if (v>0) toMe+=v; else iOwe-=v; });
     const active = calcs.filter(x=>!x.g.archived), archived = calcs.filter(x=>x.g.archived);
     let i = 0;
-    let h = updBanner() + `<section class="summary stg" style="--i:${i++}" aria-label="Resumen de grupos">
-        <div class="lbl">Te deben en tus grupos</div>
-        <div class="big" data-count="${r2(toMe)}" data-key="gtotal">${money(toMe)}</div>
-        <div class="stats"><span><b>${money(iOwe)}</b>debes tú</span><span><b>${active.length}</b>${active.length===1?"grupo":"grupos"}</span>${otherCur?`<span>${plural(otherCur,"grupo","grupos")} en otra moneda</span>`:""}</div>
+    let h = updBanner() + `<section class="bal2 stg" style="--i:${i++}" aria-label="Resumen de tus grupos">
+        <div class="t ${toMe>0?"pos":"zero"}"><span>Te deben</span><b data-count="${r2(toMe)}" data-key="gtotal">${money(toMe)}</b></div>
+        <div class="t ${iOwe>0?"neg":"zero"}"><span>Debes</span><b>${money(iOwe)}</b></div>
       </section>
-      <button type="button" class="quick press stg" style="--i:${i++}" data-act="quick">
-        <span class="qi">${ICON.split}</span>
-        <span style="flex:1;min-width:0"><b>Dividir una cuenta</b><span>Pagaste tú y quieres que cada uno te devuelva su parte.</span></span>
-        <span class="chev" style="color:inherit;opacity:.7">${ICON.chev}</span>
-      </button>`;
+      ${otherCur ? `<p class="hint stg" style="--i:${i++};margin-top:-12px;padding:0 4px">${plural(otherCur,"grupo","grupos")} en otra moneda no se suma${otherCur>1?"n":""} aquí.</p>` : ""}
+      <section class="acts2 stg" style="--i:${i++}">
+        <button type="button" class="act-tile primary" data-act="quick"><span class="ai">${ICON.split}</span><b>Dividir una cuenta</b><small>Pagaste tú por varios</small></button>
+        <button type="button" class="act-tile" data-act="newgroup"><span class="ai">${ICON.group}</span><b>Nuevo grupo</b><small>Viaje, piso, evento…</small></button>
+      </section>`;
     if (!ready) return h + `<p class="hint">Cargando tus grupos…</p>`;
     if (!groups.length) return h + `<div class="empty stg" style="--i:${i++}">
-      <h3>Grupos para gastos que se repiten</h3>
-      <p>Para un viaje o el piso compartido, crea un grupo. Apuntas cada gasto con quién pagó y la app calcula quién debe a quién.</p>
-      <div class="btnrow"><button type="button" class="btn ghost" data-act="newgroup">Crear un grupo</button>
-      <button type="button" class="linkbtn" data-act="exgroups">Ver un ejemplo</button></div></div>`;
-    const row = ({g,c}) => {
-      const v = r2(c.net[ME]||0), cur = gcur(g);
+      <h3>Aún no tienes grupos</h3>
+      <p>Crea un grupo para un viaje o el piso compartido. Apuntas cada gasto con quién pagó y la app calcula quién debe a quién.</p>
+      <button type="button" class="linkbtn" data-act="exgroups">Ver un grupo de ejemplo</button></div>`;
+    const card = ({g,c}) => {
+      const v = r2(c.net[ME]||0), cur = gcur(g), pend = c.settle.length;
       const pct = g.budget ? Math.min(100, c.total/g.budget*100) : 0;
-      return `<button type="button" class="row" data-open="group:${esc(g.id)}">
-        <span class="av sq" style="--h:${hue(g.name)}" aria-hidden="true">${esc(initials(g.name))}</span>
-        <div class="main"><div class="name">${esc(g.name)}</div><div class="sub">${plural(g.members.length,"persona","personas")} · ${moneyC(c.total, cur)}${g.budget?` de ${moneyC(g.budget, cur)}`:""}</div></div>
-        <div class="side"><span class="amt ${v>0?"pos":v<0?"neg":"zero"}">${v===0?"En paz":(v>0?"+":"−")+moneyC(Math.abs(v), cur)}</span><span class="meta">${v>0?"te deben":v<0?"debes":""}</span></div>
-        <span class="chev">${ICON.chev}</span>
-        ${g.budget ? `<span class="prog" aria-hidden="true"><i style="width:${pct.toFixed(1)}%;${pct>=100?"background:var(--bad);opacity:1":pct>=80?"background:var(--warn);opacity:1":""}"></i></span>` : ""}
+      return `<button type="button" class="gcard" data-open="group:${esc(g.id)}" style="--h:${hue(g.name)}">
+        <div class="gc-top"><span class="gc-ic" aria-hidden="true">${esc(initials(g.name))}</span>
+          <div class="gc-t"><b>${esc(g.name)}</b><span>${moneyC(c.total, cur)} en ${plural((g.expenses||[]).filter(e=>e.type!=="settle").length,"gasto","gastos")}${pend?` · ${plural(pend,"pago pendiente","pagos pendientes")}`:""}</span></div>
+          <span class="chev">${ICON.chev}</span></div>
+        <div class="gc-bot">${avStack(g)}<span class="chip-st ${v>0?"pos":v<0?"neg":"zero"}">${v>0?"Te deben "+moneyC(v,cur):v<0?"Debes "+moneyC(-v,cur):"Estás en paz"}</span></div>
+        ${g.budget ? `<div class="gbudget"><div class="bt"><span>Presupuesto</span><span>${moneyC(c.total,cur)} de ${moneyC(g.budget,cur)}</span></div><div class="bar"><i style="width:${pct.toFixed(1)}%;${pct>=100?"background:var(--bad)":pct>=80?"background:var(--warn)":""}"></i></div></div>` : ""}
       </button>`;
     };
     const byDate = (a,b)=>(b.g.createdAt||"").localeCompare(a.g.createdAt||"");
-    if (active.length) h += `<p class="sec-t stg" style="--i:${i++}">Grupos</p><section class="glist stg" style="--i:${i++}">` + active.sort(byDate).map(row).join("") + `</section>`;
-    h += `<div class="stg" style="--i:${i++}"><button type="button" class="btn ghost wide" data-act="newgroup">Nuevo grupo</button></div>`;
-    if (archived.length) h += `<details class="archived stg" style="--i:${i++}"><summary class="sec-t" style="margin:0 0 10px 4px;cursor:pointer">Archivados (${archived.length})</summary><section class="glist">${archived.sort(byDate).map(row).join("")}</section></details>`;
+    if (active.length) h += `<p class="sec-t stg" style="--i:${i++}">Tus grupos</p><section class="gcards">` + active.sort(byDate).map(x=>`<div class="stg" style="--i:${i++}">${card(x)}</div>`).join("") + `</section>`;
+    if (archived.length) h += `<details class="archived stg" style="--i:${i++}"><summary class="sec-t" style="margin:0 0 10px 4px;cursor:pointer">Archivados (${archived.length})</summary><section class="gcards">${archived.sort(byDate).map(card).join("")}</section></details>`;
     return h;
   }
 
@@ -1519,10 +1602,13 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       }).join("");
       const how = e.split==="exact" ? "por importes" : e.split==="parts" ? "por partes" : "a partes iguales";
       const ct = e.category ? catOf(e.category) : null;
-      return `<details class="exp"><summary>${pids.length>1?`<span class="av sm sq" style="--h:${ct?ct[2]:200}" aria-hidden="true">${pids.length}</span>`:mav(pids[0]||e.paidBy,"sm")}<div class="main"><div class="t1">${esc(e.concept||"Gasto")}</div><div class="d">${ct?`<span class="cdot" style="--ch:${ct[2]}"></span>${esc(ct[1])} · `:""}Pagado por ${esc(who)}${myPart?` · tu parte ${money(myPart)}`:""}</div></div><span class="a" style="text-align:right">${money(e.amount)}${e.origCurrency?`<small style="display:block;font-size:11px;color:var(--muted);font-weight:400">${moneyC(e.origAmount, e.origCurrency)}</small>`:""}</span><span class="chev">${ICON.chev}</span></summary>
+      const myPaid = (P[ME]||0)/100, delta = r2(myPaid - myPart);
+      const impact = delta>0 ? `<small class="pos">te deben ${money(delta)}</small>` : delta<0 ? `<small class="neg">debes ${money(-delta)}</small>` : `<small class="zero">${among.includes(ME)||myPaid?"en paz":"no participas"}</small>`;
+      return `<details class="exp"><summary>${catIcon(e.category)}<div class="main"><div class="t1">${esc(e.concept||"Gasto")}</div><div class="d">Pagado por ${esc(who)}${e.origCurrency?` · ${moneyC(e.origAmount, e.origCurrency)}`:""}</div></div><div class="side2"><span class="a">${money(e.amount)}</span>${impact}</div></summary>
         <div class="break">${rows}<div class="foot"><span>Dividido ${how} entre ${plural(among.length,"persona","personas")}${e.origCurrency?` · cambio 1 ${esc(e.origCurrency)} = ${String(e.rate).replace(".",",")} ${esc(gc)}`:""}</span><span class="btnrow"><button type="button" class="linkbtn" style="font-size:13px" data-editexp="${esc(e.id)}">Editar</button><button type="button" class="rm" data-rmexp="${esc(e.id)}">Borrar</button></span></div></div></details>`;
     };
-    const gastosHtml = items.length ? `<div class="pane">${days.map(d=>`<p class="day-h">${esc(dayLabel(d.k))}</p><div class="exp-card">${d.list.map(expRow).join("")}</div>`).join("")}</div>`
+    const dayTotal = d => d.list.filter(e=>e.type!=="settle").reduce((a,e)=>a+(+e.amount||0),0);
+    const gastosHtml = items.length ? `<div class="pane">${days.map(d=>`<p class="day-h2"><span>${esc(dayLabel(d.k))}</span><span>${dayTotal(d)?money(dayTotal(d)):""}</span></p><div class="exp-card">${d.list.map(expRow).join("")}</div>`).join("")}</div>`
       : `<div class="empty" style="padding:10px 4px"><h3>Sin gastos todavía</h3><p>Pulsa el botón + de abajo para apuntar el primero: qué fue, cuánto costó, quién lo pagó y para quién era.</p></div>`;
 
     // SALDOS: barras a cada lado de una línea central
@@ -1540,8 +1626,13 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       const acts = s.to===ME
         ? `<button type="button" class="btn small" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya me pagó</button><button type="button" class="btn small soft" data-tomedeben="${esc(s.from)}|${s.amount}">Pasar a Me deben</button>`
         : `<button type="button" class="btn small ghost" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Marcar como pagado</button>`;
-      return `<div class="settle"><div class="tr">${mav(s.from,"sm")}<span class="arr" aria-hidden="true">${ARROW}</span>${mav(s.to,"sm")}<span class="txt">${txt}</span><span class="v">${money(s.amount)}</span></div><div class="acts" style="padding-left:0">${acts}</div></div>`;
-    }).join("") : `<p class="hint" style="padding:4px 0">${exps.length ? "Todo cuadra. Nadie le debe nada a nadie." : "Cuando haya gastos, aquí verás quién tiene que pagar a quién."}</p>`;
+      const line = '<svg viewBox="0 0 100 14" preserveAspectRatio="none"><path d="M2 7h94M88 2l7 5-7 5"/></svg>';
+      return `<div class="tcard ${s.to===ME?"me-in":s.from===ME?"me-out":""}">
+        <div class="tc-row"><div class="tc-p">${mav(s.from)}<span>${esc(nm(s.from))}</span></div>
+          <div class="tc-mid"><b>${money(s.amount)}</b><span class="ln" aria-hidden="true">${line}</span><small>${s.from===ME?"pagas tú":s.to===ME?"te paga":"paga"}</small></div>
+          <div class="tc-p">${mav(s.to)}<span>${esc(nm(s.to))}</span></div></div>
+        <div class="acts">${acts}</div></div>`;
+    }).join("") : `<div class="card"><p class="hint" style="padding:4px 0">${exps.length ? "Todo cuadra. Nadie le debe nada a nadie." : "Cuando haya gastos, aquí verás quién tiene que pagar a quién."}</p></div>`;
     const payers = g.members.filter(m=>(c.paid[m.id]||0)>0).sort((a,b)=>c.paid[b.id]-c.paid[a.id]);
     const whoPaid = c.total ? `<div class="card">
         <p class="step-t">¿Quién ha puesto el dinero?</p>
@@ -1549,7 +1640,8 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <div class="legend">${payers.map(m=>`<span style="--c:hsl(${hue(avName(m.id))} 55% 52%)">${esc(nm(m.id))} <b>${money(c.paid[m.id])}</b></span>`).join("")}</div>
       </div>` : "";
     const debenHtml = `<div class="pane">
-        <div class="card"><div class="vrow"><p class="step-t">Quién debe a quién</p><span class="pill-m">${g.simplify===false?"Sin simplificar":"Mínimo de pagos"}</span></div>${transfers}</div>
+        <div class="vrow" style="padding:0 4px"><p class="step-t">Quién debe a quién</p><span class="pill-m">${g.simplify===false?"Sin simplificar":"Mínimo de pagos"}</span></div>
+        <div class="tlist">${transfers}</div>
         ${c.settle.length ? `<div class="owes-sum">${toMeN?`<span class="p">${plural(toMeN,"persona te debe","personas te deben")}</span>`:""}${fromMeN?`<span class="n">Debes a ${plural(fromMeN,"persona","personas")}</span>`:""}${c.settle.length-toMeN-fromMeN?`<span class="z">${plural(c.settle.length-toMeN-fromMeN,"pago","pagos")} entre otros</span>`:""}</div>
         <p class="hint" style="padding:0 4px">${g.simplify===false ? "Simplificar deudas está desactivado: cada uno paga directamente a quien pagó por él. Puedes activarlo en Editar grupo." : "Es el menor número de pagos posible para que todos queden en paz."} Cuando alguien pague, márcalo y el grupo se recalcula.</p>` : ""}
       </div>`;
@@ -1568,13 +1660,18 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <div class="addperson"><input id="gpNew" autocomplete="off" placeholder="Añadir persona al grupo" aria-label="Nombre"><button type="button" class="btn ghost" data-act="gpadd">Añadir</button></div>
       </div>`;
 
-    openSheet(head(g.name, {av:`<span class="av sm sq" style="--h:${hue(g.name)}" aria-hidden="true">${esc(initials(g.name))}</span>`}) + `
-      <div class="hero-d">
-        <span class="lbl">${mine>0?"Te deben":mine<0?"Debes":"Estás en paz"}</span>
-        <span class="big ${mine>0?"pos":mine<0?"neg":""}">${money(Math.abs(mine))}</span>
-        <span class="lbl">${plural(g.members.length,"persona","personas")} · ${plural(exps.length,"gasto","gastos")}</span>
+    openSheet(head(g.name, {av:`<span class="gc-ic" style="--h:${hue(g.name)};width:34px;height:34px;font-size:13px;border-radius:11px" aria-hidden="true">${esc(initials(g.name))}</span>`}) + `
+      <div class="ghero" style="--h:${hue(g.name)}">
+        ${avStack(g, 7)}
+        <span class="gh-lbl">${mine>0?"Te deben":mine<0?"Debes":"Estás en paz"}</span>
+        <span class="gh-big ${mine>0?"pos":mine<0?"neg":""}">${money(Math.abs(mine))}</span>
+        <div class="gh-stats">
+          <div><span>Gastado</span><b>${money(c.total)}</b></div>
+          <div><span>Tu parte</span><b>${money(c.share[ME]||0)}</b></div>
+          <div><span>Pendientes</span><b>${plural(c.settle.length,"pago","pagos")}</b></div>
+        </div>
       </div>
-      <div class="seg" role="group" aria-label="Ver">
+      <div class="seg utabs" role="group" aria-label="Ver">
         <button type="button" data-gtab="gastos" aria-pressed="${groupTab==="gastos"}">Gastos<span class="c">${exps.length}</span></button>
         <button type="button" data-gtab="deben" aria-pressed="${groupTab==="deben"}">Quién debe${c.settle.length?`<span class="c">${c.settle.length}</span>`:""}</button>
         <button type="button" data-gtab="saldos" aria-pressed="${groupTab==="saldos"}">Saldos</button>
