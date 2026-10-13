@@ -267,6 +267,64 @@ textarea{resize:vertical;min-height:72px}
 .settle .acts{display:flex;gap:8px;flex-wrap:wrap;padding-left:40px}
 .pos{color:var(--ok)}.neg{color:var(--bad)}.zero{color:var(--muted)}
 
+/* Reparto: quién puso el dinero y cuentas de cada uno */
+.pane{display:flex;flex-direction:column;gap:16px}
+.paybar{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:2px;background:var(--surface-2)}
+.paybar i{display:block;height:100%;background:hsl(var(--h) 55% 52%)}
+.enter-bar .paybar i{animation:grow .7s var(--ease) both}
+.dot{flex:none;width:12px;height:12px;border-radius:99px;background:hsl(var(--h) 55% 52%)}
+.accts{display:flex;flex-direction:column}
+.acct{display:flex;flex-direction:column;gap:7px;padding:12px 0}
+.acct + .acct{border-top:1px solid var(--line)}
+.acct .a1{display:flex;align-items:center;gap:10px}
+.acct .a1 .nm{flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.acct .a2{display:grid;grid-template-columns:58px minmax(0,1fr) auto;align-items:center;gap:10px;padding-left:40px;font-size:13px}
+.acct .a2 .k{color:var(--muted)}
+.acct .a2 .v{font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.acct .d{font-size:12px;color:var(--muted);padding-left:40px}
+.minibar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.minibar i{display:block;height:100%;border-radius:99px;transition:width .6s var(--ease)}
+.chip-st{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip-st.pos{background:var(--ok-soft);color:var(--ok)}
+.chip-st.neg{background:var(--bad-soft);color:var(--bad)}
+.chip-st.zero{background:var(--surface-2);color:var(--muted)}
+.formula{font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:var(--rad-s);padding:8px 12px;margin:0}
+.tr{display:flex;align-items:center;gap:6px}
+.tr .arr{width:22px;height:22px;flex:none;color:var(--faint)}
+.tr .arr svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tr .txt{flex:1;min-width:0;font-size:15px;line-height:1.3;padding-left:4px}
+.tr .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+details.exp{border-top:1px solid var(--line)}
+details.exp:first-child{border-top:0}
+details.exp summary{list-style:none;display:flex;align-items:center;gap:10px;padding:11px 0;cursor:pointer}
+details.exp summary::-webkit-details-marker{display:none}
+details.exp summary .main{flex:1;min-width:0}
+details.exp summary .t1{font-weight:500;overflow-wrap:anywhere}
+details.exp summary .d{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+details.exp summary .a{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+details.exp summary .chev{transition:transform .25s var(--ease)}
+details.exp[open] summary .chev{transform:rotate(90deg)}
+details.exp .break{padding:0 0 12px 40px;display:flex;flex-direction:column;gap:6px;animation:rise .3s var(--ease)}
+details.exp .br{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+details.exp .br .who{display:flex;align-items:center;gap:8px;min-width:0}
+details.exp .br .val{font-variant-numeric:tabular-nums;white-space:nowrap}
+details.exp .br.payer .val{color:var(--ok);font-weight:600}
+details.exp .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding-top:4px}
+.settle-row-x{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.settle-row-x:first-child{border-top:0}
+
+/* Actualizaciones */
+.upd{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border-radius:var(--rad);padding:14px 16px}
+.upd .u1{display:flex;align-items:center;gap:10px}
+.upd .u1 .ic{width:34px;height:34px;border-radius:99px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.upd .u1 .ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.upd .u1 b{display:block;font-size:15px}
+.upd .u1 span{font-size:13px;color:var(--muted)}
+.upd ul,.notes{margin:0;padding-left:18px;font-size:13px;color:var(--ink);display:flex;flex-direction:column;gap:3px}
+a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:center}
+.vrow{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.vrow b{font-weight:600;font-variant-numeric:tabular-nums}
+
 /* Personalización */
 .opt{display:flex;flex-direction:column;gap:8px}
 .opt + .opt{padding-top:4px}
@@ -349,7 +407,7 @@ textarea{resize:vertical;min-height:72px}
   // ---------- personalización ----------
   const DEFAULT_TPL = "Hola {nombre}, ¿qué tal? Te escribo por lo de {concepto}. Me quedan pendientes {falta} de {total}. ¿Cuándo te viene bien? Gracias. {firma}";
   const DEFAULTS = {theme:"system", accent:"verde", fs:1, density:"comoda", corners:"redondo", hero:true, avatars:true, bars:true,
-    sort:"urgencia", soonDays:7, defaultDue:0, currency:"EUR", startTab:"debts", myName:"", template:DEFAULT_TPL, hideDone:false};
+    sort:"urgencia", soonDays:7, defaultDue:0, currency:"EUR", startTab:"debts", myName:"", template:DEFAULT_TPL, hideDone:false, autoUpdate:true};
   const ACCENTS = [["verde",165,1],["azul",212,1],["índigo",240,1],["morado",280,1],["rosa",330,1],["rojo",355,1],["naranja",22,1],["mostaza",42,1],["oliva",80,.8],["grafito",200,.12]];
   const CURRENCIES = [["EUR","Euro (€)"],["USD","Dólar estadounidense ($)"],["MXN","Peso mexicano"],["COP","Peso colombiano"],["ARS","Peso argentino"],["CLP","Peso chileno"],["PEN","Sol peruano"],["DOP","Peso dominicano"],["CUP","Peso cubano"],["VES","Bolívar venezolano"],["GBP","Libra esterlina (£)"],["CHF","Franco suizo"]];
   const DENS = {compacta:["9px","8px"], comoda:["13px","10px"], amplia:["17px","14px"]};
@@ -435,13 +493,13 @@ textarea{resize:vertical;min-height:72px}
   }
   function groupCalc(g){
     const members = g.members || [];
-    const net = {}, paid = {}, share = {};
-    members.forEach(m=>{ net[m.id]=0; paid[m.id]=0; share[m.id]=0; });
+    const net = {}, paid = {}, share = {}, sent = {}, recv = {};
+    members.forEach(m=>{ net[m.id]=0; paid[m.id]=0; share[m.id]=0; sent[m.id]=0; recv[m.id]=0; });
     let total = 0;
     (g.expenses||[]).forEach(e=>{
       const cents = Math.round((+e.amount||0)*100);
       if (!cents) return;
-      if (e.type==="settle"){ if (e.from in net && e.to in net){ net[e.from]+=cents; net[e.to]-=cents; } return; }
+      if (e.type==="settle"){ if (e.from in net && e.to in net){ net[e.from]+=cents; net[e.to]-=cents; sent[e.from]+=cents; recv[e.to]+=cents; } return; }
       const among = (e.among||[]).filter(id=>id in net);
       if (!among.length || !(e.paidBy in net)) return;
       total += cents; paid[e.paidBy] += cents; net[e.paidBy] += cents;
@@ -459,7 +517,7 @@ textarea{resize:vertical;min-height:72px}
       if (!cred[j].v) j++;
     }
     const c = o => Object.fromEntries(Object.entries(o).map(([k,v])=>[k,v/100]));
-    return {total: total/100, net:c(net), paid:c(paid), share:c(share), settle};
+    return {total: total/100, net:c(net), paid:c(paid), share:c(share), sent:c(sent), recv:c(recv), settle};
   }
   const memberName = (g,id) => (g.members.find(m=>m.id===id)||{name:"?"}).name;
   function knownPeople(exclude){
@@ -587,7 +645,7 @@ textarea{resize:vertical;min-height:72px}
     const people = new Set(open.map(d=>norm(d.name))).size;
     const pct = v => total ? (v/total*100).toFixed(2) : 0;
     let i = 0;
-    let h = `<section class="summary stg" style="--i:${i++}" aria-label="Resumen">
+    let h = updBanner() + `<section class="summary stg" style="--i:${i++}" aria-label="Resumen">
         <div class="lbl">Te deben</div>
         <div class="big" data-count="${total}" data-key="dtotal">${money(total)}</div>
         ${total ? `<div class="stack" aria-hidden="true">${late?`<i class="s-late" style="width:${pct(late)}%"></i>`:""}${soon?`<i class="s-soon" style="width:${pct(soon)}%"></i>`:""}${pend?`<i class="s-pend" style="width:${pct(pend)}%"></i>`:""}</div>
@@ -639,7 +697,7 @@ textarea{resize:vertical;min-height:72px}
     const calcs = groups.map(g=>({g, c:groupCalc(g)}));
     calcs.forEach(({c})=>{ const v = c.net[ME]||0; if (v>0) toMe+=v; else iOwe-=v; });
     let i = 0;
-    let h = `<section class="summary stg" style="--i:${i++}" aria-label="Resumen de grupos">
+    let h = updBanner() + `<section class="summary stg" style="--i:${i++}" aria-label="Resumen de grupos">
         <div class="lbl">Te deben en tus grupos</div>
         <div class="big" data-count="${r2(toMe)}" data-key="gtotal">${money(toMe)}</div>
         <div class="stats"><span><b>${money(iOwe)}</b>debes tú</span><span><b>${groups.length}</b>${groups.length===1?"grupo":"grupos"}</span></div>
@@ -1124,33 +1182,82 @@ textarea{resize:vertical;min-height:72px}
       if (st.mode==="exact") exp.shares = st.shares();
       const cur = groups.find(x=>x.id===gid) || g;
       try { await save("groups", Object.assign({}, cur, {expenses:[...(cur.expenses||[]), exp]})); } catch(_){ return; }
-      toast(`Gasto de ${money(st.amount)} añadido`); groupTab = "deben"; showGroup(gid, true);
+      toast(`Gasto de ${money(st.amount)} añadido`); groupTab = "resumen"; showGroup(gid, true);
     });
   }
 
   // --- grupo: detalle ---
-  let groupTab = "deben";
+  let groupTab = "resumen";
+  const ARROW = '<svg viewBox="0 0 24 24"><path d="M4 12h15M14 6l6 6-6 6"/></svg>';
   function showGroup(id, back){
     const g = groups.find(x=>x.id===id);
     if (!g){ if (sheetRef==="group:"+id) closeSheet(); return; }
+    if (groupTab!=="resumen" && groupTab!=="gastos") groupTab = "resumen";
     const c = groupCalc(g);
     const nm = mid => mid===ME ? "Tú" : memberName(g, mid);
+    const avName = mid => mid===ME ? "Yo" : memberName(g, mid);
+    const mav = (mid, cls) => avatar(avName(mid), cls);
     const mine = r2(c.net[ME]||0);
-    const items = (g.expenses||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-    const settleHtml = c.settle.length ? c.settle.map(s=>{
-      const txt = s.from===ME ? `<b>Tú</b> le debes a <b>${esc(nm(s.to))}</b>` : s.to===ME ? `<b>${esc(nm(s.from))}</b> te debe` : `<b>${esc(nm(s.from))}</b> le debe a <b>${esc(nm(s.to))}</b>`;
-      const acts = s.to===ME
-        ? `<button type="button" class="btn small" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya me pagó</button><button type="button" class="btn small soft" data-tomedeben="${esc(s.from)}|${s.amount}">Pasar a Me deben</button>`
-        : `<button type="button" class="btn small ghost" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Marcar pagado</button>`;
-      return `<div class="settle"><div class="s1">${avatar(nm(s.from),"sm")}<span class="txt">${txt}</span><span class="v">${money(s.amount)}</span></div><div class="acts">${acts}</div></div>`;
-    }).join("") : `<p class="hint" style="padding:6px 0">${items.length ? "Todo cuadra. Nadie debe nada." : "Añade el primer gasto y aquí verás quién debe a quién."}</p>`;
-    const listHtml = items.length ? `<ul class="lines">${items.map(e=> e.type==="settle"
-      ? `<li><div class="l"><span class="mv in" aria-hidden="true">✓</span><div><div class="t1">${esc(nm(e.from))} pagó a ${esc(nm(e.to)==="Tú"?"ti":nm(e.to))}</div><div class="d">${fmtShort(e.date)}${e.note?" · "+esc(e.note):""}</div></div></div>
-         <div style="display:flex;flex-direction:column;align-items:flex-end"><span class="a" style="color:var(--ok)">${money(e.amount)}</span><button type="button" class="rm" data-rmexp="${esc(e.id)}">Deshacer</button></div></li>`
-      : `<li><div class="l">${avatar(nm(e.paidBy),"sm")}<div><div class="t1">${esc(e.concept||"Gasto")}</div><div class="d">Pagó ${esc(nm(e.paidBy))} · ${fmtShort(e.date)} · ${(e.among||[]).length===g.members.length?"entre todos":"entre "+(e.among||[]).map(nm).join(", ")}${e.split==="exact"?" · partes distintas":""}</div></div></div>
-         <div style="display:flex;flex-direction:column;align-items:flex-end"><span class="a">${money(e.amount)}</span><button type="button" class="rm" data-rmexp="${esc(e.id)}">Quitar</button></div></li>`).join("")}</ul>` : `<p class="hint" style="padding:6px 0">Aún no hay gastos.</p>`;
-    const peopleHtml = `<ul class="lines">${g.members.map(m=>{ const v=r2(c.net[m.id]||0); return `<li><div class="l">${avatar(m.name,"sm")}<div><div class="t1">${esc(m.id===ME?"Tú":m.name)}</div><div class="d">Pagó ${money(c.paid[m.id]||0)} · le toca ${money(c.share[m.id]||0)}</div></div></div><span class="a ${v>0?"pos":v<0?"neg":"zero"}">${v===0?"En paz":(v>0?"+":"−")+money(Math.abs(v))}</span></li>`; }).join("")}</ul>
-      <div class="addperson"><input id="gpNew" autocomplete="off" placeholder="Añadir persona al grupo" aria-label="Nombre"><button type="button" class="btn ghost" data-act="gpadd">Añadir</button></div>`;
+    const items = (g.expenses||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"") || (b.id||"").localeCompare(a.id||""));
+    const exps = items.filter(e=>e.type!=="settle");
+
+    // 1. Quién ha puesto el dinero
+    const payers = g.members.filter(m=>(c.paid[m.id]||0)>0).sort((a,b)=>c.paid[b.id]-c.paid[a.id]);
+    const nonPayers = g.members.filter(m=>!(c.paid[m.id]>0));
+    const whoPaid = c.total ? `<div class="card">
+        <p class="step-t">¿Quién ha puesto el dinero?</p>
+        <div class="paybar" role="img" aria-label="${esc(payers.map(m=>nm(m.id)+" "+money(c.paid[m.id])).join(", "))}">${payers.map(m=>`<i style="--h:${hue(avName(m.id))};width:${(c.paid[m.id]/c.total*100).toFixed(2)}%"></i>`).join("")}</div>
+        <ul class="lines">${payers.map(m=>`<li><div class="l"><span class="dot" style="--h:${hue(avName(m.id))}"></span><div><div class="t1">${esc(nm(m.id))}${m.id===ME?" pusiste":" puso"}</div><div class="d">${Math.round(c.paid[m.id]/c.total*100)} % del total</div></div></div><span class="a">${money(c.paid[m.id])}</span></li>`).join("")}</ul>
+        ${nonPayers.length ? `<p class="hint">No ha${nonPayers.length>1?"n":""} puesto nada: ${nonPayers.map(m=>esc(nm(m.id))).join(", ")}.</p>` : ""}
+      </div>` : "";
+
+    // 2. Cuentas de cada uno
+    const maxBar = Math.max(0.01, ...g.members.map(m=>Math.max(c.paid[m.id]||0, c.share[m.id]||0)));
+    const accounts = `<div class="card">
+        <p class="step-t">Cuentas de cada uno</p>
+        <div class="accts">${g.members.map(m=>{
+          const p = c.paid[m.id]||0, sh = c.share[m.id]||0, v = r2(c.net[m.id]||0), sent = c.sent[m.id]||0, recv = c.recv[m.id]||0, me = m.id===ME;
+          const st = v>0 ? (me?"Te deben ":"Le deben ")+money(v) : v<0 ? (me?"Debes ":"Debe ")+money(-v) : "En paz";
+          return `<div class="acct">
+            <div class="a1">${mav(m.id,"sm")}<span class="nm">${esc(nm(m.id))}</span><span class="chip-st ${v>0?"pos":v<0?"neg":"zero"}">${st}</span></div>
+            <div class="a2"><span class="k">${me?"Pusiste":"Puso"}</span><span class="minibar"><i style="--h:${hue(avName(m.id))};width:${(p/maxBar*100).toFixed(1)}%;background:hsl(var(--h) 55% 52%)"></i></span><span class="v">${money(p)}</span></div>
+            <div class="a2"><span class="k">${me?"Te toca":"Le toca"}</span><span class="minibar"><i style="width:${(sh/maxBar*100).toFixed(1)}%;background:var(--faint)"></i></span><span class="v">${money(sh)}</span></div>
+            ${sent||recv ? `<div class="d">${sent?(me?"Ya has devuelto ":"Ya ha devuelto ")+money(sent):""}${sent&&recv?" · ":""}${recv?(me?"Ya te han devuelto ":"Ya le han devuelto ")+money(recv):""}</div>` : ""}
+          </div>`; }).join("")}</div>
+        ${c.total ? `<p class="formula">Lo que puso − lo que le toca = lo que le deben. Si sale negativo, es lo que debe.</p>` : ""}
+      </div>`;
+
+    // 3. Para quedar en paz
+    const transfers = `<div class="card">
+        <p class="step-t">Para quedar en paz</p>
+        ${c.settle.length ? c.settle.map(s=>{
+          const txt = s.from===ME ? `Pagas a <b>${esc(nm(s.to))}</b>` : s.to===ME ? `<b>${esc(nm(s.from))}</b> te paga` : `<b>${esc(nm(s.from))}</b> paga a <b>${esc(nm(s.to))}</b>`;
+          const acts = s.to===ME
+            ? `<button type="button" class="btn small" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya me pagó</button><button type="button" class="btn small soft" data-tomedeben="${esc(s.from)}|${s.amount}">Pasar a Me deben</button>`
+            : `<button type="button" class="btn small ghost" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Marcar pagado</button>`;
+          return `<div class="settle"><div class="tr">${mav(s.from,"sm")}<span class="arr" aria-hidden="true">${ARROW}</span>${mav(s.to,"sm")}<span class="txt">${txt}</span><span class="v">${money(s.amount)}</span></div><div class="acts" style="padding-left:0">${acts}</div></div>`;
+        }).join("") : `<p class="hint" style="padding:4px 0">${exps.length ? "Todo cuadra. Nadie debe nada." : "Añade el primer gasto y aquí verás quién tiene que pagar a quién."}</p>`}
+      </div>`;
+
+    const addPerson = `<div class="addperson"><input id="gpNew" autocomplete="off" placeholder="Añadir persona al grupo" aria-label="Nombre"><button type="button" class="btn ghost" data-act="gpadd">Añadir</button></div>`;
+    const resumenHtml = `<div class="pane">${whoPaid}${accounts}${transfers}${addPerson}</div>`;
+
+    // Gastos, cada uno con su desglose
+    const gastosHtml = items.length ? `<div class="card" style="padding-block:4px">${items.map(e=>{
+      if (e.type==="settle") return `<div class="settle-row-x"><span class="mv in" aria-hidden="true">✓</span><div style="flex:1;min-width:0"><div class="t1" style="font-weight:500">${esc(nm(e.from))} ${e.from===ME?"pagaste":"pagó"} a ${esc(e.to===ME?"ti":nm(e.to))}</div><div class="hint" style="font-size:12px">${fmtShort(e.date)}${e.note?" · "+esc(e.note):""}</div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-weight:600;color:var(--ok);font-variant-numeric:tabular-nums">${money(e.amount)}</span><button type="button" class="rm" data-rmexp="${esc(e.id)}">Deshacer</button></div></div>`;
+      const among = (e.among||[]).filter(x=>g.members.some(m=>m.id===x));
+      const cents = Math.round((+e.amount||0)*100);
+      const sh = e.split==="exact" && e.shares ? splitCents(cents, among, "exact", e.shares).shares : splitCents(cents, among, "equal").shares;
+      const rows = [e.paidBy, ...among.filter(x=>x!==e.paidBy)].filter(x=>among.includes(x) || x===e.paidBy).map(x=>{
+        const part = (sh[x]||0)/100; const isP = x===e.paidBy;
+        const pv = x===ME ? "pusiste" : "puso", sp = x===ME ? "tu parte" : "su parte";
+        const owes = isP ? (among.includes(x) ? `${pv} ${money(e.amount)} · ${sp} ${money(part)}` : `${pv} ${money(e.amount)}`) : `${x===ME?"debes":"debe"} ${money(part)} a ${esc(e.paidBy===ME?"ti":nm(e.paidBy))}`;
+        return `<div class="br ${isP?"payer":""}"><span class="who">${mav(x,"sm")}<span>${esc(nm(x))}</span></span><span class="val">${owes}</span></div>`;
+      }).join("");
+      return `<details class="exp"><summary>${mav(e.paidBy,"sm")}<div class="main"><div class="t1">${esc(e.concept||"Gasto")}</div><div class="d">${esc(nm(e.paidBy))} ${e.paidBy===ME?"pusiste":"puso"} ${money(e.amount)} · ${fmtShort(e.date)}</div></div><span class="a">${money(e.amount)}</span><span class="chev">${ICON.chev}</span></summary>
+        <div class="break">${rows}<div class="foot"><span>${e.split==="exact"?"Partes distintas":"A partes iguales"} entre ${plural(among.length,"persona","personas")}</span><button type="button" class="rm" data-rmexp="${esc(e.id)}">Quitar gasto</button></div></div></details>`;
+    }).join("")}</div><p class="hint" style="text-align:center">Toca un gasto para ver qué le toca a cada uno.</p>` : `<p class="hint" style="padding:6px 4px">Aún no hay gastos. Pulsa «Añadir gasto».</p>`;
 
     openSheet(head(g.name, {av:`<span class="av sm sq" style="--h:${hue(g.name)}" aria-hidden="true">${esc(initials(g.name))}</span>`}) + `
       <div class="hero-d">
@@ -1160,11 +1267,10 @@ textarea{resize:vertical;min-height:72px}
       </div>
       <button type="button" class="btn wide" data-act="addexp">Añadir gasto</button>
       <div class="seg" role="group" aria-label="Ver">
-        <button type="button" data-gtab="deben" aria-pressed="${groupTab==="deben"}">Quién debe</button>
-        <button type="button" data-gtab="gastos" aria-pressed="${groupTab==="gastos"}">Gastos<span class="c">${items.filter(e=>e.type!=="settle").length}</span></button>
-        <button type="button" data-gtab="personas" aria-pressed="${groupTab==="personas"}">Personas<span class="c">${g.members.length}</span></button>
+        <button type="button" data-gtab="resumen" aria-pressed="${groupTab==="resumen"}">Resumen</button>
+        <button type="button" data-gtab="gastos" aria-pressed="${groupTab==="gastos"}">Gastos<span class="c">${exps.length}</span></button>
       </div>
-      <div class="card" id="gPane" style="padding-block:6px 10px">${groupTab==="deben"?settleHtml:groupTab==="gastos"?listHtml:peopleHtml}</div>
+      <div id="gPane" class="${reduced?"":"enter-bar"}">${groupTab==="resumen"?resumenHtml:gastosHtml}</div>
       ${g.example?'<p class="hint" style="text-align:center">Este grupo es un ejemplo. Bórralo cuando quieras.</p>':""}
       <div class="grid2">
         <button type="button" class="btn ghost" data-act="editgroup">Editar</button>
@@ -1173,7 +1279,7 @@ textarea{resize:vertical;min-height:72px}
       <div id="confirmBox"></div>`, "group:"+id, {back});
     sheet.querySelectorAll("[data-gtab]").forEach(b=>b.addEventListener("click", ()=>{
       groupTab = b.dataset.gtab; moveSeg(b);
-      const p = $("#gPane"); p.innerHTML = groupTab==="deben"?settleHtml:groupTab==="gastos"?listHtml:peopleHtml;
+      const p = $("#gPane"); p.innerHTML = groupTab==="resumen"?resumenHtml:gastosHtml;
       if (!reduced){ p.style.animation="none"; void p.offsetWidth; p.style.animation="rise .35s var(--ease)"; }
     }));
   }
@@ -1216,6 +1322,7 @@ textarea{resize:vertical;min-height:72px}
         <div class="msg" id="tplPrev" style="user-select:text;-webkit-user-select:text">${esc(reminderText(sample))}</div>
         <button type="button" class="linkbtn" data-act="resettpl" style="align-self:flex-start">Volver al texto original</button>
       </div>
+      ${canUpdate ? updSettingsHTML() : ""}
       <div class="card">
         <p class="step-t">Datos</p>
         <p class="hint">${mode==="db"?"Todo se guarda en tu cuenta y solo lo ves tú.":canFiles?"Tus datos se guardan solo en este dispositivo. Haz una copia de vez en cuando para no perderlos.":"Tus datos se guardan solo en este navegador."}</p>
@@ -1229,7 +1336,6 @@ textarea{resize:vertical;min-height:72px}
     $("#sCurrency").addEventListener("change", e=>{ setSetting("currency", e.target.value); showSettings(); });
     let tT; const tplUpd = () => { clearTimeout(tT); tT = setTimeout(()=>{ S.myName = $("#sName").value.trim(); setSetting("template", $("#sTpl").value || DEFAULT_TPL); $("#tplPrev").textContent = reminderText(sample); }, 300); };
     $("#sTpl").addEventListener("input", tplUpd); $("#sName").addEventListener("input", tplUpd);
-    sheet.querySelectorAll("[data-toggle]").forEach(i=>i.addEventListener("change", ()=>setSetting(i.dataset.toggle, i.checked)));
     const imp = $("#importFile");
     if (imp) imp.addEventListener("change", async ()=>{
       const file = imp.files && imp.files[0]; imp.value = ""; if (!file) return;
@@ -1244,6 +1350,107 @@ textarea{resize:vertical;min-height:72px}
         $("#confirmBox").scrollIntoView({block:"nearest", behavior: reduced ? "auto" : "smooth"});
   }
   const canFiles = !window.claude;
+
+  // ---------- actualizaciones ----------
+  // APP_BUILD lo rellena GitHub Actions al publicar (es el número de la versión).
+  const REPO = "N23GR045/Reparto-de-deudas-";
+  const APP_BUILD = parseInt("__APP_BUILD__", 10) || 0;
+  const isApk = !!window.Capacitor;
+  const canUpdate = !window.claude;
+  const UPD_EVERY = 6 * 3600 * 1000;
+  const upd = {state:"idle", build:0, name:"", notes:[], url:"", page:"", date:"", swReady:false};
+  const verName = b => b ? "1." + b : "de desarrollo";
+  function notesFrom(body){
+    const txt = String(body||"");
+    const m = txt.match(/##\s*Novedades\s*\n([\s\S]*?)(\n##|\n\*\*Instalar|$)/i);
+    return (m ? m[1] : "").split("\n").map(l=>l.replace(/^[\s>*\-•]+/,"").replace(/[`*_]/g,"").trim())
+      .filter(l=>l && !/^(co-authored-by|claude-session|signed-off-by)/i.test(l)).slice(0,8);
+  }
+  function applyRelease(j){
+    upd.build = parseInt(String(j.tag_name||"").replace(/\D+/g,""),10) || 0;
+    upd.name = j.name || ("Versión " + verName(upd.build));
+    upd.notes = notesFrom(j.body);
+    const asset = (j.assets||[]).find(a=>/\.apk$/i.test(a.name||""));
+    upd.url = asset ? asset.browser_download_url : (j.html_url||"");
+    upd.page = j.html_url || `https://github.com/${REPO}/releases`;
+    upd.date = j.published_at || "";
+    upd.state = (APP_BUILD && upd.build > APP_BUILD) ? "available" : (APP_BUILD ? "uptodate" : "unknown");
+  }
+  async function checkUpdates(manual){
+    if (!canUpdate) return;
+    if (!manual){
+      if (!S.autoUpdate) return;
+      try { const c = JSON.parse(localStorage.getItem("rd-upd-cache")||"null"); if (c && Date.now()-c.at < UPD_EVERY){ applyRelease(c.rel); refreshUpd(); return; } } catch(e){}
+    }
+    upd.state = "checking"; refreshUpd();
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {headers:{Accept:"application/vnd.github+json"}, cache:"no-store"});
+      if (!r.ok) throw new Error("http " + r.status);
+      const j = await r.json();
+      const rel = {tag_name:j.tag_name, name:j.name, body:j.body, html_url:j.html_url, published_at:j.published_at, assets:(j.assets||[]).map(a=>({name:a.name, browser_download_url:a.browser_download_url}))};
+      try { localStorage.setItem("rd-upd-cache", JSON.stringify({at:Date.now(), rel})); } catch(e){}
+      applyRelease(rel);
+    } catch(e){ upd.state = (navigator.onLine===false) ? "offline" : "error"; }
+    refreshUpd();
+    if (manual){
+      if (upd.state==="uptodate") toast("Tienes la última versión");
+      else if (upd.state==="available") toast("Hay una versión nueva");
+      else if (upd.state==="offline") toast("Sin conexión. Inténtalo más tarde.");
+      else if (upd.state==="error") toast("No se pudo comprobar. Inténtalo más tarde.");
+    }
+  }
+  function refreshUpd(){
+    if (sheetRef==="settings" && !dirty){ const box = $("#updBox"); if (box) box.outerHTML = updSettingsHTML(); }
+    const ban = $("#updBanner"), want = updBanner();
+    if (ban && !want) ban.remove();
+    else if (!ban && want) $("#view").insertAdjacentHTML("afterbegin", want);
+  }
+  function dismissed(){ try { return +localStorage.getItem("rd-upd-skip") || 0; } catch(e){ return 0; } }
+  function updAction(cls){
+    if (isApk) return `<a class="btn ${cls||""}" href="${esc(upd.url)}">Descargar e instalar</a>`;
+    return `<button type="button" class="btn ${cls||""}" data-act="applyupd">Actualizar ahora</button>`;
+  }
+  function updBanner(){
+    if (!canUpdate) return "";
+    const webReady = !isApk && upd.swReady;
+    if (!(upd.state==="available" && upd.build > dismissed()) && !webReady) return "";
+    const title = webReady && upd.state!=="available" ? "La app se ha actualizado" : `Nueva versión ${verName(upd.build)}`;
+    const sub = isApk ? "Descárgala e instálala encima. No perderás tus datos." : "Recarga para usarla. Tus datos se mantienen.";
+    return `<section class="upd stg" id="updBanner" role="status">
+      <div class="u1"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><div><b>${esc(title)}</b><span>${sub}</span></div></div>
+      ${upd.notes.length && upd.state==="available" ? `<ul>${upd.notes.slice(0,3).map(n=>`<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+      <div class="btnrow">${updAction("small")}<button type="button" class="btn ghost small" data-act="skipupd">Ahora no</button></div>
+    </section>`;
+  }
+  function updSettingsHTML(){
+    const status = {checking:"Buscando…", available:`Hay una versión nueva: ${verName(upd.build)}`, uptodate:"Tienes la última versión", unknown: upd.build ? `Última versión publicada: ${verName(upd.build)}` : "", offline:"Sin conexión", error:"No se pudo comprobar", idle:""}[upd.state] || "";
+    return `<div class="card" id="updBox">
+      <p class="step-t">Actualizaciones</p>
+      <div class="vrow"><span>Versión instalada</span><b>${verName(APP_BUILD)}${isApk?" · Android":" · web"}</b></div>
+      ${status?`<div class="vrow"><span>Estado</span><b style="color:${upd.state==="available"?"var(--accent)":upd.state==="error"||upd.state==="offline"?"var(--bad)":"var(--ink)"}">${esc(status)}</b></div>`:""}
+      ${upd.notes.length ? `<div><p class="hint" style="margin-bottom:6px">Novedades de la ${verName(upd.build)}${upd.date?" · "+fmtDate(upd.date.slice(0,10)):""}</p><ul class="notes">${upd.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
+      <div class="grid2">${upd.state==="available" ? updAction() : `<button type="button" class="btn soft" data-act="checkupd" ${upd.state==="checking"?"disabled":""}>Buscar ahora</button>`}
+        <a class="btn ghost" href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Todas las versiones</a></div>
+      <label class="switch"><span>Buscar actualizaciones al abrir</span><input type="checkbox" data-toggle="autoUpdate" ${S.autoUpdate?"checked":""}></label>
+      ${!APP_BUILD ? `<p class="hint">Esta copia no viene de una versión publicada, así que no se puede comparar. Instala la app desde GitHub para recibir avisos.</p>` : ""}
+    </div>`;
+  }
+  async function applyWebUpdate(){
+    try {
+      const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+      if (reg){ await reg.update().catch(()=>{}); if (reg.waiting) reg.waiting.postMessage({type:"SKIP_WAITING"}); }
+    } catch(e){}
+    setTimeout(()=>location.reload(), 300);
+  }
+  if (canUpdate && !isApk && "serviceWorker" in navigator){
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", ()=>{ if (hadController){ upd.swReady = true; refreshUpd(); } });
+  }
+  if (canUpdate){
+    setTimeout(()=>checkUpdates(false), 1500);
+    document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible") checkUpdates(false); });
+    try { const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App; if (App) App.addListener("resume", ()=>checkUpdates(false)); } catch(e){}
+  }
   let pendingImport = null;
   async function exportData(){
     const json = JSON.stringify({app:"reparto-de-deudas", version:1, exportedAt:new Date().toISOString(), debts, groups, settings:S});
@@ -1365,6 +1572,9 @@ textarea{resize:vertical;min-height:72px}
     else if (act==="payall" && d) addPayment(d, restOf(d), todayISO());
     else if (act==="settings") showSettings();
     else if (act==="export") exportData();
+    else if (act==="checkupd") checkUpdates(true);
+    else if (act==="applyupd") applyWebUpdate();
+    else if (act==="skipupd"){ try { localStorage.setItem("rd-upd-skip", String(upd.build)); } catch(_){} upd.swReady = false; refreshUpd(); }
     else if (act==="pastecopy"){
       $("#confirmBox").innerHTML = `<div class="notice"><span>Pega aquí el texto de tu copia.</span><textarea rows="5" id="pasteText" placeholder='{"app":"reparto-de-deudas"…'></textarea><button type="button" class="btn small" data-act="checkpaste">Revisar copia</button></div>`;
       $("#pasteText").focus();
@@ -1398,6 +1608,7 @@ textarea{resize:vertical;min-height:72px}
   $("#settingsBtn").addEventListener("click", ()=>showSettings());
   document.addEventListener("input", e=>{ if (e.target.id==="q"){ query = e.target.value; const l=$("#dlist"); if (l) l.innerHTML = debtRows(); } });
   window.addEventListener("resize", ()=>{ placeSegs(document); });
+  document.addEventListener("change", e=>{ const t = e.target; if (t && t.dataset && t.dataset.toggle) setSetting(t.dataset.toggle, t.checked); });
 
   let tt; function toast(m){ const el=$("#toast"); el.textContent=m; el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"), 2600); }
 

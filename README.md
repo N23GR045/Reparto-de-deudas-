@@ -32,21 +32,22 @@ Abre `index.html` en el navegador con un doble clic. Funciona sin instalar nada.
 
 ## Descargar el APK para Android
 
-Cada vez que se sube un cambio a `main`, GitHub compila un APK nuevo y lo publica en **Releases**.
+Cada vez que se sube un cambio a `main`, GitHub compila un APK nuevo y lo publica en **Releases**. La app instalada avisa cuando hay una versión nueva.
 
 - Descarga directa de la última versión: **https://github.com/N23GR045/Reparto-de-deudas-/releases/latest/download/reparto-de-deudas.apk**
 - Todas las versiones: https://github.com/N23GR045/Reparto-de-deudas-/releases
 
 Para instalarlo, abre el enlace desde el móvil Android, descarga el archivo y ábrelo. Si Android lo pide, permite instalar apps de este origen. Las versiones nuevas se instalan encima de la anterior y conservan tus datos.
 
-El proceso está en `.github/workflows/apk.yml` y usa [Capacitor](https://capacitorjs.com/) para meter la app web en una app de Android. Puedes lanzarlo a mano desde la pestaña **Actions → Crear APK → Run workflow**.
+El proceso está en `.github/workflows/apk.yml` y usa [Capacitor](https://capacitorjs.com/) para meter la app web en una app de Android. Puedes lanzarlo a mano desde la pestaña **Actions → Publicar versión → Run workflow**.
 
 ## Versión web (iPhone y ordenador)
 
-La versión web se publica con GitHub Pages. Para activarla una sola vez:
+La versión web se publica con GitHub Pages desde el mismo proceso que crea el APK. Para activarla una sola vez:
 
 1. En el repositorio, ve a **Settings → Pages**.
-2. En **Source** elige **Deploy from a branch**, en **Branch** elige `main` y `/ (root)`, y pulsa **Save**.
+2. En **Source** elige **GitHub Actions**.
+3. Ve a **Actions → Publicar versión → Run workflow** (o sube cualquier cambio a `main`).
 
 En uno o dos minutos estará en **https://n23gr045.github.io/Reparto-de-deudas-/**.
 
@@ -55,6 +56,14 @@ En uno o dos minutos estará en **https://n23gr045.github.io/Reparto-de-deudas-/
 1. Abre la dirección de la versión web en **Safari**.
 2. Pulsa el botón **Compartir** y elige **Añadir a pantalla de inicio**.
 3. Se abrirá a pantalla completa, con su icono, y funcionará también sin conexión.
+
+## Actualizaciones
+
+Cada cambio que se sube a `main` publica una versión nueva (1.1, 1.2, 1.3…), con el APK en Releases y la web en Pages. Las novedades salen del mensaje del commit.
+
+- **En Android**, la app consulta Releases al abrirse (como mucho cada 6 horas) y, si hay una versión nueva, muestra un aviso con las novedades y el botón **Descargar e instalar**. El APK nuevo se instala encima y conserva tus datos.
+- **En la web y en el iPhone**, la app avisa de la versión nueva y se actualiza con **Actualizar ahora**.
+- En **Personalizar → Actualizaciones** ves tu versión, puedes buscar a mano y desactivar la búsqueda automática.
 
 ## Tus datos
 
@@ -73,7 +82,7 @@ assets/                 Icono y pantalla de carga del APK
 android-config/         Firma fija del APK, para que las actualizaciones se instalen encima
 capacitor.config.json   Configuración de la app Android
 package.json            Dependencias para compilar el APK
-.github/workflows/      Compilación automática del APK
+.github/workflows/      Publicación automática del APK y de la web
 ```
 
 ## Licencia

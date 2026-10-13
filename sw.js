@@ -1,9 +1,11 @@
-// Service worker: permite abrir la app sin conexión.
-const CACHE = "reparto-de-deudas-v1";
+// Service worker: permite abrir la app sin conexión y recibir actualizaciones.
+// GitHub Actions cambia __APP_BUILD__ por el número de versión al publicar,
+// así cada versión nueva usa una caché nueva y el navegador detecta el cambio.
+const CACHE = "reparto-de-deudas-__APP_BUILD__";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon.png"];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {
@@ -12,6 +14,10 @@ self.addEventListener("activate", (e) => {
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("fetch", (e) => {
@@ -26,10 +32,10 @@ self.addEventListener("fetch", (e) => {
     return;
   }
   if (url.origin !== location.origin) return;
-  // Archivos de la app: primero la red (para recibir actualizaciones), si no hay conexión, la copia guardada.
+  // Archivos de la app: primero la red (así llegan las actualizaciones); sin conexión, la copia guardada.
   e.respondWith(
-    fetch(req)
-      .then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; })
+    fetch(req, { cache: "no-cache" })
+      .then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; })
       .catch(() => caches.match(req).then((hit) => hit || caches.match("index.html")))
   );
 });

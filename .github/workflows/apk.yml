@@ -1,6 +1,7 @@
-name: Crear APK
+name: Publicar versión
 
-# Se ejecuta cada vez que se sube un cambio a main, o a mano desde la pestaña Actions.
+# Cada cambio en main crea una versión nueva: el APK de Android (en Releases)
+# y la web (en GitHub Pages). Las apps instaladas la detectan y avisan.
 on:
   push:
     branches: [main]
@@ -8,13 +9,16 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: apk
+  group: publicar
   cancel-in-progress: true
 
 jobs:
   apk:
+    name: APK de Android
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el código
@@ -34,8 +38,10 @@ jobs:
       - name: Instalar dependencias
         run: npm install --no-audit --no-fund
 
-      - name: Copiar la app web
-        run: npm run web
+      - name: Copiar la app web y poner el número de versión
+        run: |
+          npm run web
+          sed -i "s/__APP_BUILD__/${{ github.run_number }}/g" www/index.html www/sw.js
 
       - name: Crear el proyecto Android
         run: npx cap add android
@@ -47,7 +53,7 @@ jobs:
       - name: Sincronizar
         run: npx cap sync android
 
-      - name: Poner número de versión
+      - name: Poner número de versión al APK
         run: |
           sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" android/app/build.gradle
           sed -i "s/versionName \"1.0\"/versionName \"1.${{ github.run_number }}\"/" android/app/build.gradle
@@ -74,6 +80,24 @@ jobs:
           name: reparto-de-deudas-apk
           path: reparto-de-deudas.apk
 
+      - name: Preparar las novedades
+        env:
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          {
+            echo "## Novedades"
+            if [ -n "$MSG" ]; then
+              printf '%s\n' "$MSG" | grep -viE '^(co-authored-by|claude-session|signed-off-by):' | sed '/^[[:space:]]*$/d'
+            else
+              echo "- Mejoras y correcciones."
+            fi
+            echo
+            echo "## Instalar"
+            echo "Descarga \`reparto-de-deudas.apk\` en el móvil Android y ábrelo. Si ya tenías la app, se instala encima sin borrar tus datos."
+            echo "La app avisa sola cuando hay una versión nueva."
+          } > notas.md
+          cat notas.md
+
       - name: Publicar el APK en Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -81,8 +105,35 @@ jobs:
           name: Reparto de Deudas 1.${{ github.run_number }}
           make_latest: true
           files: reparto-de-deudas.apk
-          body: |
-            APK para Android generado automáticamente a partir de `main` (commit ${{ github.sha }}).
+          body_path: notas.md
 
-            **Instalar:** descarga `reparto-de-deudas.apk` en el móvil Android, ábrelo y permite instalar apps de origen desconocido si te lo pide.
-            Si ya tenías una versión anterior, esta se instala encima sin borrar tus datos.
+  web:
+    name: Web en GitHub Pages
+    runs-on: ubuntu-latest
+    # Si GitHub Pages no está activado con origen «GitHub Actions», este paso
+    # falla sin afectar al APK.
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar la web con el número de versión
+        run: |
+          mkdir -p www
+          cp -r index.html manifest.webmanifest sw.js icons .nojekyll www/
+          sed -i "s/__APP_BUILD__/${{ github.run_number }}/g" www/index.html www/sw.js
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir la web
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+
+      - name: Publicar
+        id: deploy
+        uses: actions/deploy-pages@v4
