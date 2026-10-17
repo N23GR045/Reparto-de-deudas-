@@ -18,7 +18,7 @@ Sabes en segundos quién puso qué, qué le toca a cada uno y quién paga a qui�
 
 <!-- Vídeo de presentación: arrastra el .mp4 a esta línea desde el editor de GitHub y se insertará aquí. -->
 
-<img src="docs/capturas/portada.png" alt="Pantallas de la app: lo que te deben, tus grupos, quién debe a quién y saldos" width="100%">
+<img src="docs/capturas/portada.png" alt="Pantallas de la app: bienvenida, tus grupos, quién debe a quién y saldos" width="100%">
 
 </div>
 
@@ -28,7 +28,7 @@ Sabes en segundos quién puso qué, qué le toca a cada uno y quién paga a qui�
 
 Prestas dinero a un amigo, pagas la cena de cuatro o compartís piso, y al final nadie se acuerda de quién debe qué. **Reparto de Deudas** lo apunta por ti y te dice exactamente cuánto te deben, cuánto debes y la forma más sencilla de dejar las cuentas a cero.
 
-Funciona **sin cuenta y sin internet**: tus datos se quedan en tu móvil.
+Funciona **sin cuenta y sin internet**, en **español e inglés**: tus datos se quedan en tu móvil.
 
 ## ✨ Características principales
 
@@ -41,7 +41,8 @@ Funciona **sin cuenta y sin internet**: tus datos se quedan en tu móvil.
 | 🔁 **Mínimo de pagos** | Calcula la forma de saldar el grupo con el menor número de transferencias. | Menos Bizums, menos líos. Se puede desactivar. |
 | 📊 **Presupuesto y estadísticas** | Presupuesto con avisos al 80 % y al 100 %, y gasto por categorías. | Sabes en qué se va el dinero antes de pasarte. |
 | 💬 **Recordatorios y resumen** | Mensaje listo para WhatsApp y exportación a CSV. | Recordar una deuda deja de ser incómodo. |
-| 🎨 **A tu gusto** | Tema claro u oscuro, 10 colores, tamaño del texto y 12 monedas. | La app se adapta a ti, no al revés. |
+| 🎨 **A tu gusto** | Tema claro u oscuro, 10 colores, tamaño del texto, 12 monedas y español o inglés. | La app se adapta a ti, no al revés. |
+| ↩️ **Sin miedo a equivocarte** | Cada pago se puede deshacer al momento, y la app te recuerda hacer copia de tus datos. | Usarla da confianza desde el primer día. |
 | 🔄 **Se actualiza sola** | Avisa cuando hay una versión nueva y se instala encima. | Siempre tienes lo último sin perder tus datos. |
 
 ## 🚀 Instalación rápida
@@ -64,6 +65,8 @@ Abre la [versión web](https://n23gr045.github.io/Reparto-de-deudas-/) en cualqu
 
 ## 📖 Guía de uso
 
+La primera vez que la abres, la app te pregunta **qué quieres resolver hoy** y te lleva directo a ello. Después, el botón **+** de abajo siempre te ofrece las mismas opciones, estés donde estés.
+
 <table>
 <tr>
 <td width="50%" valign="top">
@@ -81,7 +84,7 @@ Abre la [versión web](https://n23gr045.github.io/Reparto-de-deudas-/) en cualqu
 
 **Pagaste la cuenta por varios**
 
-1. Ve a **Repartir** → **Dividir una cuenta**.
+1. Pulsa **+** → **Dividir una cuenta**.
 2. Escribe el total y marca a quién se reparte.
 3. Pulsa **Apuntar en Me deben**: cada uno queda con su parte pendiente.
 
@@ -92,7 +95,7 @@ Abre la [versión web](https://n23gr045.github.io/Reparto-de-deudas-/) en cualqu
 
 **Un viaje o un piso compartido**
 
-1. **Repartir** → **Nuevo grupo** y añade a las personas.
+1. **Grupos** → **Nuevo grupo** y añade a las personas.
 2. Apunta cada gasto con **+**: qué fue, cuánto, quién pagó y para quién.
 3. En **Quién debe** verás los pagos que dejan el grupo a cero.
 
@@ -101,15 +104,17 @@ Abre la [versión web](https://n23gr045.github.io/Reparto-de-deudas-/) en cualqu
 
 **Cerrar las cuentas**
 
-- **Ya me pagó** o **Marcar como pagado**: el grupo se recalcula.
-- **Pasar a Me deben**: lleva lo que te deben a tu lista personal.
-- **Exportar**: resumen para WhatsApp o archivo CSV para Excel.
+- **Ya me pagó** o **Ya está pagado**: el grupo se recalcula. ¿Te has equivocado? Pulsa **Deshacer** en el aviso.
+- **Guardar como deuda**: lleva lo que te deben a tu lista personal.
+- Menú **⋯** del grupo → **Exportar**: resumen para WhatsApp o archivo CSV para Excel.
 
 </td>
 </tr>
 </table>
 
 <p align="center">
+  <img src="docs/capturas/0-bienvenida.png" width="220" alt="Pantalla de bienvenida">
+  &nbsp;&nbsp;
   <img src="docs/capturas/1-me-deben.png" width="220" alt="Lo que te deben">
   &nbsp;&nbsp;
   <img src="docs/capturas/4-gastos.png" width="220" alt="Gastos de un grupo, con su categoría y lo que supone para ti">
@@ -118,7 +123,7 @@ Abre la [versión web](https://n23gr045.github.io/Reparto-de-deudas-/) en cualqu
 ### 🔒 Tus datos
 
 - Todo se guarda **en tu dispositivo**. No hay servidor ni cuenta, y no se envía nada a ningún sitio.
-- Si cambias de móvil o borras los datos del navegador, se pierden. Haz una copia de vez en cuando en **Personalizar → Exportar copia** y recupérala con **Importar copia**.
+- Si cambias de móvil o borras los datos del navegador, se pierden. La app te recuerda cada dos semanas hacer una copia (**Personalizar → Exportar copia**), que recuperas con **Importar copia**.
 - En el iPhone, Safari y la app de la pantalla de inicio guardan los datos por separado: usa siempre la misma.
 
 ## 🤝 Cómo contribuir
@@ -138,6 +143,7 @@ Abre la [versión web](https://n23gr045.github.io/Reparto-de-deudas-/) en cualqu
 |---|---|
 | App | Un solo `index.html` con HTML, CSS y JavaScript, sin dependencias |
 | Datos | `localStorage` del dispositivo; copia de seguridad en `.json` |
+| Idiomas | Español e inglés (capa de traducción `EN` / `EN_RULES` en `index.html`; se elige en Personalizar o según el idioma del móvil) |
 | Android | [Capacitor 6](https://capacitorjs.com/), compilado por GitHub Actions |
 | Web e iPhone | GitHub Pages + `manifest.webmanifest` + `sw.js` (funciona sin conexión) |
 | Versiones | Cada *push* a `main` publica la versión `1.N` en Releases y en Pages |

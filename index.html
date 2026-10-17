@@ -465,6 +465,35 @@ details.exp summary .side2 small{font-size:12px;font-weight:500;white-space:nowr
 .tcard .acts .btn:only-child{grid-column:1/-1}
 .tlist{display:flex;flex-direction:column;gap:10px}
 
+/* Bienvenida */
+.welcome{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:10px 4px 0}
+.welcome .wmark{width:54px;height:54px;color:var(--ink);margin-bottom:6px}
+.welcome .wmark svg{width:54px;height:54px}
+.welcome h2{font-size:28px;letter-spacing:-.03em;line-height:1.1}
+.welcome p{margin:0;color:var(--muted);max-width:34ch}
+.wopts{display:flex;flex-direction:column;gap:10px}
+.wopt{display:flex;align-items:center;gap:14px;border:0;width:100%;text-align:left;background:var(--surface);border-radius:var(--rad);padding:16px;box-shadow:var(--shadow);transition:transform .18s var(--ease)}
+.wopt:active{transform:scale(.98)}
+.wopt .pi{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.wopt .pi svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wopt .wt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.wopt b{font-size:16px;font-weight:600}
+.wopt small{font-size:13px;color:var(--muted)}
+.wfoot{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+/* Menú ⋯ del grupo */
+.gmenu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:-6px;animation:rise .25s var(--ease)}
+.gmenu[hidden]{display:none}
+.gmenu button{border:0;background:var(--surface);border-radius:var(--rad-s);padding:12px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);min-height:46px;text-align:left}
+.gmenu button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.x svg circle{fill:currentColor;stroke:none}
+/* Aviso con acción */
+.toast .tact{margin-left:12px;border:0;background:none;color:var(--accent);font-weight:700;padding:2px 4px;cursor:pointer}
+.toast.show{pointer-events:auto}
+/* Recordatorio de copia */
+.bkp{display:flex;flex-direction:column;gap:10px;background:var(--warn-soft);border-radius:var(--rad);padding:14px 16px}
+.bkp b{display:block;font-size:15px}
+.bkp span{font-size:13px;color:var(--muted)}
+
 /* Actualizaciones */
 .upd{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border-radius:var(--rad);padding:14px 16px}
 .upd .u1{display:flex;align-items:center;gap:10px}
@@ -515,7 +544,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   <header class="top">
     <div>
       <h1 id="title">Reparto de Deudas</h1>
-      <div class="store-note" id="storeNote">Abriendo tu libreta…</div>
+      <div class="store-note" id="storeNote">Cargando tus cuentas…</div>
     </div>
     <button class="iconbtn press" id="settingsBtn" type="button" aria-label="Personalizar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
@@ -531,7 +560,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     <button class="add" type="button" id="addBtn" aria-label="Añadir">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
     <button class="tab" type="button" data-tab="split" aria-selected="false">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c.6-3 2.6-5 5-5s4.4 2 5 5M14 18.5c.5-2.2 1.7-3.6 3-3.6s2.7 1.4 3.2 3.6"/></svg>Repartir</button>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c.6-3 2.6-5 5-5s4.4 2 5 5M14 18.5c.5-2.2 1.7-3.6 3-3.6s2.7 1.4 3.2 3.6"/></svg>Grupos</button>
   </div>
 </nav>
 
@@ -558,17 +587,192 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   };
 
   // ---------- personalización ----------
-  const DEFAULT_TPL = "Hola {nombre}, ¿qué tal? Te escribo por lo de {concepto}. Me quedan pendientes {falta} de {total}. ¿Cuándo te viene bien? Gracias. {firma}";
+  const OLD_TPLS = ["Hola {nombre}, ¿qué tal? Te escribo por lo de {concepto}. Me quedan pendientes {falta} de {total}. ¿Cuándo te viene bien? Gracias. {firma}"];
+  const DEFAULT_TPL = "¡Hola, {nombre}! Te escribo por lo de {concepto}: quedan {falta}. ¿Cuándo te viene bien? 🙂 {firma}";
   const DEFAULTS = {theme:"system", accent:"verde", fs:1, density:"comoda", corners:"redondo", hero:true, avatars:true, bars:true,
-    sort:"urgencia", soonDays:7, defaultDue:0, currency:"EUR", startTab:"debts", myName:"", template:DEFAULT_TPL, hideDone:false, autoUpdate:true};
+    sort:"urgencia", soonDays:7, defaultDue:0, currency:"EUR", startTab:"debts", myName:"", template:DEFAULT_TPL, hideDone:false, autoUpdate:true, lang:"auto"};
   const ACCENTS = [["verde",165,1],["azul",212,1],["índigo",240,1],["morado",280,1],["rosa",330,1],["rojo",355,1],["naranja",22,1],["mostaza",42,1],["oliva",80,.8],["grafito",200,.12]];
   const CURRENCIES = [["EUR","Euro (€)"],["USD","Dólar estadounidense ($)"],["MXN","Peso mexicano"],["COP","Peso colombiano"],["ARS","Peso argentino"],["CLP","Peso chileno"],["PEN","Sol peruano"],["DOP","Peso dominicano"],["CUP","Peso cubano"],["VES","Bolívar venezolano"],["GBP","Libra esterlina (£)"],["CHF","Franco suizo"]];
   const DENS = {compacta:["9px","8px"], comoda:["13px","10px"], amplia:["17px","14px"]};
   const CORN = {recto:["6px","6px"], suave:["12px","10px"], redondo:["18px","13px"], pildora:["26px","20px"]};
   let S = Object.assign({}, DEFAULTS);
   try { const c = JSON.parse(localStorage.getItem("me-deben-ajustes")||"null"); if (c) S = Object.assign({}, DEFAULTS, c); } catch(e){}
+  if (OLD_TPLS.includes(S.template)) S.template = DEFAULT_TPL;
+  // ---------- idioma ----------
+  const LANG = (S.lang==="es" || S.lang==="en") ? S.lang : ((navigator.language||"es").toLowerCase().startsWith("es") ? "es" : "en");
+  const LOC = LANG==="en" ? "en-GB" : "es-ES";
+  const L = (es, en) => LANG==="en" ? en : es;
+  document.documentElement.lang = LANG;
+  const DEFAULT_TPL_EN = "Hi {nombre}! Just a quick note about {concepto}: {falta} still to go. When works for you? 🙂 {firma}";
+  const PL_EN = {persona:["person","people"], gasto:["expense","expenses"], grupo:["group","groups"], pago:["payment","payments"], deuda:["debt","debts"],
+    parte:["share","shares"], "pago pendiente":["pending payment","pending payments"], "deuda apuntada":["debt saved","debts saved"],
+    "persona te debe":["person owes you","people owe you"], ampliación:["top-up","top-ups"]};
+  const EN = {
+    "Reparto de Deudas":"Reparto de Deudas", "Me deben":"Owed to me", "Grupos":"Groups", "Añadir":"Add", "Personalizar":"Customise",
+    "Cargando tus cuentas…":"Loading your accounts…", "Guardado en este dispositivo":"Saved on this device", "Guardado en tu cuenta · solo lo ves tú":"Saved to your account · only you can see it",
+    "Se guarda solo en este navegador":"Saved only in this browser", "Sin conexión con tu cuenta. Recarga la página.":"Can't reach your account. Reload the page.",
+    "Te deben":"You're owed", "Debes":"You owe", "Te debe":"Owes you", "Todo cuadra":"All settled up", "cobrado":"collected", "persona":"person", "personas":"people",
+    "Vencido":"Overdue", "Más adelante":"Later", "Buscar":"Search", "Buscar por nombre o concepto":"Search by name or reason",
+    "Pendientes":"Pending", "Vencidas":"Overdue", "Pagadas":"Paid off", "Todas":"All", "Pagada":"Paid off", "Sin fecha":"No date", "Vence hoy":"Due today", "Vence mañana":"Due tomorrow", "Venció ayer":"Due yesterday",
+    "Cargando tus deudas…":"Loading your debts…", "Cargando tus grupos…":"Loading your groups…",
+    "Aún nadie te debe nada":"No one owes you anything yet", "Toca el botón + de abajo para apuntar a quién le prestaste dinero y cuánto.":"Tap the + button below to note who you lent money to and how much.",
+    "Apuntar una deuda":"Add a debt", "Ver un ejemplo":"See an example", "No hay deudas que coincidan.":"No matching debts.",
+    "¿Qué quieres resolver hoy?":"What would you like to sort out today?", "Elige una opción y en menos de un minuto lo tendrás apuntado.":"Pick one and you'll have it noted in under a minute.",
+    "Alguien me debe dinero":"Someone owes me money", "Apunta cuánto y para cuándo":"Note how much and by when", "Pagué una cuenta por varios":"I paid the bill for a group",
+    "Divídela y cada uno sabrá su parte":"Split it and everyone knows their share", "Organizar un viaje o un piso":"Organise a trip or a shared flat", "Gastos compartidos sin líos":"Shared expenses, no hassle",
+    "Solo estoy mirando: ver un ejemplo":"Just looking: show me an example", "Sin registro. Tus datos se quedan en tu móvil.":"No sign-up. Your data stays on your phone.", "Saltar":"Skip",
+    "Dividir una cuenta":"Split a bill", "Pagaste tú por varios":"You paid for several people", "Pagaste tú por varios.":"You paid for several people.", "Nuevo grupo":"New group", "Viaje, piso, evento…":"Trip, flat, event…",
+    "Tus grupos":"Your groups", "Archivados":"Archived", "Resumen de tus grupos":"Summary of your groups",
+    "Crea tu primer grupo y olvídate de hacer cuentas":"Create your first group and forget the maths", "Crea un grupo para un viaje o el piso compartido. Apuntas cada gasto con quién pagó y la app calcula quién debe a quién.":"Create a group for a trip or a shared flat. Add each expense with who paid, and the app works out who owes whom.",
+    "Ver un grupo de ejemplo":"See an example group", "Presupuesto":"Budget",
+    "Le presté dinero":"I lent money", "Apunta una deuda nueva.":"Add a new debt.", "Le presté más":"I lent more", "Suma a una deuda que ya existe.":"Add to an existing debt.",
+    "Me ha pagado":"They paid me", "Apunta lo que te devolvió.":"Note what they paid back.", "Gasto en un grupo":"Group expense", "Añádelo a un viaje o un piso.":"Add it to a trip or a flat.",
+    "¿En qué grupo?":"Which group?", "¿Quién te ha pagado?":"Who paid you?", "¿A quién le prestas más?":"Who are you lending more to?", "falta":"left", "No está en la lista: crear una deuda nueva":"Not on the list: create a new debt",
+    "Nueva deuda":"New debt", "Editar deuda":"Edit debt", "¿Cuánto le prestaste?":"How much did you lend?", "Importe inicial":"Initial amount", "¿A quién?":"Who to?", "Nombre":"Name", "¿Para qué?":"What for?", "Ej. entradas del concierto":"E.g. concert tickets",
+    "Fecha":"Date", "Devolver antes del":"Pay back by", "Teléfono (opcional)":"Phone (optional)", "Notas":"Notes", "Acuerdos, cómo te lo va a pagar…":"Agreements, how they'll pay you back…", "Guardar deuda":"Save debt", "Guardar cambios":"Save changes",
+    "Sumar a su deuda":"Add to their debt", "Importe":"Amount",
+    "Deuda pagada":"Debt paid off", "Prestado":"Lent", "Devuelto":"Paid back", "Falta":"Left", "Qué apuntar":"What to record", "Le presto más":"Lend more", "Cuánto":"How much", "Cuándo":"When",
+    "Guardar pago":"Save payment", "Lo pagó todo":"Paid it all", "Cuánto más":"How much more", "Para qué (opcional)":"What for (optional)", "Ej. segunda parte del alquiler":"E.g. second half of the rent", "Sumar a la deuda":"Add to the debt",
+    "Recordárselo":"Remind them", "Copiar mensaje":"Copy message", "Cambiar texto":"Edit text", "Movimientos":"Activity", "Te pagó":"Paid you", "Le prestaste más":"You lent more", "Préstamo":"Loan", "Quitar":"Remove",
+    "Editar":"Edit", "Borrar":"Delete", "Cancelar":"Cancel", "Sí, borrar":"Yes, delete", "Deshacer":"Undo", "Pago deshecho":"Payment undone", "Mensaje copiado":"Message copied", "Deuda guardada":"Debt saved", "Cambios guardados":"Changes saved", "Movimiento quitado":"Entry removed",
+    "Prestado el":"Lent on", "Teléfono":"Phone", "Viene del grupo":"From the group",
+    "Quién debe":"Who owes", "Gastos":"Expenses", "Saldos":"Balances", "Quién debe a quién":"Who owes whom", "Mínimo de pagos":"Fewest payments", "Sin simplificar":"Not simplified",
+    "Ya me pagó":"They paid me", "Guardar como deuda":"Save as a debt", "Ya está pagado":"Mark as paid", "te paga":"pays you", "pagas tú":"you pay", "paga":"pays",
+    "Es el menor número de pagos posible para que todo cuadre.":"This is the fewest payments needed to settle up.", "Cuando alguien pague, márcalo y el grupo se recalcula solo.":"When someone pays, mark it and the group updates itself.",
+    "Simplificar deudas está desactivado: cada uno paga directamente a quien pagó por él. Puedes activarlo en Editar grupo.":"Simplify debts is off: everyone pays back whoever paid for them. You can turn it on in Edit group.",
+    "Todo cuadra. Nadie le debe nada a nadie.":"All settled up. Nobody owes anybody.", "Cuando haya gastos, aquí verás quién tiene que pagar a quién.":"Once there are expenses, you'll see who needs to pay whom here.",
+    "Personas":"People", "Pendientes ":"Pending", "Mis gastos":"My share", "Gastos totales":"Total spent", "Añadir gasto":"Add expense", "Más opciones":"More options",
+    "Historial":"History", "Exportar":"Export", "Editar grupo":"Edit group", "Borrar grupo":"Delete group", "Hoy":"Today", "Ayer":"Yesterday", "Pago":"Payment",
+    "Sin gastos todavía":"No expenses yet", "Pulsa el botón + de abajo para apuntar el primero: qué fue, cuánto costó, quién lo pagó y para quién era.":"Tap the + button below to add the first one: what it was, how much, who paid and who it was for.",
+    "Dividido a partes iguales entre":"Split equally between", "no te afecta":"no effect on you", "no participas":"you're not in it", "no participa":"not included", "Este grupo es un ejemplo. Bórralo cuando quieras.":"This is an example group. Delete it whenever you like.",
+    "Grupo archivado. Puedes desarchivarlo en Editar grupo.":"Archived group. You can restore it in Edit group.",
+    "En verde, quien tiene que cobrar; en rojo, quien tiene que pagar.":"Green: gets money back. Red: needs to pay.", "¿Quién ha puesto el dinero?":"Who put in the money?", "En qué se ha gastado":"Where the money went",
+    "Añadir persona al grupo":"Add someone to the group", "Añadir persona":"Add person", "Nombre de la persona":"Person's name",
+    "Nuevo gasto":"New expense", "Editar gasto":"Edit expense", "Título":"Title", "Ej. supermercado, cena, gasolina":"E.g. groceries, dinner, petrol", "Categoría":"Category", "Moneda del gasto":"Expense currency",
+    "Tipo de cambio":"Exchange rate", "Pagado por":"Paid by", "Varias personas…":"Several people…", "¿Cuánto puso cada uno?":"How much did each person put in?", "Borrar gasto":"Delete expense",
+    "Cómo dividir":"How to split", "A partes iguales":"Equally", "Por partes":"By shares", "Por importes":"By amounts", "Para quién":"For whom", "Todos":"Everyone", "Ninguno":"No one", "Yo":"Me", "Tú":"You",
+    "Marca al menos a una persona.":"Select at least one person.", "Escribe el importe para ver cuánto le toca a cada uno.":"Enter the amount to see each person's share.", "Pon al menos una parte.":"Add at least one share.",
+    "Escribe primero el importe.":"Enter the amount first.", "Cuadra con el importe.":"Matches the amount.", "Menos partes":"Fewer shares", "Más partes":"More shares",
+    "Comida y bebida":"Food & drink", "Supermercado":"Groceries", "Transporte":"Transport", "Alojamiento":"Accommodation", "Ocio y actividades":"Fun & activities", "Casa y facturas":"Home & bills", "Compras":"Shopping", "Otros":"Other",
+    "¿Cuánto pagaste?":"How much did you pay?", "¿De qué era?":"What was it for?", "Ej. cena del viernes":"E.g. Friday dinner", "Apuntar en Me deben":"Add to Owed to me", "Añade a quien te debe":"Add who owes you",
+    "Guardar como grupo para seguir añadiendo gastos":"Save as a group to keep adding expenses", "tu parte":"your share", "te debe":"owes you",
+    "Nuevo grupo ":"New group", "¿Quiénes participan?":"Who's in?", "Ajustes del grupo":"Group settings", "Moneda del grupo":"Group currency", "Simplificar deudas":"Simplify debts",
+    "Calcula el mínimo de pagos. Si lo quitas, cada uno paga directamente a quien pagó por él.":"Works out the fewest payments. If you turn it off, everyone pays back whoever paid for them.",
+    "Presupuesto (opcional)":"Budget (optional)", "Ej. 600":"E.g. 600", "Archivar grupo":"Archive group", "Lo guarda aparte cuando ya está todo pagado.":"Keeps it aside once everything's paid.",
+    "Crear grupo":"Create group", "Guardar":"Save", "Ej. Viaje a Valencia":"E.g. Trip to Lisbon", "Ponle un nombre al grupo.":"Give the group a name.", "Añade al menos a otra persona.":"Add at least one other person.",
+    "Resumen para WhatsApp":"Summary for WhatsApp", "Copiar resumen":"Copy summary", "Compartir":"Share", "Hoja de cálculo (CSV)":"Spreadsheet (CSV)",
+    "Todos los gastos, saldos y pagos pendientes. Se abre en Excel, Numbers o Google Sheets.":"All expenses, balances and pending payments. Opens in Excel, Numbers or Google Sheets.", "Descargar CSV":"Download CSV", "Copiar CSV":"Copy CSV",
+    "Resumen copiado":"Summary copied", "CSV descargado":"CSV downloaded", "CSV copiado. Pégalo en una hoja de cálculo.":"CSV copied. Paste it into a spreadsheet.",
+    "Aún no hay cambios registrados. A partir de ahora se apuntará cada gasto, pago y ajuste.":"No changes recorded yet. From now on every expense, payment and setting will be logged.",
+    "Apariencia":"Appearance", "Idioma":"Language", "Automático":"Automatic", "Claro":"Light", "Oscuro":"Dark", "Tema":"Theme", "Color":"Colour", "Tamaño del texto":"Text size", "Pequeño":"Small", "Normal":"Normal", "Grande":"Large", "Muy grande":"Extra large",
+    "Espaciado de la lista":"List spacing", "Compacto":"Compact", "Amplio":"Roomy", "Esquinas":"Corners", "Rectas":"Square", "Suaves":"Soft", "Redondas":"Round", "Muy redondas":"Very round",
+    "Pantalla principal":"Home screen", "Mostrar el total arriba":"Show the total at the top", "Mostrar iniciales":"Show initials", "Mostrar progreso del pago":"Show payment progress", "Ocultar deudas pagadas":"Hide paid-off debts",
+    "Ordenar por":"Sort by", "Urgencia":"Urgency", "Recientes":"Recent", "Abrir la app en":"Open the app on", "Deudas y fechas":"Debts & dates", "Avisarme antes de que venza":"Remind me before it's due", "Días de antelación":"Days in advance",
+    "Plazo para deudas nuevas":"Default deadline", "Ninguno":"None", "1 sem.":"1 week", "1 mes":"1 month", "3 meses":"3 months", "Moneda":"Currency",
+    "Mensaje de recordatorio":"Reminder message", "Tu nombre para firmar":"Your name to sign with", "Opcional":"Optional", "Texto":"Text", "Puedes usar estas etiquetas:":"You can use these tags:", "Volver al texto original":"Back to the original text",
+    "Actualizaciones":"Updates", "Versión instalada":"Installed version", "Estado":"Status", "Buscar ahora":"Check now", "Todas las versiones":"All versions", "Buscar actualizaciones al abrir":"Check for updates on launch",
+    "Tienes la última versión":"You're on the latest version", "Buscando…":"Checking…", "Sin conexión":"Offline", "No se pudo comprobar":"Couldn't check", "Hay una versión nueva":"A new version is available",
+    "Descargar e instalar":"Download and install", "Actualizar ahora":"Update now", "Ahora no":"Not now", "La app se ha actualizado":"The app has been updated",
+    "Descárgala e instálala encima. No perderás tus datos.":"Download it and install over the top. You won't lose your data.", "Recarga para usarla. Tus datos se mantienen.":"Reload to use it. Your data stays.",
+    "Esta copia no viene de una versión publicada, así que no se puede comparar. Instala la app desde GitHub para recibir avisos.":"This copy isn't from a published release, so it can't be compared. Install the app from GitHub to get update alerts.",
+    "Datos":"Data", "Exportar copia":"Export backup", "Importar copia":"Import backup", "Recuperar desde texto copiado":"Restore from copied text", "Borrar ejemplos":"Delete examples", "Ajustes iniciales":"Reset settings",
+    "Todo se guarda en tu cuenta y solo lo ves tú.":"Everything's saved to your account and only you can see it.", "Tus datos se guardan solo en este dispositivo. Haz una copia de vez en cuando para no perderlos.":"Your data is saved only on this device. Make a backup now and then so you don't lose it.",
+    "Tus datos se guardan solo en este navegador.":"Your data is saved only in this browser.", "¿Volver a los ajustes de fábrica? Tus deudas y grupos no se borran.":"Reset all settings? Your debts and groups won't be deleted.",
+    "Volver a los ajustes iniciales":"Reset settings", "Ajustes restablecidos":"Settings reset", "Importar":"Import", "Revisar copia":"Check backup", "Pega aquí el texto de tu copia.":"Paste your backup text here.",
+    "Copia descargada":"Backup downloaded", "Copia importada":"Backup imported", "Copia copiada. Pégala en una nota o en WhatsApp para guardarla.":"Backup copied. Paste it into a note or WhatsApp to keep it.",
+    "Mantén pulsado el texto para copiarlo y guárdalo donde quieras.":"Press and hold the text to copy it, then keep it wherever you like.",
+    "Ese archivo no es una copia de Reparto de Deudas":"That file isn't a Reparto de Deudas backup", "Ese texto no es una copia de Reparto de Deudas":"That text isn't a Reparto de Deudas backup",
+    "Haz una copia de tus datos":"Back up your data", "Están solo en este móvil. Con una copia no los perderás si cambias de teléfono.":"It's only on this phone. With a backup you won't lose it if you change phones.",
+    "Hacer copia ahora":"Back up now", "Más tarde":"Later", "Te lo recordaremos en una semana":"We'll remind you in a week",
+    "Ejemplos cargados":"Examples loaded", "Ejemplos borrados":"Examples deleted", "No hay ejemplos que borrar":"No examples to delete", "Grupo de ejemplo cargado":"Example group loaded", "Grupo creado":"Group created", "Grupo guardado":"Group saved", "Gasto guardado":"Expense saved", "Gasto borrado":"Expense deleted", "Hecho":"Done",
+    "No se pudo guardar. Inténtalo de nuevo.":"Couldn't save. Please try again.", "No se pudo borrar. Inténtalo de nuevo.":"Couldn't delete. Please try again.", "No queda espacio. Borra cosas antiguas.":"Out of space. Delete some old items.",
+    "Sin conexión. Inténtalo más tarde.":"You're offline. Try again later.", "No se pudo comprobar. Inténtalo más tarde.":"Couldn't check. Try again later.",
+    "Texto seleccionado: cópialo con el menú del iPhone":"Text selected: copy it from the iPhone menu", "Texto seleccionado: cópialo con el menú del móvil":"Text selected: copy it from your phone's menu",
+    "Volver":"Back", "Cerrar":"Close", "Sin concepto":"No reason given", "Escribe el importe.":"Enter the amount.",
+    "Escribe cuánto le prestaste, por ejemplo 150 o 49,90.":"Enter how much you lent, e.g. 150 or 49.90.", "Escribe el nombre de quien te debe.":"Enter the name of who owes you.",
+    "Escribe cuánto te ha devuelto, por ejemplo 50.":"Enter how much they paid back, e.g. 50.", "Escribe cuánto le prestas, por ejemplo 100.":"Enter how much you're lending, e.g. 100.",
+    "Escribe primero el importe que quieres sumar.":"Enter the amount you want to add first.", "Los importes tienen que sumar el total.":"The amounts have to add up to the total.",
+    "Lo que puso cada uno tiene que sumar el importe.":"What each person put in has to add up to the amount.", "Escribe el tipo de cambio.":"Enter the exchange rate.",
+    "Euro (€)":"Euro (€)", "Dólar estadounidense ($)":"US dollar ($)", "Peso mexicano":"Mexican peso", "Peso colombiano":"Colombian peso", "Peso argentino":"Argentine peso", "Peso chileno":"Chilean peso", "Peso peruano":"Peruvian sol", "Sol peruano":"Peruvian sol",
+    "Peso dominicano":"Dominican peso", "Peso cubano":"Cuban peso", "Bolívar venezolano":"Venezuelan bolívar", "Libra esterlina (£)":"Pound sterling (£)", "Franco suizo":"Swiss franc",
+    "verde":"green","azul":"blue","índigo":"indigo","morado":"purple","rosa":"pink","rojo":"red","naranja":"orange","mostaza":"mustard","oliva":"olive","grafito":"graphite", "Español":"Español", "English":"English",
+    "Lucía":"Lucía", "Me":"Me", "15 días":"15 days", "Grupo de ejemplo creado":"Example group created", "quien pagó":"whoever paid",
+    "Es el menor número de pagos posible para que todo cuadre. Cuando alguien pague, márcalo y el grupo se recalcula solo.":"This is the fewest payments needed to settle up. When someone pays, mark it and the group updates itself.",
+    "Simplificar deudas está desactivado: cada uno paga directamente a quien pagó por él. Puedes activarlo en Editar grupo. Cuando alguien pague, márcalo y el grupo se recalcula solo.":"Simplify debts is off: everyone pays back whoever paid for them. You can turn it on in Edit group. When someone pays, mark it and the group updates itself.",
+    "Pagado por":"Paid by", "Grupo de ejemplo":"Example group"
+  };
+  // Frases con datos (cantidades, nombres, fechas)
+  const who_ = w => w.replace(/^ti$/,"you").replace(/\bti\b/g,"you").replace(/ y /g," and ").replace(/^quien pagó$/,"whoever paid").replace(/^Tú$/,"You");
+  const EN_RULES = [
+    [/^(debes|debe) a (.+)$/, (m,v,w)=> (v==="debes"?"you owe ":"owes ")+who_(w)],
+    [/^Lo que puso (.+)$/, (m,w)=> "Amount put in by "+(w==="Yo"?"me":w)], [/^Incluir a (.+)$/, (m,w)=> "Include "+(w==="Yo"?"me":w)], [/^Importe de (.+)$/, (m,w)=> (w==="Yo"?"My":w+"'s")+" amount"],
+    [/^Quitar a (.+)$/, "Remove $1"], [/^Parte de (.+)$/, "$1's share"],
+    [/^ya te debe (.+?)( por (.+))?\. ¿Lo sumas a esa deuda\?$/, (m,a,_p,c)=> " already owes you "+a+(c?" for "+c:"")+". Add it to that debt?"],
+    [/^(Añadido|Editado|Borrado) «(.+)» de (.+)$/, (m,v,c,a)=> ({"Añadido":"Added","Editado":"Edited","Borrado":"Deleted"})[v]+" “"+c+"” of "+a],
+    [/^Borrado «(.+)»$/, "Deleted “$1”"], [/^Grupo creado con (.+)$/, (m,w)=> "Group created with "+who_(w.replace(/\bTú\b/,"you"))],
+    [/^Grupo creado desde «Dividir una cuenta» con (.+)$/, "Group created from “Split a bill” with $1"],
+    [/^Añadido al grupo: (.+)$/, "Added to the group: $1"], [/^Deshecho el pago de (.+) a (.+) \((.+)\)$/, (m,a,b,c)=> "Undid "+who_(a)+"'s payment to "+who_(b)+" ("+c+")"],
+    [/^(.+) pagó (.+) a (.+)$/, (m,a,c,b)=> who_(a)+" paid "+c+" to "+who_(b)], [/^(.+): (.+) pasados a Me deben$/, "$1: $2 moved to Owed to me"],
+    [/^Cambiado: (.+)$/, (m,x)=> "Changed: "+x.replace(/nombre a «(.+?)»/,"name to “$1”").replace(/moneda a /,"currency to ").replace("simplificar deudas activado","simplify debts on").replace("simplificar deudas desactivado","simplify debts off").replace(/presupuesto /,"budget ").replace("sin presupuesto","no budget").replace("desarchivado","unarchived").replace("archivado","archived")],
+    [/^de desarrollo( · (web|Android))?$/, (m,_a,w)=> "development build"+(w?" · "+w:"")],
+    [/^Venció hace (\d+) días$/, "Overdue by $1 days"], [/^Vence en (\d+) días$/, "Due in $1 days"], [/^Hasta el (.+)$/, "Until $1"],
+    [/^Próximos (\d+) días$/, "Next $1 days"], [/^Archivados \((\d+)\)$/, "Archived ($1)"],
+    [/^Te deben (.+)$/, "You're owed $1"], [/^Debes (.+)$/, "You owe $1"], [/^Debe (.+)$/, "Owes $1"], [/^Le deben (.+)$/, "Is owed $1"],
+    [/^Debes a (.+)$/, "You owe $1"], [/^(\d+) personas? te deben?$/, (m,n)=> n==="1" ? "1 person owes you" : n+" people owe you"],
+    [/^(\d+) pagos? entre otros$/, (m,n)=> n+(n==="1"?" payment":" payments")+" between others"],
+    [/^Pagado por (.+)$/, (m,w)=> "Paid by " + w.replace(/^ti\b/,"you").replace(/ y ti\b/," and you").replace(/ y /g," and ")],
+    [/^(pusiste|puso) (.+?)( · (te|le) toca (.+))?$/, (m,v,a,_x,tl,b)=> (v==="pusiste"?"you paid ":"paid ")+a+(b?" · "+(tl==="te"?"your share ":"their share ")+b:"")],
+    [/^(te|le) toca (.+)$/, (m,tl,b)=> (tl==="te"?"your share ":"their share ")+b],
+    [/^(Pusiste|Puso) (.+)$/, (m,v,a)=> (v==="Pusiste"?"You paid ":"Paid ")+a], [/^(Te|Le) toca (.+)$/, (m,tl,b)=> (tl==="Te"?"Your share ":"Their share ")+b],
+    [/^(debes|debe) (.+) a (ti|.+)$/, (m,v,a,w)=> (v==="debes"?"you owe ":"owes ")+a+" to "+(w==="ti"?"you":w)], [/^(debes|debe) (.+)$/, (m,v,a)=> (v==="debes"?"you owe ":"owes ")+a],
+    [/^(debes|debe) a (.+)$/, (m,v,w)=> (v==="debes"?"you owe ":"owes ")+(w==="ti"?"you":w)], [/^te deben (.+)$/, "you're owed $1"],
+    [/^Pagas a$/, "You pay"], [/^paga a$/, "pays"], [/^(.+) en (\d+) (gastos?)(.*)$/, (m,a,n,_g,rest)=> a+" across "+n+(n==="1"?" expense":" expenses")+rest.replace(/ · (\d+) pagos? pendientes?/, (x,k)=>" · "+k+(k==="1"?" pending payment":" pending payments"))],
+    [/^(.+) de (.+)$/, (m,a,b)=> /\d/.test(a) && /\d/.test(b) ? a+" of "+b : null],
+    [/^Dividido (a partes iguales|por partes|por importes) entre (.+)$/, (m,h,n)=> "Split "+({"a partes iguales":"equally","por partes":"by shares","por importes":"by amounts"})[h]+" between "+n],
+    [/^Pago de (.+) guardado$/, "Payment of $1 saved"], [/^¡(.+) ha pagado toda la deuda!$/, "$1 has paid it all off!"], [/^Gasto de (.+) añadido$/, "Expense of $1 added"],
+    [/^(.+) → (.+): pago guardado$/, "$1 → $2: payment saved"], [/^(.+) ahora está en Me deben$/, "$1 is now in Owed to me"], [/^(.+) añadido al grupo$/, "$1 added to the group"], [/^(.+) ya está en el grupo\.?$/, "$1 is already in the group."],
+    [/^(.+) ya está en la lista$/, "$1 is already on the list"], [/^Deuda de (.+) borrada$/, "$1's debt deleted"], [/^Grupo (.+) borrado$/, "Group $1 deleted"],
+    [/^Sumados (.+)\. Ahora te debe (.+)$/, "Added $1. They now owe you $2"], [/^(\d+) deudas apuntadas$/, "$1 debts saved"],
+    [/^Apuntar (\d+) deudas? en Me deben$/, (m,n)=> "Save "+n+(n==="1"?" debt":" debts")+" to Owed to me"], [/^Apuntar 1 deuda en Me deben$/, "Save 1 debt to Owed to me"],
+    [/^Falta repartir (.+)\.$/, "$1 still to assign."], [/^Faltan (.+)\.$/, "$1 missing."], [/^Te pasas en (.+)\.$/, "$1 too much."], [/^Sobran (.+)\.$/, "$1 too much."], [/^Cuadra: suman (.+)\.$/, "Adds up: $1."],
+    [/^(\d+) personas? · (.+) cada una$/, (m,n,a)=> n+(n==="1"?" person":" people")+" · "+a+" each"], [/^(\d+) partes? · (.+) cada parte$/, (m,n,a)=> n+(n==="1"?" share":" shares")+" · "+a+" per share"],
+    [/^Os habéis pasado en (.+)\.$/, "You've gone over by $1."], [/^Quedan (.+) \((\d+) %\)\.$/, "$1 left ($2 %)."],
+    [/^(.+) gastados? entre (.+)$/, "$1 spent between $2"], [/^Hay novedades \((.+)\)$/, "What's new ($1)"], [/^Hay una versión nueva: (.+)$/, "New version available: $1"],
+    [/^Última versión publicada: (.+)$/, "Latest published version: $1"], [/^Novedades de la (.+)$/, "What's new in $1"],
+    [/^La copia tiene (.+)\. Sustituirá todo lo que tienes ahora\. ¿Continuar\?$/, "The backup has $1. It will replace everything you have now. Continue?"],
+    [/^¿Borrar (la deuda de|el grupo) (.+)\? No se puede deshacer\.$/, "Delete $2? This can't be undone."],
+    [/^Todo lo que se ha cambiado en «(.+)», lo más reciente primero\.$/, "Everything that changed in “$1”, newest first."],
+    [/^(.+) grupos? en otra moneda no se suman? aquí\.$/, (m,n)=> n+" in another currency aren't included here."],
+    [/^(\d+ (?:pago|pagos))$/, (m,x)=> x.replace(/pagos?/, w=> w==="pago"?"payment":"payments")],
+    [/^Puesto por (.+)$/, "Put in by $1"], [/^1 ([A-Z]{3}) =$/, "1 $1 ="],
+    [/^(.+) ya te debe (.+?)( por (.+))?\. ¿Lo sumas a esa deuda\?$/, (m,n,a,_p,c)=> n+" already owes you "+a+(c?" for "+c:"")+". Add it to that debt?"]
+  ];
+  function tr(str){
+    if (LANG!=="en" || !str) return str;
+    const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(str); const core = m[2]; if (!core) return str;
+    let out = Object.prototype.hasOwnProperty.call(EN, core) ? EN[core] : null;
+    if (out==null){ for (const [re, rp] of EN_RULES){ if (re.test(core)){ const r = core.replace(re, rp); if (r!=="null" && r!==core){ out = r; break; } } } }
+    if (out==null && core.indexOf(" · ")>0){ const segs = core.split(" · "), tsegs = segs.map(x=>tr(x)); if (tsegs.some((x,i)=>x!==segs[i])) out = tsegs.join(" · "); }
+    if (out==null) return str.indexOf("(ejemplo)")>=0 ? str.replace(/\(ejemplo\)/g,"(example)") : str;
+    return m[1] + out.replace(/\(ejemplo\)/g,"(example)") + m[3];
+  }
+  function trTree(root){
+    if (LANG!=="en" || !root) return;
+    if (root.nodeType===3){ const v = root.nodeValue, t = tr(v); if (t!==v) root.nodeValue = t; return; }
+    if (root.nodeType!==1) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+    while ((n = w.nextNode())){ const p = n.parentNode; if (!p || p.nodeName==="SCRIPT" || p.nodeName==="STYLE" || p.nodeName==="TEXTAREA") continue; const v = n.nodeValue; if (!/[A-Za-zÀ-ÿ¿¡]/.test(v)) continue; const t = tr(v); if (t!==v) n.nodeValue = t; }
+    const els = [root, ...root.querySelectorAll("[placeholder],[aria-label],[title]")];
+    els.forEach(el=>{ ["placeholder","aria-label","title"].forEach(a=>{ const v = el.getAttribute && el.getAttribute(a); if (v){ const t = tr(v); if (t!==v) el.setAttribute(a, t); } }); });
+  }
+  if (LANG==="en"){
+    new MutationObserver(ms=>{ for (const mu of ms){ if (mu.type==="characterData") trTree(mu.target); else if (mu.type==="attributes"){ const v = mu.target.getAttribute(mu.attributeName); const t = v && tr(v); if (t && t!==v) mu.target.setAttribute(mu.attributeName, t); } else mu.addedNodes.forEach(trTree); } })
+      .observe(document.documentElement, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:["aria-label","placeholder","title"]});
+    document.addEventListener("DOMContentLoaded", ()=>trTree(document.body));
+    trTree(document.body);
+  }
   const origTheme = document.documentElement.getAttribute("data-theme");
-  let fmt = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"});
+  let fmt = new Intl.NumberFormat(LOC,{style:"currency",currency:"EUR"});
 
   function applySettings(){
     const root = document.documentElement, b = document.body;
@@ -580,7 +784,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const dn = DENS[S.density]||DENS.comoda; root.style.setProperty("--pad", dn[0]); root.style.setProperty("--gap", dn[1]);
     const cr = CORN[S.corners]||CORN.redondo; root.style.setProperty("--rad", cr[0]); root.style.setProperty("--rad-s", cr[1]);
     b.classList.toggle("no-hero", !S.hero); b.classList.toggle("no-av", !S.avatars); b.classList.toggle("no-bars", !S.bars);
-    try { fmt = new Intl.NumberFormat("es-ES",{style:"currency",currency:S.currency}); } catch(e){ fmt = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}); }
+    try { fmt = new Intl.NumberFormat(LOC,{style:"currency",currency:S.currency}); } catch(e){ fmt = new Intl.NumberFormat(LOC,{style:"currency",currency:"EUR"}); }
     const cur = fmt.formatToParts(0).find(p=>p.type==="currency"); curSym = cur ? cur.value : S.currency;
   }
   let curSym = "€";
@@ -599,7 +803,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   // ---------- utilidades ----------
   const r2 = n => Math.round((+n||0)*100)/100;
   const fmtCache = {};
-  const fmtFor = cur => { if (!cur || cur===S.currency) return fmt; if (!fmtCache[cur]) { try { fmtCache[cur] = new Intl.NumberFormat("es-ES",{style:"currency",currency:cur}); } catch(e){ return fmt; } } return fmtCache[cur]; };
+  const fmtFor = cur => { if (!cur || cur===S.currency) return fmt; if (!fmtCache[cur]) { try { fmtCache[cur] = new Intl.NumberFormat(LOC,{style:"currency",currency:cur}); } catch(e){ return fmt; } } return fmtCache[cur]; };
   let curOverride = null; // moneda del grupo abierto
   const money = n => (curOverride ? fmtFor(curOverride) : fmt).format(r2(n));
   const moneyC = (n, cur) => fmtFor(cur).format(r2(n));
@@ -607,18 +811,25 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   const isoOf = d => { d = new Date(d); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
   const todayISO = () => isoOf(new Date());
   const addDays = n => { const d=new Date(); d.setDate(d.getDate()+n); return isoOf(d); };
-  const fmtDate = iso => { if(!iso) return ""; const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}); };
-  const fmtShort = iso => { if(!iso) return ""; const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("es-ES",{day:"numeric",month:"short"}); };
+  const fmtDate = iso => { if(!iso) return ""; const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(LOC,{day:"numeric",month:"short",year:"numeric"}); };
+  const fmtShort = iso => { if(!iso) return ""; const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(LOC,{day:"numeric",month:"short"}); };
   const daysUntil = iso => { const [y,m,d]=iso.split("-").map(Number); const t=new Date(); t.setHours(0,0,0,0); return Math.round((new Date(y,m-1,d)-t)/86400000); };
   const uid = p => (p||"d") + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
   const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const parseAmount = v => { const n = parseFloat(String(v).replace(/\s/g,"").replace(/[^\d,.\-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".")); return isFinite(n) ? r2(n) : NaN; };
+  // Acepta "49,90", "49.90", "1.234,56" y "1,234.56"
+  const parseAmount = v => {
+    let t = String(v==null?"":v).replace(/\s/g,"").replace(/[^\d,.\-]/g,"");
+    const lc = t.lastIndexOf(","), ld = t.lastIndexOf(".");
+    if (lc>=0 && ld>=0){ const dec = lc>ld ? "," : "."; t = t.split(dec==="," ? "." : ",").join("").replace(",", "."); }
+    else if (lc>=0) t = t.split(",").length>2 ? t.replace(/,/g,"") : t.replace(",", ".");
+    else if (/^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
+    const n = parseFloat(t); return isFinite(n) ? r2(n) : NaN; };
   const hue = s => { let h=0; for (const ch of String(s).replace(/\s*\(ejemplo\)/i,"").toLowerCase()) h=(h*31+ch.charCodeAt(0))%360; return h; };
   const initials = s => { const w = String(s||"?").replace(/\(.*?\)/g,"").trim().split(/\s+/).filter(Boolean); return ((w[0]||"?")[0] + (w[1]?w[1][0]:"")).toUpperCase(); };
   const avatar = (name, cls) => `<span class="av ${cls||""}" style="--h:${hue(name)}" aria-hidden="true">${esc(initials(name))}</span>`;
   const norm = s => String(s||"").replace(/\s*\(ejemplo\)/i,"").trim().toLowerCase();
   const clean = s => String(s||"").replace(/\s*\(ejemplo\)/i,"").trim();
-  const plural = (n, a, b) => n + " " + (n===1 ? a : b);
+  const plural = (n, a, b) => n + " " + (LANG==="en" && PL_EN[a] ? PL_EN[a][n===1?0:1] : (n===1 ? a : b));
 
   // ---------- deudas ----------
   const extrasOf = d => r2((d.extras||[]).reduce((a,x)=>a+(+x.amount||0),0));
@@ -626,7 +837,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   const paidOf = d => r2((d.payments||[]).reduce((a,p)=>a+(+p.amount||0),0));
   const restOf = d => Math.max(0, r2(totalOf(d) - paidOf(d)));
   function statusOf(d){
-    if (restOf(d) <= 0) return {key:"done", label:"Saldada"};
+    if (restOf(d) <= 0) return {key:"done", label:"Pagada"};
     if (d.dueOn){
       const n = daysUntil(d.dueOn);
       if (n < 0) return {key:"late", label: n===-1 ? "Venció ayer" : "Venció hace " + (-n) + " días"};
@@ -857,7 +1068,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   const FILTERS = [
     ["open","Pendientes", d=>statusOf(d).key!=="done"],
     ["late","Vencidas", d=>statusOf(d).key==="late"],
-    ["done","Saldadas", d=>statusOf(d).key==="done"],
+    ["done","Pagadas", d=>statusOf(d).key==="done"],
     ["all","Todas", ()=>true]
   ];
   const lastCount = {};
@@ -869,12 +1080,12 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   function renderInner(){
     if (!["debts","split"].includes(tab)) tab = "debts";
     document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", String(t.dataset.tab===tab)));
-    $("#title").textContent = tab==="debts" ? "Reparto de Deudas" : "Repartir";
-    $("#addBtn").setAttribute("aria-label", tab==="debts" ? "Añadir" : "Repartir un gasto");
+    $("#title").textContent = tab==="debts" ? "Reparto de Deudas" : "Grupos";
+    $("#addBtn").setAttribute("aria-label", "Añadir");
     const v = $("#view");
     const keepQ = document.activeElement && document.activeElement.id==="q";
     v.classList.toggle("enter", animateNext && !reduced);
-    v.innerHTML = tab==="debts" ? viewDebts() : viewSplit();
+    v.innerHTML = showWelcome() ? viewWelcome() : tab==="debts" ? viewDebts() : viewSplit();
     animateNext = false;
     if (keepQ){ const q=$("#q"); if(q) q.focus(); }
     placeSegs(v); countUp(v);
@@ -906,6 +1117,26 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     });
   }
 
+  const welcomeSkipped = () => { try { return localStorage.getItem("rd-welcome-skip")==="1"; } catch(e){ return false; } };
+  const showWelcome = () => ready && !debts.length && !groups.length && !welcomeSkipped();
+  function viewWelcome(){
+    const mark = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M30 8a24 24 0 1 0 24 30H30z" fill="currentColor" opacity=".9"/><path d="M36 4v26h24A26 26 0 0 0 36 4z" fill="var(--accent)"/></svg>';
+    return updBanner() + `<section class="welcome stg" style="--i:0">
+      <span class="wmark">${mark}</span>
+      <h2>¿Qué quieres resolver hoy?</h2>
+      <p>Elige una opción y en menos de un minuto lo tendrás apuntado.</p>
+    </section>
+    <section class="wopts">
+      <button type="button" class="wopt stg" style="--i:1" data-act="w-debt"><span class="pi">${ICON.person}</span><span class="wt"><b>Alguien me debe dinero</b><small>Apunta cuánto y para cuándo</small></span><span class="chev">${ICON.chev}</span></button>
+      <button type="button" class="wopt stg" style="--i:2" data-act="w-quick"><span class="pi">${ICON.split}</span><span class="wt"><b>Pagué una cuenta por varios</b><small>Divídela y cada uno sabrá su parte</small></span><span class="chev">${ICON.chev}</span></button>
+      <button type="button" class="wopt stg" style="--i:3" data-act="w-group"><span class="pi">${ICON.group}</span><span class="wt"><b>Organizar un viaje o un piso</b><small>Gastos compartidos sin líos</small></span><span class="chev">${ICON.chev}</span></button>
+    </section>
+    <div class="wfoot stg" style="--i:4">
+      <button type="button" class="linkbtn" data-act="w-demo">Solo estoy mirando: ver un ejemplo</button>
+      <p class="hint">Sin registro. Tus datos se quedan en tu móvil.</p>
+      <button type="button" class="rm" data-act="w-skip">Saltar</button>
+    </div>`;
+  }
   function viewDebts(){
     const open = debts.filter(d=>statusOf(d).key!=="done");
     const by = k => r2(open.filter(d=>statusOf(d).key===k).reduce((a,d)=>a+restOf(d),0));
@@ -915,7 +1146,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const people = new Set(open.map(d=>norm(d.name))).size;
     const pct = v => total ? (v/total*100).toFixed(2) : 0;
     let i = 0;
-    let h = updBanner() + `<section class="summary stg" style="--i:${i++}" aria-label="Resumen">
+    let h = updBanner() + backupBanner() + `<section class="summary stg" style="--i:${i++}" aria-label="Resumen">
         <div class="lbl">Te deben</div>
         <div class="big" data-count="${total}" data-key="dtotal">${money(total)}</div>
         ${total ? `<div class="stack" aria-hidden="true">${late?`<i class="s-late" style="width:${pct(late)}%"></i>`:""}${soon?`<i class="s-soon" style="width:${pct(soon)}%"></i>`:""}${pend?`<i class="s-pend" style="width:${pct(pend)}%"></i>`:""}</div>
@@ -924,7 +1155,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       </section>`;
     if (!ready) return h + `<p class="hint">Cargando tus deudas…</p>`;
     if (!debts.length) return h + `<div class="empty stg" style="--i:${i++}">
-        <h3>Nadie te debe nada todavía</h3>
+        <h3>Aún nadie te debe nada</h3>
         <p>Toca el botón + de abajo para apuntar a quién le prestaste dinero y cuánto.</p>
         <div class="btnrow"><button type="button" class="btn" data-act="newdebt">Apuntar una deuda</button>
         <button type="button" class="btn ghost" data-act="exdebts">Ver un ejemplo</button></div></div>`;
@@ -979,7 +1210,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       </section>`;
     if (!ready) return h + `<p class="hint">Cargando tus grupos…</p>`;
     if (!groups.length) return h + `<div class="empty stg" style="--i:${i++}">
-      <h3>Aún no tienes grupos</h3>
+      <h3>Crea tu primer grupo y olvídate de hacer cuentas</h3>
       <p>Crea un grupo para un viaje o el piso compartido. Apuntas cada gasto con quién pagó y la app calcula quién debe a quién.</p>
       <button type="button" class="linkbtn" data-act="exgroups">Ver un grupo de ejemplo</button></div>`;
     const card = ({g,c}) => {
@@ -989,7 +1220,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <div class="gc-top"><span class="gc-ic" aria-hidden="true">${esc(initials(g.name))}</span>
           <div class="gc-t"><b>${esc(g.name)}</b><span>${moneyC(c.total, cur)} en ${plural((g.expenses||[]).filter(e=>e.type!=="settle").length,"gasto","gastos")}${pend?` · ${plural(pend,"pago pendiente","pagos pendientes")}`:""}</span></div>
           <span class="chev">${ICON.chev}</span></div>
-        <div class="gc-bot">${avStack(g)}<span class="chip-st ${v>0?"pos":v<0?"neg":"zero"}">${v>0?"Te deben "+moneyC(v,cur):v<0?"Debes "+moneyC(-v,cur):"Estás en paz"}</span></div>
+        <div class="gc-bot">${avStack(g)}<span class="chip-st ${v>0?"pos":v<0?"neg":"zero"}">${v>0?"Te deben "+moneyC(v,cur):v<0?"Debes "+moneyC(-v,cur):"Todo cuadra"}</span></div>
         ${g.budget ? `<div class="gbudget"><div class="bt"><span>Presupuesto</span><span>${moneyC(c.total,cur)} de ${moneyC(g.budget,cur)}</span></div><div class="bar"><i style="width:${pct.toFixed(1)}%;${pct>=100?"background:var(--bad)":pct>=80?"background:var(--warn)":""}"></i></div></div>` : ""}
       </button>`;
     };
@@ -1048,6 +1279,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   const head = (title, opt) => { opt = opt||{};
     return `<div class="sheet-head">${opt.back?`<button type="button" class="x press" data-open="${esc(opt.back)}" data-back="1" aria-label="Volver">${ICON.back}</button>`:""}
       <div class="t">${opt.av||""}<h2>${esc(title)}</h2></div>
+      ${opt.menu?`<button type="button" class="x press" data-act="${opt.menu}" aria-label="Más opciones" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>`:""}
       <button type="button" class="x press" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>`; };
   function openRef(ref, refreshOnly, back){
     const [k,id] = ref.split(":");
@@ -1066,7 +1298,13 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <button type="button" class="pick" data-act="moredebt" ${debts.length?"":"disabled"}><span class="pi">${ICON.plus}</span><b>Le presté más</b><span>Suma a una deuda que ya existe.</span></button>
         <button type="button" class="pick" data-act="paypick" ${open.length?"":"disabled"}><span class="pi">${ICON.coin}</span><b>Me ha pagado</b><span>Apunta lo que te devolvió.</span></button>
         <button type="button" class="pick" data-act="quick"><span class="pi">${ICON.split}</span><b>Dividir una cuenta</b><span>Pagaste tú por varios.</span></button>
+        <button type="button" class="pick" data-act="pickgroup" ${groups.some(g=>!g.archived)?"":"disabled"}><span class="pi">${ICON.coin}</span><b>Gasto en un grupo</b><span>Añádelo a un viaje o un piso.</span></button>
+        <button type="button" class="pick" data-act="newgroup"><span class="pi">${ICON.group}</span><b>Nuevo grupo</b><span>Viaje, piso, evento…</span></button>
       </div>`, "add");
+  }
+  function pickGroup(){
+    const list = groups.filter(g=>!g.archived).sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+    openSheet(head("¿En qué grupo?", {back:"add"}) + `<div class="glist">${list.map(g=>`<button type="button" class="row" data-pickgroup="${esc(g.id)}"><span class="gc-ic" style="--h:${hue(g.name)};width:40px;height:40px;font-size:14px;border-radius:12px" aria-hidden="true">${esc(initials(g.name))}</span><div class="main"><div class="name">${esc(g.name)}</div><div class="sub">${plural(g.members.length,"persona","personas")}</div></div><span class="chev">${ICON.chev}</span></button>`).join("")}</div>`, "pickgroup");
   }
   function pickDebt(purpose){
     const list = debts.filter(d=> purpose==="pay" ? statusOf(d).key!=="done" : true).sort((a,b)=>(a.name||"").localeCompare(b.name||"","es"));
@@ -1127,11 +1365,12 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   function reminderText(d){
     const vars = {
       nombre: clean(d.name),
-      concepto: d.concept ? d.concept.charAt(0).toLowerCase() + d.concept.slice(1) : "aquel dinero",
+      concepto: d.concept ? d.concept.charAt(0).toLowerCase() + d.concept.slice(1) : L("aquel dinero","the money I lent you"),
       falta: money(restOf(d)), total: money(totalOf(d)), pagado: money(paidOf(d)),
-      fecha: d.dueOn ? fmtDate(d.dueOn) : "cuando puedas", firma: S.myName ? "— " + S.myName : ""
+      fecha: d.dueOn ? fmtDate(d.dueOn) : L("cuando puedas","whenever you can"), firma: S.myName ? "— " + S.myName : ""
     };
-    return (S.template || DEFAULT_TPL).replace(/\{(\w+)\}/g, (m,k)=> k in vars ? vars[k] : m).replace(/[ \t]+$/gm,"").trim();
+    const tpl = (!S.template || S.template===DEFAULT_TPL) ? L(DEFAULT_TPL, DEFAULT_TPL_EN) : S.template;
+    return tpl.replace(/\{(\w+)\}/g, (m,k)=> k in vars ? vars[k] : m).replace(/[ \t]+$/gm,"").trim();
   }
 
   // --- deuda: detalle ---
@@ -1149,7 +1388,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const pct = totalOf(d) ? Math.min(100,paidOf(d)/totalOf(d)*100) : 0;
     openSheet(head(d.name, {av:avatar(d.name,"sm")}) + `
       <div class="hero-d">
-        <span class="lbl">${st.key==="done" ? "Deuda saldada" : "Te debe"}</span>
+        <span class="lbl">${st.key==="done" ? "Deuda pagada" : "Te debe"}</span>
         <span class="big">${money(st.key==="done" ? totalOf(d) : restOf(d))}</span>
         <span class="lbl" style="color:${st.key==="late"?"var(--bad)":st.key==="soon"?"var(--warn)":st.key==="done"?"var(--ok)":"var(--muted)"}">${esc(d.concept||"Sin concepto")} · ${esc(st.label)}</span>
         <div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div>
@@ -1167,7 +1406,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
             <label>Cuándo<input id="pDate" type="date" value="${todayISO()}"></label>
           </div>
           <p class="err" id="pErr" hidden></p>
-          <div class="grid2"><button class="btn" type="submit">Apuntar pago</button>
+          <div class="grid2"><button class="btn" type="submit">Guardar pago</button>
           <button type="button" class="btn soft" data-act="payall">Lo pagó todo</button></div>
         </form>
         <form id="moreForm" novalidate ${moreMode?"":"hidden"}>
@@ -1223,11 +1462,17 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     if (!(amt>0)){ err.textContent="Escribe cuánto te ha devuelto, por ejemplo 50."; err.hidden=false; return; }
     const rest = restOf(d);
     if (amt > rest + 0.001){ err.textContent=`El pago supera lo que falta (${money(rest)}).`; err.hidden=false; return; }
-    const next = Object.assign({}, d, {payments:[...(d.payments||[]), {id:uid("p"), amount:amt, date:date||todayISO()}]});
+    const pid = uid("p");
+    const next = Object.assign({}, d, {payments:[...(d.payments||[]), {id:pid, amount:amt, date:date||todayISO()}]});
     if (restOf(next) <= 0) next.settledAt = new Date().toISOString();
     try { await save("debts", next); } catch(_){ return; }
-    toast(restOf(next)<=0 ? `${clean(d.name)} ha saldado la deuda` : `Pago de ${money(amt)} apuntado`);
     showDebt(d.id);
+    toast(restOf(next)<=0 ? `¡${clean(d.name)} ha pagado toda la deuda!` : `Pago de ${money(amt)} guardado`, {label:"Deshacer", fn: async ()=>{
+      const cur = debts.find(x=>x.id===d.id); if (!cur) return;
+      const back = Object.assign({}, cur, {payments:(cur.payments||[]).filter(p=>p.id!==pid)}); delete back.settledAt;
+      try { await save("debts", back); } catch(_){ return; }
+      if (sheetRef==="debt:"+d.id) showDebt(d.id); toast("Pago deshecho");
+    }});
   }
   async function addExtra(d, amt, date, note, due, err){
     if (!(amt>0)){ if (err){ err.textContent="Escribe cuánto le prestas, por ejemplo 100."; err.hidden=false; } return; }
@@ -1565,7 +1810,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const n = daysUntil(iso);
     if (n===0) return "Hoy"; if (n===-1) return "Ayer";
     const [y,m,d] = iso.split("-").map(Number);
-    const t = new Date(y,m-1,d).toLocaleDateString("es-ES",{weekday:"long", day:"numeric", month:"long"});
+    const t = new Date(y,m-1,d).toLocaleDateString(LOC,{weekday:"long", day:"numeric", month:"long"});
     return t.charAt(0).toUpperCase() + t.slice(1);
   }
   function showGroup(id, back){
@@ -1585,7 +1830,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     items.forEach(e=>{ const k = e.date||""; let d = days.find(x=>x.k===k); if (!d){ d = {k, list:[]}; days.push(d); } d.list.push(e); });
     const gc = gcur(g);
     const expRow = e => {
-      if (e.type==="settle") return `<div class="settle-row-x"><span class="mv in" aria-hidden="true">✓</span><div style="flex:1;min-width:0"><div style="font-weight:500">Reembolso</div><div class="hint" style="font-size:12px">${esc(nm(e.from))} → ${esc(nm(e.to))}${e.note?" · "+esc(e.note):""}</div></div>
+      if (e.type==="settle") return `<div class="settle-row-x"><span class="mv in" aria-hidden="true">✓</span><div style="flex:1;min-width:0"><div style="font-weight:500">Pago</div><div class="hint" style="font-size:12px">${esc(nm(e.from))} → ${esc(nm(e.to))}${e.note?" · "+esc(e.note):""}</div></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-weight:600;color:var(--ok);font-variant-numeric:tabular-nums">${money(e.amount)}</span><button type="button" class="rm" data-rmexp="${esc(e.id)}">Deshacer</button></div></div>`;
       const among = (e.among||[]).filter(x=>g.members.some(m=>m.id===x));
       const cents = Math.round((+e.amount||0)*100), sh = expShares(e, among, cents), P = payersCents(e, cents);
@@ -1603,7 +1848,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       const how = e.split==="exact" ? "por importes" : e.split==="parts" ? "por partes" : "a partes iguales";
       const ct = e.category ? catOf(e.category) : null;
       const myPaid = (P[ME]||0)/100, delta = r2(myPaid - myPart);
-      const impact = delta>0 ? `<small class="pos">te deben ${money(delta)}</small>` : delta<0 ? `<small class="neg">debes ${money(-delta)}</small>` : `<small class="zero">${among.includes(ME)||myPaid?"en paz":"no participas"}</small>`;
+      const impact = delta>0 ? `<small class="pos">te deben ${money(delta)}</small>` : delta<0 ? `<small class="neg">debes ${money(-delta)}</small>` : `<small class="zero">${among.includes(ME)||myPaid?"no te afecta":"no participas"}</small>`;
       return `<details class="exp"><summary>${catIcon(e.category)}<div class="main"><div class="t1">${esc(e.concept||"Gasto")}</div><div class="d">Pagado por ${esc(who)}${e.origCurrency?` · ${moneyC(e.origAmount, e.origCurrency)}`:""}</div></div><div class="side2"><span class="a">${money(e.amount)}</span>${impact}</div></summary>
         <div class="break">${rows}<div class="foot"><span>Dividido ${how} entre ${plural(among.length,"persona","personas")}${e.origCurrency?` · cambio 1 ${esc(e.origCurrency)} = ${String(e.rate).replace(".",",")} ${esc(gc)}`:""}</span><span class="btnrow"><button type="button" class="linkbtn" style="font-size:13px" data-editexp="${esc(e.id)}">Editar</button><button type="button" class="rm" data-rmexp="${esc(e.id)}">Borrar</button></span></div></div></details>`;
     };
@@ -1624,8 +1869,8 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const transfers = c.settle.length ? c.settle.slice().sort((a,b)=>((a.to===ME?0:a.from===ME?1:2)-(b.to===ME?0:b.from===ME?1:2)) || b.amount-a.amount).map(s=>{
       const txt = s.from===ME ? `Pagas a <b>${esc(nm(s.to))}</b>` : s.to===ME ? `<b>${esc(nm(s.from))}</b> te paga` : `<b>${esc(nm(s.from))}</b> paga a <b>${esc(nm(s.to))}</b>`;
       const acts = s.to===ME
-        ? `<button type="button" class="btn small" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya me pagó</button><button type="button" class="btn small soft" data-tomedeben="${esc(s.from)}|${s.amount}">Pasar a Me deben</button>`
-        : `<button type="button" class="btn small ghost" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Marcar como pagado</button>`;
+        ? `<button type="button" class="btn small" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya me pagó</button><button type="button" class="btn small soft" data-tomedeben="${esc(s.from)}|${s.amount}">Guardar como deuda</button>`
+        : `<button type="button" class="btn small ghost" data-settle="${esc(s.from)}|${esc(s.to)}|${s.amount}">Ya está pagado</button>`;
       const line = '<svg viewBox="0 0 100 14" preserveAspectRatio="none"><path d="M2 7h94M88 2l7 5-7 5"/></svg>';
       return `<div class="tcard ${s.to===ME?"me-in":s.from===ME?"me-out":""}">
         <div class="tc-row"><div class="tc-p">${mav(s.from)}<span>${esc(nm(s.from))}</span></div>
@@ -1643,7 +1888,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <div class="vrow" style="padding:0 4px"><p class="step-t">Quién debe a quién</p><span class="pill-m">${g.simplify===false?"Sin simplificar":"Mínimo de pagos"}</span></div>
         <div class="tlist">${transfers}</div>
         ${c.settle.length ? `<div class="owes-sum">${toMeN?`<span class="p">${plural(toMeN,"persona te debe","personas te deben")}</span>`:""}${fromMeN?`<span class="n">Debes a ${plural(fromMeN,"persona","personas")}</span>`:""}${c.settle.length-toMeN-fromMeN?`<span class="z">${plural(c.settle.length-toMeN-fromMeN,"pago","pagos")} entre otros</span>`:""}</div>
-        <p class="hint" style="padding:0 4px">${g.simplify===false ? "Simplificar deudas está desactivado: cada uno paga directamente a quien pagó por él. Puedes activarlo en Editar grupo." : "Es el menor número de pagos posible para que todos queden en paz."} Cuando alguien pague, márcalo y el grupo se recalcula.</p>` : ""}
+        <p class="hint" style="padding:0 4px">${g.simplify===false ? "Simplificar deudas está desactivado: cada uno paga directamente a quien pagó por él. Puedes activarlo en Editar grupo." : "Es el menor número de pagos posible para que todo cuadre."} Cuando alguien pague, márcalo y el grupo se recalcula solo.</p>` : ""}
       </div>`;
     const catRows = Object.entries(c.byCat||{}).sort((a,b)=>b[1]-a[1]);
     const catMax = catRows.length ? catRows[0][1] : 1;
@@ -1654,20 +1899,31 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <p class="hint" style="${bPct>=100?"color:var(--bad)":bPct>=80?"color:var(--warn)":""}">${bPct>=100 ? `Os habéis pasado en ${money(c.total-g.budget)}.` : `Quedan ${money(g.budget-c.total)} (${Math.round(100-bPct)} %).`}</p></div>` : "";
     const saldosHtml = `<div class="pane">${budgetCard}
         <div class="card"><p class="step-t">Saldos</p><div class="bal-chart">${balRows}</div>
-          <p class="formula">Verde: le deben dinero. Rojo: tiene que pagar. Saldo = lo que puso − lo que le toca.</p></div>
+          <p class="formula">En verde, quien tiene que cobrar; en rojo, quien tiene que pagar.</p></div>
         ${whoPaid}
         ${catsCard}
         <div class="addperson"><input id="gpNew" autocomplete="off" placeholder="Añadir persona al grupo" aria-label="Nombre"><button type="button" class="btn ghost" data-act="gpadd">Añadir</button></div>
       </div>`;
 
-    openSheet(head(g.name, {av:`<span class="gc-ic" style="--h:${hue(g.name)};width:34px;height:34px;font-size:13px;border-radius:11px" aria-hidden="true">${esc(initials(g.name))}</span>`}) + `
+    const mi = {
+      hist:'<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4M12 8v4l3 2"/></svg>',
+      exp:'<svg viewBox="0 0 24 24"><path d="M12 4v11M7 9l5-5 5 5M5 20h14"/></svg>',
+      edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>',
+      del:'<svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg>'};
+    openSheet(head(g.name, {menu:"gmenu", av:`<span class="gc-ic" style="--h:${hue(g.name)};width:34px;height:34px;font-size:13px;border-radius:11px" aria-hidden="true">${esc(initials(g.name))}</span>`}) + `
+      <div class="gmenu" id="gMenu" hidden>
+        <button type="button" data-act="ghist">${mi.hist}Historial</button>
+        <button type="button" data-act="gexport">${mi.exp}Exportar</button>
+        <button type="button" data-act="editgroup">${mi.edit}Editar grupo</button>
+        <button type="button" data-act="askdelgroup" style="color:var(--bad)">${mi.del}Borrar grupo</button>
+      </div>
       <div class="ghero" style="--h:${hue(g.name)}">
         ${avStack(g, 7)}
-        <span class="gh-lbl">${mine>0?"Te deben":mine<0?"Debes":"Estás en paz"}</span>
+        <span class="gh-lbl">${mine>0?"Te deben":mine<0?"Debes":"Todo cuadra"}</span>
         <span class="gh-big ${mine>0?"pos":mine<0?"neg":""}">${money(Math.abs(mine))}</span>
         <div class="gh-stats">
-          <div><span>Gastado</span><b>${money(c.total)}</b></div>
-          <div><span>Tu parte</span><b>${money(c.share[ME]||0)}</b></div>
+          <div><span>Personas</span><b>${g.members.length}</b></div>
+          <div><span>Gastos</span><b>${exps.length}</b></div>
           <div><span>Pendientes</span><b>${plural(c.settle.length,"pago","pagos")}</b></div>
         </div>
       </div>
@@ -1679,12 +1935,6 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       <div id="gPane" class="${reduced?"":"enter-bar"}">${groupTab==="gastos"?gastosHtml:groupTab==="deben"?debenHtml:saldosHtml}</div>
       ${g.example?'<p class="hint" style="text-align:center">Este grupo es un ejemplo. Bórralo cuando quieras.</p>':""}
       ${g.archived?'<p class="hint" style="text-align:center">Grupo archivado. Puedes desarchivarlo en Editar grupo.</p>':""}
-      <div class="grid2">
-        <button type="button" class="btn ghost" data-act="ghist">Historial</button>
-        <button type="button" class="btn ghost" data-act="gexport">Exportar</button>
-        <button type="button" class="btn ghost" data-act="editgroup">Editar grupo</button>
-        <button type="button" class="btn ghost" data-act="askdelgroup" style="color:var(--bad)">Borrar</button>
-      </div>
       <div id="confirmBox"></div>
       <div class="gfoot">
         <div><div class="k">Mis gastos</div><div class="v">${money(c.share[ME]||0)}</div></div>
@@ -1702,8 +1952,8 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   function showHistory(gid){
     const g = groups.find(x=>x.id===gid); if (!g) return;
     const when = iso => { const d = new Date(iso); const day = isoOf(d); const n = daysUntil(day);
-      const hm = d.toLocaleTimeString("es-ES",{hour:"2-digit", minute:"2-digit"});
-      return (n===0 ? "Hoy" : n===-1 ? "Ayer" : d.toLocaleDateString("es-ES",{day:"numeric", month:"short"})) + "<br>" + hm; };
+      const hm = d.toLocaleTimeString(LOC,{hour:"2-digit", minute:"2-digit"});
+      return (n===0 ? L("Hoy","Today") : n===-1 ? L("Ayer","Yesterday") : d.toLocaleDateString(LOC,{day:"numeric", month:"short"})) + "<br>" + hm; };
     const list = g.log || [];
     openSheet(head("Historial", {back:"group:"+gid}) + `
       <p class="hint">Todo lo que se ha cambiado en «${esc(g.name)}», lo más reciente primero.</p>
@@ -1714,12 +1964,12 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   // --- grupo: exportar ---
   function groupSummaryText(g){
     const c = groupCalc(g), cur = gcur(g), m = v => moneyC(v, cur);
-    const nmS = id => id===ME ? (S.myName || "Yo") : memberName(g, id);
-    const lines = [`*${clean(g.name)}*`, `Total gastado: ${m(c.total)}${g.budget?` (presupuesto ${m(g.budget)})`:""}`, "", "Saldos:"];
-    g.members.forEach(x=>{ const v = r2(c.net[x.id]||0); lines.push(`• ${nmS(x.id)}: ${v>0?"+":v<0?"−":""}${m(Math.abs(v))}  (puso ${m(c.paid[x.id]||0)}, le toca ${m(c.share[x.id]||0)})`); });
-    lines.push("", "Quién paga a quién:");
-    if (c.settle.length) c.settle.forEach(t=>lines.push(`• ${nmS(t.from)} → ${nmS(t.to)}: ${m(t.amount)}`)); else lines.push("• Nadie, todo cuadra.");
-    lines.push("", "Hecho con Reparto de Deudas");
+    const nmS = id => id===ME ? (S.myName || L("Yo","Me")) : memberName(g, id);
+    const lines = [`*${clean(g.name)}*`, `${L("Total gastado","Total spent")}: ${m(c.total)}${g.budget?` (${L("presupuesto","budget")} ${m(g.budget)})`:""}`, "", L("Saldos:","Balances:")];
+    g.members.forEach(x=>{ const v = r2(c.net[x.id]||0); lines.push(`• ${nmS(x.id)}: ${v>0?"+":v<0?"−":""}${m(Math.abs(v))}  (${L("puso","paid")} ${m(c.paid[x.id]||0)}, ${L("le toca","share")} ${m(c.share[x.id]||0)})`); });
+    lines.push("", L("Quién paga a quién:","Who pays whom:"));
+    if (c.settle.length) c.settle.forEach(t=>lines.push(`• ${nmS(t.from)} → ${nmS(t.to)}: ${m(t.amount)}`)); else lines.push(L("• Nadie, todo cuadra.","• Nobody, all settled up."));
+    lines.push("", L("Hecho con Reparto de Deudas","Made with Reparto de Deudas"));
     return lines.join("\n");
   }
   function groupCSV(g){
@@ -1729,7 +1979,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const nmS = id => id===ME ? (S.myName || "Yo") : memberName(g, id);
     const rows = [["Fecha","Tipo","Concepto","Categoría","Importe","Moneda","Importe original","Moneda original","Pagado por","Para quién","Reparto"]];
     (g.expenses||[]).slice().sort((a,b)=>(a.date||"").localeCompare(b.date||"")).forEach(e=>{
-      if (e.type==="settle"){ rows.push([e.date, "Reembolso", `${nmS(e.from)} → ${nmS(e.to)}`, "", num(e.amount), cur, "", "", nmS(e.from), nmS(e.to), ""]); return; }
+      if (e.type==="settle"){ rows.push([e.date, "Pago", `${nmS(e.from)} → ${nmS(e.to)}`, "", num(e.amount), cur, "", "", nmS(e.from), nmS(e.to), ""]); return; }
       const cents = Math.round((+e.amount||0)*100), among = (e.among||[]).filter(x=>g.members.some(m=>m.id===x)), sh = expShares(e, among, cents), P = payersCents(e, cents);
       rows.push([e.date, "Gasto", e.concept||"Gasto", e.category ? catOf(e.category)[1] : "", num(e.amount), cur, e.origCurrency ? num(e.origAmount) : "", e.origCurrency||"",
         Object.entries(P).map(([k,v])=>`${nmS(k)} ${num(v/100)}`).join(" | "), among.map(x=>`${nmS(x)} ${num((sh[x]||0)/100)}`).join(" | "),
@@ -1777,6 +2027,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     openSheet(head("Personalizar") + `
       <div class="card">
         <p class="step-t">Apariencia</p>
+        <div class="opt"><span class="lab">Idioma</span>${seg("lang",[["auto","Automático"],["es","Español"],["en","English"]])}</div>
         <div class="opt"><span class="lab">Tema</span>${seg("theme",[["system","Automático"],["light","Claro"],["dark","Oscuro"]])}</div>
         <div class="opt"><span class="lab">Color</span>
           <div class="swatches">${ACCENTS.map(([n,h,s])=>`<button type="button" class="sw" style="--sh:${h};--ss:${s}" data-set="accent" data-val="${n}" aria-pressed="${S.accent===n}" aria-label="${n}" title="${n}"></button>`).join("")}</div></div>
@@ -1789,13 +2040,13 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         ${sw("hero","Mostrar el total arriba")}
         ${sw("avatars","Mostrar iniciales")}
         ${sw("bars","Mostrar progreso del pago")}
-        ${sw("hideDone","Ocultar deudas saldadas")}
+        ${sw("hideDone","Ocultar deudas pagadas")}
         <div class="opt"><span class="lab">Ordenar por</span>${seg("sort",[["urgencia","Urgencia"],["importe","Importe"],["nombre","Nombre"],["reciente","Recientes"]])}</div>
-        <div class="opt"><span class="lab">Abrir la app en</span>${seg("startTab",[["debts","Me deben"],["split","Repartir"]])}</div>
+        <div class="opt"><span class="lab">Abrir la app en</span>${seg("startTab",[["debts","Me deben"],["split","Grupos"]])}</div>
       </div>
       <div class="card">
         <p class="step-t">Deudas y fechas</p>
-        <div class="opt"><span class="lab">Avisar «vence pronto»</span><span class="sub">Días antes de la fecha límite</span>${seg("soonDays",[[3,"3"],[7,"7"],[14,"14"],[30,"30"]])}</div>
+        <div class="opt"><span class="lab">Avisarme antes de que venza</span><span class="sub">Días de antelación</span>${seg("soonDays",[[3,"3"],[7,"7"],[14,"14"],[30,"30"]])}</div>
         <div class="opt"><span class="lab">Plazo para deudas nuevas</span>${seg("defaultDue",[[0,"Ninguno"],[7,"1 sem."],[15,"15 días"],[30,"1 mes"],[90,"3 meses"]])}</div>
         <label>Moneda<select id="sCurrency">${CURRENCIES.map(([c,l])=>`<option value="${c}" ${S.currency===c?"selected":""}>${l}</option>`).join("")}</select></label>
       </div>
@@ -1803,7 +2054,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <p class="step-t">Mensaje de recordatorio</p>
         <label>Tu nombre para firmar<input id="sName" autocomplete="off" value="${esc(S.myName)}" placeholder="Opcional"></label>
         <label>Texto<textarea id="sTpl" rows="4">${esc(S.template)}</textarea></label>
-        <p class="hint">Huecos: <span class="ph">{nombre}</span> <span class="ph">{concepto}</span> <span class="ph">{falta}</span> <span class="ph">{total}</span> <span class="ph">{pagado}</span> <span class="ph">{fecha}</span> <span class="ph">{firma}</span></p>
+        <p class="hint">Puedes usar estas etiquetas: <span class="ph">{nombre}</span> <span class="ph">{concepto}</span> <span class="ph">{falta}</span> <span class="ph">{total}</span> <span class="ph">{pagado}</span> <span class="ph">{fecha}</span> <span class="ph">{firma}</span></p>
         <div class="msg" id="tplPrev" style="user-select:text;-webkit-user-select:text">${esc(reminderText(sample))}</div>
         <button type="button" class="linkbtn" data-act="resettpl" style="align-self:flex-start">Volver al texto original</button>
       </div>
@@ -1813,9 +2064,9 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
         <p class="hint">${mode==="db"?"Todo se guarda en tu cuenta y solo lo ves tú.":canFiles?"Tus datos se guardan solo en este dispositivo. Haz una copia de vez en cuando para no perderlos.":"Tus datos se guardan solo en este navegador."}</p>
         ${canFiles?`<div class="grid2"><button type="button" class="btn soft" data-act="export">Exportar copia</button>
         <label class="btn ghost" style="display:grid;place-items:center;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer">Importar copia<input type="file" id="importFile" accept="application/json,.json,text/plain" hidden></label></div>
-        <button type="button" class="linkbtn" data-act="pastecopy" style="align-self:flex-start">Pegar una copia en texto</button>`:""}
+        <button type="button" class="linkbtn" data-act="pastecopy" style="align-self:flex-start">Recuperar desde texto copiado</button>`:""}
         <div class="grid2"><button type="button" class="btn ghost" data-act="clearex">Borrar ejemplos</button>
-        <button type="button" class="btn ghost" data-act="resetsettings">Restablecer</button></div>
+        <button type="button" class="btn ghost" data-act="resetsettings">Ajustes iniciales</button></div>
       </div>
       <div id="confirmBox"></div>`, "settings", {back});
     $("#sCurrency").addEventListener("change", e=>{ setSetting("currency", e.target.value); showSettings(); });
@@ -1899,7 +2150,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     if (!canUpdate) return "";
     const webReady = !isApk && upd.swReady;
     if (!(upd.state==="available" && upd.build > dismissed()) && !webReady) return "";
-    const title = webReady && upd.state!=="available" ? "La app se ha actualizado" : `Nueva versión ${verName(upd.build)}`;
+    const title = webReady && upd.state!=="available" ? "La app se ha actualizado" : `Hay novedades (${verName(upd.build)})`;
     const sub = isApk ? "Descárgala e instálala encima. No perderás tus datos." : "Recarga para usarla. Tus datos se mantienen.";
     return `<section class="upd stg" id="updBanner" role="status">
       <div class="u1"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><div><b>${esc(title)}</b><span>${sub}</span></div></div>
@@ -1937,7 +2188,21 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     try { const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App; if (App) App.addListener("resume", ()=>checkUpdates(false)); } catch(e){}
   }
   let pendingImport = null;
+  const BKP_EVERY = 14*86400000;
+  const bkpGet = k => { try { return +localStorage.getItem(k) || 0; } catch(e){ return 0; } };
+  const bkpSet = (k,v) => { try { localStorage.setItem(k, String(v)); } catch(e){} };
+  function backupBanner(){
+    if (!canFiles || mode!=="local" || !ready) return "";
+    const real = debts.filter(d=>!d.example).length + groups.filter(g=>!g.example).length;
+    if (real < 2) return "";
+    const last = Math.max(bkpGet("rd-bkp-last"), bkpGet("rd-bkp-snooze"));
+    if (!last){ if (!bkpGet("rd-bkp-first")) bkpSet("rd-bkp-first", Date.now()); if (Date.now() - bkpGet("rd-bkp-first") < 3*86400000) return ""; }
+    else if (Date.now() - last < BKP_EVERY) return "";
+    return `<section class="bkp stg" id="bkpBanner" role="status"><div><b>Haz una copia de tus datos</b><span>Están solo en este móvil. Con una copia no los perderás si cambias de teléfono.</span></div>
+      <div class="btnrow"><button type="button" class="btn small" data-act="export">Hacer copia ahora</button><button type="button" class="btn ghost small" data-act="bkpsnooze">Más tarde</button></div></section>`;
+  }
   async function exportData(){
+    bkpSet("rd-bkp-last", Date.now()); const bb = $("#bkpBanner"); if (bb) bb.remove();
     const json = JSON.stringify({app:"reparto-de-deudas", version:1, exportedAt:new Date().toISOString(), debts, groups, settings:S});
     if (window.Capacitor){
       try { await navigator.clipboard.writeText(json); toast("Copia copiada. Pégala en una nota o en WhatsApp para guardarla."); }
@@ -1963,24 +2228,24 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   // ---------- ejemplos ----------
   async function loadDebtExamples(){
     const ex = [
-      {name:"Carlos (ejemplo)", concept:"Entradas del concierto", amount:85, lentOn:addDays(-40), dueOn:addDays(-5), payments:[], extras:[]},
-      {name:"Lucía (ejemplo)", concept:"Fianza del piso", amount:600, lentOn:addDays(-60), dueOn:addDays(30), payments:[{id:uid("p"),amount:200,date:addDays(-30)},{id:uid("p"),amount:150,date:addDays(-2)}], extras:[{id:uid("x"),amount:120,date:addDays(-15),note:"Gastos de la mudanza"}]},
-      {name:"Andrés (ejemplo)", concept:"Cena de cumpleaños", amount:42.5, lentOn:addDays(-10), dueOn:addDays(4), payments:[], extras:[]},
-      {name:"Marta (ejemplo)", concept:"Gasolina del viaje", amount:30, lentOn:addDays(-20), dueOn:"", payments:[{id:uid("p"),amount:30,date:addDays(-8)}], extras:[]}
+      {name:"Carlos (ejemplo)", concept:L("Entradas del concierto","Concert tickets"), amount:85, lentOn:addDays(-40), dueOn:addDays(-5), payments:[], extras:[]},
+      {name:"Lucía (ejemplo)", concept:L("Fianza del piso","Flat deposit"), amount:600, lentOn:addDays(-60), dueOn:addDays(30), payments:[{id:uid("p"),amount:200,date:addDays(-30)},{id:uid("p"),amount:150,date:addDays(-2)}], extras:[{id:uid("x"),amount:120,date:addDays(-15),note:L("Gastos de la mudanza","Moving costs")}]},
+      {name:"Andrés (ejemplo)", concept:L("Cena de cumpleaños","Birthday dinner"), amount:42.5, lentOn:addDays(-10), dueOn:addDays(4), payments:[], extras:[]},
+      {name:"Marta (ejemplo)", concept:L("Gasolina del viaje","Petrol for the trip"), amount:30, lentOn:addDays(-20), dueOn:"", payments:[{id:uid("p"),amount:30,date:addDays(-8)}], extras:[]}
     ];
     for (const e of ex){ try{ await save("debts", Object.assign({id:uid("d"), example:true, createdAt:new Date().toISOString(), phone:"", notes:""}, e), true); }catch(_){ return; } }
     animateNext = true; render(); toast("Ejemplos cargados");
   }
   async function loadGroupExample(){
-    const L=uid("m"), A=uid("m"), M=uid("m"); const all=[ME,L,A,M];
-    let g = {id:uid("g"), example:true, name:"Casa rural (ejemplo)", createdAt:new Date().toISOString(), currency:S.currency, simplify:true, budget:650,
-      members:[{id:ME,name:"Yo"},{id:L,name:"Lucía"},{id:A,name:"Andrés"},{id:M,name:"Marta"}],
+    const Lu=uid("m"), A=uid("m"), M=uid("m"); const all=[ME,Lu,A,M];
+    let g = {id:uid("g"), example:true, name:L("Casa rural (ejemplo)","Cottage weekend (ejemplo)"), createdAt:new Date().toISOString(), currency:S.currency, simplify:true, budget:650,
+      members:[{id:ME,name:"Yo"},{id:Lu,name:"Lucía"},{id:A,name:"Andrés"},{id:M,name:"Marta"}],
       expenses:[
-        {id:uid("e"), concept:"Alquiler de la casa", category:"alojamiento", amount:320, paidBy:ME, among:all, split:"equal", date:addDays(-6)},
-        {id:uid("e"), concept:"Supermercado", category:"super", amount:86.4, paidBy:L, among:all, split:"equal", date:addDays(-5)},
-        {id:uid("e"), concept:"Gasolina", category:"transporte", amount:54, paidBy:A, among:[ME,A,M], split:"equal", date:addDays(-5)},
-        {id:uid("e"), concept:"Cena del sábado", category:"comida", amount:112, paidBy:ME, among:all, split:"exact", shares:{[ME]:30,[L]:24,[A]:30,[M]:28}, date:addDays(-4)},
-        {id:uid("e"), concept:"Kayak", category:"ocio", amount:80, paidBy:L, payers:{[L]:50,[M]:30}, among:all, split:"parts", weights:{[ME]:1,[L]:1,[A]:1,[M]:1}, date:addDays(-3)}
+        {id:uid("e"), concept:L("Alquiler de la casa","Cottage rental"), category:"alojamiento", amount:320, paidBy:ME, among:all, split:"equal", date:addDays(-6)},
+        {id:uid("e"), concept:L("Supermercado","Groceries"), category:"super", amount:86.4, paidBy:Lu, among:all, split:"equal", date:addDays(-5)},
+        {id:uid("e"), concept:L("Gasolina","Petrol"), category:"transporte", amount:54, paidBy:A, among:[ME,A,M], split:"equal", date:addDays(-5)},
+        {id:uid("e"), concept:L("Cena del sábado","Saturday dinner"), category:"comida", amount:112, paidBy:ME, among:all, split:"exact", shares:{[ME]:30,[Lu]:24,[A]:30,[M]:28}, date:addDays(-4)},
+        {id:uid("e"), concept:"Kayak", category:"ocio", amount:80, paidBy:Lu, payers:{[Lu]:50,[M]:30}, among:all, split:"parts", weights:{[ME]:1,[Lu]:1,[A]:1,[M]:1}, date:addDays(-3)}
       ]};
     g = logged(g, "Grupo de ejemplo creado");
     try { await save("groups", g); } catch(_){ return; }
@@ -2000,7 +2265,9 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     if (t.dataset.tab){ if (tab!==t.dataset.tab){ tab = t.dataset.tab; animateNext = true; render(); window.scrollTo({top:0}); } return; }
     if (t.dataset.f){ filter = t.dataset.f; try{localStorage.setItem("me-deben-filter",filter);}catch(_){} moveSeg(t); const l=$("#dlist"); if (l){ l.innerHTML = debtRows(); if(!reduced){ l.style.animation="none"; void l.offsetWidth; l.style.animation="rise .35s var(--ease)"; } } return; }
     if (t.dataset.open){ const r = t.dataset.open; if (r.startsWith("group:") && !t.dataset.back) groupTab = "deben"; if (r==="add") addChooser(); else if (r.startsWith("pick:")) pickDebt(r.slice(5)); else openRef(r, false, !!t.dataset.back); return; }
+    if (t.dataset.set==="lang"){ S.lang = t.dataset.val; try { localStorage.setItem("me-deben-ajustes", JSON.stringify(S)); } catch(_){} if (mode==="db" && cols){ try { await cols.debts.doc("ajustes").set(JSON.parse(JSON.stringify(S))); } catch(_){} } location.reload(); return; }
     if (t.dataset.set){ const v = t.dataset.val; const num = ["fs","soonDays","defaultDue"].includes(t.dataset.set); if (t.closest(".seg")) moveSeg(t); setSetting(t.dataset.set, num ? +v : v); if (t.dataset.set==="accent"||t.dataset.set==="theme"||t.dataset.set==="fs"||t.dataset.set==="corners") showSettings(); else sheet.querySelectorAll(`[data-set="${t.dataset.set}"]`).forEach(b=>b.setAttribute("aria-pressed", String(b===t))); return; }
+    if (t.dataset.pickgroup){ expenseForm(t.dataset.pickgroup); return; }
     if (t.dataset.pick){ showDebt(t.dataset.pick, t.dataset.purpose==="more" ? "more" : undefined); return; }
     if (t.dataset.mergeinto){
       const m = debts.find(x=>x.id===t.dataset.mergeinto); if (!m) return;
@@ -2022,15 +2289,22 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     if (t.dataset.editexp && g){ expenseForm(g.id, t.dataset.editexp); return; }
     if (t.dataset.rmexp && g){
       const gone = (g.expenses||[]).find(x=>x.id===t.dataset.rmexp);
-      const txt = gone && gone.type==="settle" ? `Deshecho el reembolso de ${memberName(g,gone.from)==="Yo"?"Tú":memberName(g,gone.from)} a ${memberName(g,gone.to)==="Yo"?"Tú":memberName(g,gone.to)} (${money(gone.amount)})` : `Borrado «${gone?gone.concept:"gasto"}»${gone?" de "+money(gone.amount):""}`;
+      const txt = gone && gone.type==="settle" ? `Deshecho el pago de ${memberName(g,gone.from)==="Yo"?"Tú":memberName(g,gone.from)} a ${memberName(g,gone.to)==="Yo"?"Tú":memberName(g,gone.to)} (${money(gone.amount)})` : `Borrado «${gone?gone.concept:"gasto"}»${gone?" de "+money(gone.amount):""}`;
       try { await save("groups", logged(Object.assign({}, g, {expenses:(g.expenses||[]).filter(x=>x.id!==t.dataset.rmexp)}), txt)); } catch(_){ return; }
       toast("Hecho"); showGroup(g.id); return;
     }
     if (t.dataset.settle && g){
       const [from,to,amt] = t.dataset.settle.split("|");
       const nn = id => id===ME ? "Tú" : memberName(g,id);
-      try { await save("groups", logged(Object.assign({}, g, {expenses:[...(g.expenses||[]), {id:uid("s"), type:"settle", from, to, amount:+amt, date:todayISO()}]}), `${nn(from)} pagó ${money(+amt)} a ${nn(to)}`)); } catch(_){ return; }
-      toast("Pago apuntado en el grupo"); showGroup(g.id); return;
+      const sid = uid("s");
+      try { await save("groups", logged(Object.assign({}, g, {expenses:[...(g.expenses||[]), {id:sid, type:"settle", from, to, amount:+amt, date:todayISO()}]}), `${nn(from)} pagó ${money(+amt)} a ${nn(to)}`)); } catch(_){ return; }
+      showGroup(g.id);
+      toast(`${nn(from)} → ${nn(to)}: pago guardado`, {label:"Deshacer", fn: async ()=>{
+        const cur = groups.find(x=>x.id===g.id); if (!cur) return;
+        try { await save("groups", logged(Object.assign({}, cur, {expenses:(cur.expenses||[]).filter(x=>x.id!==sid)}), `Deshecho el pago de ${nn(from)} a ${nn(to)} (${money(+amt)})`)); } catch(_){ return; }
+        if (sheetRef==="group:"+g.id) showGroup(g.id); toast("Pago deshecho");
+      }});
+      return;
     }
     if (t.dataset.tomedeben && g){
       const [from, amt] = t.dataset.tomedeben.split("|"); const a = +amt; const name = memberName(g, from);
@@ -2055,6 +2329,13 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     else if (act==="editgroup" && g) groupForm(g);
     else if (act==="addexp" && g) expenseForm(g.id);
     else if (act==="ghist" && g) showHistory(g.id);
+    else if (act==="gmenu"){ const m = $("#gMenu"); if (m){ m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); } }
+    else if (act==="pickgroup") pickGroup();
+    else if (act==="w-debt"){ tab = "debts"; debtForm(); }
+    else if (act==="w-quick"){ quickSplit(); }
+    else if (act==="w-group"){ tab = "split"; groupForm(); }
+    else if (act==="w-demo"){ await loadDebtExamples(); tab = "split"; await loadGroupExample(); }
+    else if (act==="w-skip"){ try { localStorage.setItem("rd-welcome-skip","1"); } catch(_){} animateNext = true; render(); }
     else if (act==="gexport" && g) showExport(g.id);
     else if (act==="gpadd" && g){
       const inp = $("#gpNew"), n = inp.value.trim(); if (!n) return;
@@ -2065,6 +2346,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     else if (act==="payall" && d) addPayment(d, restOf(d), todayISO());
     else if (act==="settings") showSettings();
     else if (act==="export") exportData();
+    else if (act==="bkpsnooze"){ bkpSet("rd-bkp-snooze", Date.now() - BKP_EVERY + 7*86400000); const bb = $("#bkpBanner"); if (bb) bb.remove(); toast("Te lo recordaremos en una semana"); }
     else if (act==="checkupd") checkUpdates(true);
     else if (act==="applyupd") applyWebUpdate();
     else if (act==="skipupd"){ try { localStorage.setItem("rd-upd-skip", String(upd.build)); } catch(_){} upd.swReady = false; refreshUpd(); }
@@ -2078,7 +2360,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     else if (act==="clearex"){ await clearExamples(); if (sheetRef==="settings") showSettings(); }
     else if (act==="resetsettings"){
       $("#confirmBox").innerHTML = `<div class="confirm"><span>¿Volver a los ajustes de fábrica? Tus deudas y grupos no se borran.</span>
-        <div class="grid2"><button type="button" class="btn danger small" data-act="doreset">Restablecer</button><button type="button" class="btn ghost small" data-act="nodel">Cancelar</button></div></div>`;
+        <div class="grid2"><button type="button" class="btn danger small" data-act="doreset">Volver a los ajustes iniciales</button><button type="button" class="btn ghost small" data-act="nodel">Cancelar</button></div></div>`;
       $("#confirmBox").scrollIntoView({block:"nearest", behavior: reduced ? "auto" : "smooth"});
     }
     else if (act==="doreset"){ S = Object.assign({}, DEFAULTS); setSetting("theme", "system"); showSettings(); toast("Ajustes restablecidos"); }
@@ -2097,13 +2379,18 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     else if (act==="del" && d){ const n=d.name; try{ await remove("debts", d.id); }catch(_){ return; } closeSheet(); toast(`Deuda de ${clean(n)} borrada`); }
     else if (act==="delgroup" && g){ const n=g.name; try{ await remove("groups", g.id); }catch(_){ return; } closeSheet(); toast(`Grupo ${clean(n)} borrado`); }
   });
-  $("#addBtn").addEventListener("click", ()=>{ if (!ready) return; tab==="debts" ? addChooser() : quickSplit(); });
+  $("#addBtn").addEventListener("click", ()=>{ if (!ready) return; addChooser(); });
   $("#settingsBtn").addEventListener("click", ()=>showSettings());
   document.addEventListener("input", e=>{ if (e.target.id==="q"){ query = e.target.value; const l=$("#dlist"); if (l) l.innerHTML = debtRows(); } });
   window.addEventListener("resize", ()=>{ placeSegs(document); });
   document.addEventListener("change", e=>{ const t = e.target; if (t && t.dataset && t.dataset.toggle) setSetting(t.dataset.toggle, t.checked); });
 
-  let tt; function toast(m){ const el=$("#toast"); el.textContent=m; el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"), 2600); }
+  let tt; function toast(m, action){
+    const el=$("#toast"); el.textContent = m;
+    if (action){ const b = document.createElement("button"); b.type = "button"; b.className = "tact"; b.textContent = action.label || "Deshacer";
+      b.addEventListener("click", ev=>{ ev.stopPropagation(); el.classList.remove("show"); action.fn(); }); el.appendChild(b); }
+    el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"), action ? 5000 : 2600);
+  }
 
   // Botón «atrás» de Android (solo en la app instalada desde el APK)
   try {
