@@ -51,6 +51,13 @@ jobs:
       - name: Crear el proyecto Android
         run: npx cap add android
 
+      - name: Permitir que la app instale sus actualizaciones
+        run: |
+          grep -q REQUEST_INSTALL_PACKAGES android/app/src/main/AndroidManifest.xml || \
+            sed -i 's#</manifest>#    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n</manifest>#' android/app/src/main/AndroidManifest.xml
+          grep -n "uses-permission" android/app/src/main/AndroidManifest.xml
+          cat android/app/src/main/res/xml/file_paths.xml || true
+
       - name: Generar iconos y pantalla de carga
         run: npx capacitor-assets generate --android
         continue-on-error: true

@@ -494,6 +494,10 @@ details.exp summary .side2 small{font-size:12px;font-weight:500;white-space:nowr
 .bkp b{display:block;font-size:15px}
 .bkp span{font-size:13px;color:var(--muted)}
 
+/* Descarga de la actualización */
+.dlbox{display:flex;flex-direction:column;gap:6px;align-items:flex-start;width:100%}
+.dlbox .bar{width:100%}
+
 /* Actualizaciones */
 .upd{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border-radius:var(--rad);padding:14px 16px}
 .upd .u1{display:flex;align-items:center;gap:10px}
@@ -699,7 +703,9 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     "Lucía":"Lucía", "Me":"Me", "15 días":"15 days", "Grupo de ejemplo creado":"Example group created", "quien pagó":"whoever paid",
     "Es el menor número de pagos posible para que todo cuadre. Cuando alguien pague, márcalo y el grupo se recalcula solo.":"This is the fewest payments needed to settle up. When someone pays, mark it and the group updates itself.",
     "Simplificar deudas está desactivado: cada uno paga directamente a quien pagó por él. Puedes activarlo en Editar grupo. Cuando alguien pague, márcalo y el grupo se recalcula solo.":"Simplify debts is off: everyone pays back whoever paid for them. You can turn it on in Edit group. When someone pays, mark it and the group updates itself.",
-    "Pagado por":"Paid by", "Grupo de ejemplo":"Example group"
+    "Pagado por":"Paid by", "Grupo de ejemplo":"Example group",
+    "Abriendo el instalador… Si Android lo pide, permite instalar apps de Reparto de Deudas.":"Opening the installer… If Android asks, allow installing apps from Reparto de Deudas.",
+    "No se pudo descargar la actualización. Comprueba la conexión e inténtalo otra vez.":"Couldn't download the update. Check your connection and try again.", "Descargar con el navegador":"Download with the browser"
   };
   // Frases con datos (cantidades, nombres, fechas)
   const who_ = w => w.replace(/^ti$/,"you").replace(/\bti\b/g,"you").replace(/ y /g," and ").replace(/^quien pagó$/,"whoever paid").replace(/^Tú$/,"You");
@@ -715,6 +721,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     [/^(.+) pagó (.+) a (.+)$/, (m,a,c,b)=> who_(a)+" paid "+c+" to "+who_(b)], [/^(.+): (.+) pasados a Me deben$/, "$1: $2 moved to Owed to me"],
     [/^Cambiado: (.+)$/, (m,x)=> "Changed: "+x.replace(/nombre a «(.+?)»/,"name to “$1”").replace(/moneda a /,"currency to ").replace("simplificar deudas activado","simplify debts on").replace("simplificar deudas desactivado","simplify debts off").replace(/presupuesto /,"budget ").replace("sin presupuesto","no budget").replace("desarchivado","unarchived").replace("archivado","archived")],
     [/^de desarrollo( · (web|Android))?$/, (m,_a,w)=> "development build"+(w?" · "+w:"")],
+    [/^Descargando… (\d+) %$/, "Downloading… $1 %"],
     [/^Venció hace (\d+) días$/, "Overdue by $1 days"], [/^Vence en (\d+) días$/, "Due in $1 days"], [/^Hasta el (.+)$/, "Until $1"],
     [/^Próximos (\d+) días$/, "Next $1 days"], [/^Archivados \((\d+)\)$/, "Archived ($1)"],
     [/^Te deben (.+)$/, "You're owed $1"], [/^Debes (.+)$/, "You owe $1"], [/^Debe (.+)$/, "Owes $1"], [/^Le deben (.+)$/, "Is owed $1"],
@@ -2142,8 +2149,37 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     else if (!ban && want) $("#view").insertAdjacentHTML("afterbegin", want);
   }
   function dismissed(){ try { return +localStorage.getItem("rd-upd-skip") || 0; } catch(e){ return 0; } }
+  // Descarga e instala el APK desde la propia app, con barra de progreso
+  const nativePlugin = n => { const C = window.Capacitor; if (!C) return null; return (C.Plugins && C.Plugins[n]) || (C.registerPlugin ? C.registerPlugin(n) : null); };
+  const dl = {state:"idle", pct:0, msg:""};
+  function dlHTML(){
+    if (dl.state==="idle") return "";
+    const bar = `<div class="bar" style="height:8px"><i style="width:${dl.pct.toFixed(0)}%"></i></div>`;
+    if (dl.state==="running") return `<div class="dlbox">${bar}<span class="hint">Descargando… ${dl.pct.toFixed(0)} %</span></div>`;
+    if (dl.state==="opening") return `<div class="dlbox">${bar}<span class="hint">Abriendo el instalador… Si Android lo pide, permite instalar apps de Reparto de Deudas.</span></div>`;
+    if (dl.state==="error") return `<div class="dlbox"><span class="hint" style="color:var(--bad)">${esc(dl.msg)}</span><a class="linkbtn" href="${esc(upd.url)}">Descargar con el navegador</a></div>`;
+    return "";
+  }
+  function dlRefresh(){ document.querySelectorAll("[data-dlslot]").forEach(el=>{ el.innerHTML = dlHTML(); }); document.querySelectorAll('[data-act="apkupd"]').forEach(b=>{ b.disabled = dl.state==="running"; }); }
+  async function apkUpdate(){
+    const FS = nativePlugin("Filesystem"), FO = nativePlugin("FileOpener");
+    if (!FS || !FO || !upd.url || !/\.apk$/i.test(upd.url)){ location.href = upd.url; return; }
+    if (dl.state==="running") return;
+    dl.state = "running"; dl.pct = 0; dlRefresh();
+    const file = "reparto-de-deudas-" + (upd.build||"nueva") + ".apk";
+    let listener = null;
+    try {
+      listener = await FS.addListener("progress", e=>{ if (e && e.contentLength>0){ dl.pct = Math.min(100, e.bytes/e.contentLength*100); dlRefresh(); } });
+      await FS.downloadFile({url: upd.url, path: file, directory: "CACHE", progress: true, recursive: true});
+      dl.pct = 100; dl.state = "opening"; dlRefresh();
+      const {uri} = await FS.getUri({path: file, directory: "CACHE"});
+      await FO.openFile({path: uri, mimeType: "application/vnd.android.package-archive"});
+    } catch(e){
+      dl.state = "error"; dl.msg = "No se pudo descargar la actualización. Comprueba la conexión e inténtalo otra vez."; dlRefresh();
+    } finally { try { listener && listener.remove && listener.remove(); } catch(_){} }
+  }
   function updAction(cls){
-    if (isApk) return `<a class="btn ${cls||""}" href="${esc(upd.url)}">Descargar e instalar</a>`;
+    if (isApk) return `<button type="button" class="btn ${cls||""}" data-act="apkupd">Descargar e instalar</button>`;
     return `<button type="button" class="btn ${cls||""}" data-act="applyupd">Actualizar ahora</button>`;
   }
   function updBanner(){
@@ -2156,6 +2192,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       <div class="u1"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><div><b>${esc(title)}</b><span>${sub}</span></div></div>
       ${upd.notes.length && upd.state==="available" ? `<ul>${upd.notes.slice(0,3).map(n=>`<li>${esc(n)}</li>`).join("")}</ul>` : ""}
       <div class="btnrow">${updAction("small")}<button type="button" class="btn ghost small" data-act="skipupd">Ahora no</button></div>
+      <div data-dlslot>${dlHTML()}</div>
     </section>`;
   }
   function updSettingsHTML(){
@@ -2167,6 +2204,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       ${upd.notes.length ? `<div><p class="hint" style="margin-bottom:6px">Novedades de la ${verName(upd.build)}${upd.date?" · "+fmtDate(upd.date.slice(0,10)):""}</p><ul class="notes">${upd.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
       <div class="grid2">${upd.state==="available" ? updAction() : `<button type="button" class="btn soft" data-act="checkupd" ${upd.state==="checking"?"disabled":""}>Buscar ahora</button>`}
         <a class="btn ghost" href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Todas las versiones</a></div>
+      <div data-dlslot>${dlHTML()}</div>
       <label class="switch"><span>Buscar actualizaciones al abrir</span><input type="checkbox" data-toggle="autoUpdate" ${S.autoUpdate?"checked":""}></label>
       ${!APP_BUILD ? `<p class="hint">Esta copia no viene de una versión publicada, así que no se puede comparar. Instala la app desde GitHub para recibir avisos.</p>` : ""}
     </div>`;
@@ -2349,6 +2387,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     else if (act==="bkpsnooze"){ bkpSet("rd-bkp-snooze", Date.now() - BKP_EVERY + 7*86400000); const bb = $("#bkpBanner"); if (bb) bb.remove(); toast("Te lo recordaremos en una semana"); }
     else if (act==="checkupd") checkUpdates(true);
     else if (act==="applyupd") applyWebUpdate();
+    else if (act==="apkupd") apkUpdate();
     else if (act==="skipupd"){ try { localStorage.setItem("rd-upd-skip", String(upd.build)); } catch(_){} upd.swReady = false; refreshUpd(); }
     else if (act==="pastecopy"){
       $("#confirmBox").innerHTML = `<div class="notice"><span>Pega aquí el texto de tu copia.</span><textarea rows="5" id="pasteText" placeholder='{"app":"reparto-de-deudas"…'></textarea><button type="button" class="btn small" data-act="checkpaste">Revisar copia</button></div>`;
