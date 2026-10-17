@@ -5,6 +5,11 @@ name: Publicar versión
 on:
   push:
     branches: [main]
+    # Los cambios solo de documentación no publican una versión nueva.
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
+      - "LICENSE"
   workflow_dispatch:
 
 permissions:

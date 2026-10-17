@@ -1,93 +1,168 @@
+<div align="center">
+
+<img src="icons/icon-512.png" alt="Icono de Reparto de Deudas" width="96" height="96">
+
 # Reparto de Deudas
 
-App web para el móvil donde apuntas quién te debe dinero, registras lo que te van devolviendo y repartes gastos compartidos entre amigos. Funciona en Android como APK y en el iPhone como app web instalada en la pantalla de inicio.
+**Apunta quién te debe dinero y reparte los gastos del grupo sin discusiones.**
+Sabes en segundos quién puso qué, qué le toca a cada uno y quién paga a quién.
 
-Es un único archivo HTML, sin servidor ni base de datos: tus datos se guardan en tu propio dispositivo.
+[![Última versión](https://img.shields.io/github/v/release/N23GR045/Reparto-de-deudas-?label=versi%C3%B3n&color=0f6b55)](https://github.com/N23GR045/Reparto-de-deudas-/releases/latest)
+[![Publicación](https://github.com/N23GR045/Reparto-de-deudas-/actions/workflows/apk.yml/badge.svg)](https://github.com/N23GR045/Reparto-de-deudas-/actions/workflows/apk.yml)
+![Android](https://img.shields.io/badge/Android-APK-3DDC84?logo=android&logoColor=white)
+![iPhone](https://img.shields.io/badge/iPhone-app_web-111111?logo=apple&logoColor=white)
+![Sin registro](https://img.shields.io/badge/registro-no_hace_falta-0f6b55)
+[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue)](LICENSE)
 
-## Qué hace
+[**⬇️ Descargar para Android**](https://github.com/N23GR045/Reparto-de-deudas-/releases/latest/download/reparto-de-deudas.apk) · [**🌐 Abrir la versión web**](https://n23gr045.github.io/Reparto-de-deudas-/) · [Ver todas las versiones](https://github.com/N23GR045/Reparto-de-deudas-/releases)
 
-**Me deben**
-- Apunta a quién le prestaste, cuánto, para qué y hasta cuándo.
-- Registra pagos parciales o «Lo pagó todo». La deuda se marca como saldada sola.
-- «Le presto más»: suma dinero a una deuda que ya existe.
-- Historial de movimientos de cada deuda: préstamo, ampliaciones y pagos.
-- Estado de cada deuda: pendiente, vence pronto, vencida o saldada.
-- Mensaje de recordatorio listo para copiar y mandar por WhatsApp, con una plantilla que puedes cambiar.
-- Buscador, filtros y varias formas de ordenar.
+<!-- Vídeo de presentación: arrastra el .mp4 a esta línea desde el editor de GitHub y se insertará aquí. -->
 
-**Repartir**
-- **Dividir una cuenta**: escribes lo que pagaste, eliges entre quiénes y cada parte se apunta como deuda en un toque.
-- **Grupos** para viajes, el piso o cualquier gasto que se repita, con pestañas **Gastos**, **Quién debe** y **Saldos**.
-- Gastos con **categoría**, reparto **a partes iguales, por partes o por importes**, **varios pagadores** y **otra moneda** con su tipo de cambio.
-- **Mínimo de pagos**: el algoritmo agrupa a quienes se compensan entre sí para que haya el menor número de transferencias posible. Se puede desactivar («Simplificar deudas») para que cada uno pague directamente a quien pagó por él.
-- **Ajustes del grupo**: moneda, presupuesto con aviso al 80 % y al 100 %, y archivar.
-- **Estadísticas** de en qué se ha gastado, **historial** de cambios y **exportación** a CSV o a un resumen para WhatsApp.
-- «Ya me pagó», «Marcar como pagado» y «Pasar a Me deben» para cerrar las cuentas.
+<img src="docs/capturas/portada.png" alt="Pantallas de la app: lo que te deben, tus grupos, quién debe a quién y saldos" width="100%">
 
-**Personalizar**
-- Tema claro, oscuro o automático, 10 colores, tamaño del texto, espaciado y forma de las esquinas.
-- Moneda (euro, dólar, pesos latinoamericanos y más), avisos de vencimiento y plazo por defecto.
-- Exportar e importar una copia de seguridad de tus datos en un archivo `.json`.
+</div>
 
-## Probarla en el ordenador
+---
 
-Abre `index.html` en el navegador con un doble clic. Funciona sin instalar nada.
+## ¿Qué es?
 
-## Descargar el APK para Android
+Prestas dinero a un amigo, pagas la cena de cuatro o compartís piso, y al final nadie se acuerda de quién debe qué. **Reparto de Deudas** lo apunta por ti y te dice exactamente cuánto te deben, cuánto debes y la forma más sencilla de dejar las cuentas a cero.
 
-Cada vez que se sube un cambio a `main`, GitHub compila un APK nuevo y lo publica en **Releases**. La app instalada avisa cuando hay una versión nueva.
+Funciona **sin cuenta y sin internet**: tus datos se quedan en tu móvil.
 
-- Descarga directa de la última versión: **https://github.com/N23GR045/Reparto-de-deudas-/releases/latest/download/reparto-de-deudas.apk**
-- Todas las versiones: https://github.com/N23GR045/Reparto-de-deudas-/releases
+## ✨ Características principales
 
-Para instalarlo, abre el enlace desde el móvil Android, descarga el archivo y ábrelo. Si Android lo pide, permite instalar apps de este origen. Las versiones nuevas se instalan encima de la anterior y conservan tus datos.
+| | Qué hace | Por qué te ayuda |
+|---|---|---|
+| 💸 **Me deben** | Apunta a quién prestaste, cuánto y hasta cuándo. Suma pagos parciales o préstamos nuevos. | Ves de un vistazo lo vencido, lo que vence esta semana y lo que ya has cobrado. |
+| 🧾 **Dividir una cuenta** | Pagaste por varios: escribes el total, marcas a quién y listo. | Cada parte se convierte en una deuda en un solo toque. |
+| 👥 **Grupos** | Viajes, piso, cenas o proyectos con pestañas **Quién debe**, **Gastos** y **Saldos**. | Todo el mundo ve lo mismo: quién puso el dinero y qué le toca. |
+| ⚖️ **Repartos flexibles** | A partes iguales, por partes o por importes; varios pagadores y otras monedas. | Se adapta a cualquier situación real, no solo a la cuenta a medias. |
+| 🔁 **Mínimo de pagos** | Calcula la forma de saldar el grupo con el menor número de transferencias. | Menos Bizums, menos líos. Se puede desactivar. |
+| 📊 **Presupuesto y estadísticas** | Presupuesto con avisos al 80 % y al 100 %, y gasto por categorías. | Sabes en qué se va el dinero antes de pasarte. |
+| 💬 **Recordatorios y resumen** | Mensaje listo para WhatsApp y exportación a CSV. | Recordar una deuda deja de ser incómodo. |
+| 🎨 **A tu gusto** | Tema claro u oscuro, 10 colores, tamaño del texto y 12 monedas. | La app se adapta a ti, no al revés. |
+| 🔄 **Se actualiza sola** | Avisa cuando hay una versión nueva y se instala encima. | Siempre tienes lo último sin perder tus datos. |
 
-El proceso está en `.github/workflows/apk.yml` y usa [Capacitor](https://capacitorjs.com/) para meter la app web en una app de Android. Puedes lanzarlo a mano desde la pestaña **Actions → Publicar versión → Run workflow**.
+## 🚀 Instalación rápida
 
-## Versión web (iPhone y ordenador)
+### Android
 
-La versión web se publica con GitHub Pages desde el mismo proceso que crea el APK. Para activarla una sola vez:
+1. Abre este enlace en el móvil: **[reparto-de-deudas.apk](https://github.com/N23GR045/Reparto-de-deudas-/releases/latest/download/reparto-de-deudas.apk)**
+2. Abre el archivo descargado y pulsa **Instalar**. Si Android lo pide, permite instalar apps de este origen.
+3. Listo. Cuando haya una versión nueva, la propia app te avisará.
 
-1. En el repositorio, ve a **Settings → Pages**.
-2. En **Source** elige **GitHub Actions**.
-3. Ve a **Actions → Publicar versión → Run workflow** (o sube cualquier cambio a `main`).
+### iPhone
 
-En uno o dos minutos estará en **https://n23gr045.github.io/Reparto-de-deudas-/**.
+1. Abre **[la versión web](https://n23gr045.github.io/Reparto-de-deudas-/)** en **Safari**.
+2. Pulsa **Compartir** → **Añadir a pantalla de inicio**.
+3. Se abrirá a pantalla completa, con su icono, y también funcionará sin conexión.
 
-### Instalarla en el iPhone
+### Ordenador
 
-1. Abre la dirección de la versión web en **Safari**.
-2. Pulsa el botón **Compartir** y elige **Añadir a pantalla de inicio**.
-3. Se abrirá a pantalla completa, con su icono, y funcionará también sin conexión.
+Abre la [versión web](https://n23gr045.github.io/Reparto-de-deudas-/) en cualquier navegador, o descarga el repositorio y abre `index.html` con un doble clic.
 
-## Actualizaciones
+## 📖 Guía de uso
 
-Cada cambio que se sube a `main` publica una versión nueva (1.1, 1.2, 1.3…), con el APK en Releases y la web en Pages. Las novedades salen del mensaje del commit.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-- **En Android**, la app consulta Releases al abrirse (como mucho cada 6 horas) y, si hay una versión nueva, muestra un aviso con las novedades y el botón **Descargar e instalar**. El APK nuevo se instala encima y conserva tus datos.
-- **En la web y en el iPhone**, la app avisa de la versión nueva y se actualiza con **Actualizar ahora**.
-- En **Personalizar → Actualizaciones** ves tu versión, puedes buscar a mano y desactivar la búsqueda automática.
+**Alguien te debe dinero**
 
-## Tus datos
+1. Pulsa **+** → **Le presté dinero**.
+2. Escribe cuánto, a quién y, si quieres, hasta cuándo.
+3. Cuando te pague, abre la deuda y pulsa **Me ha pagado** o **Lo pagó todo**.
 
-- Todo se guarda en el almacenamiento local del navegador del dispositivo donde uses la app. No se envía nada a ningún servidor.
-- Si borras los datos de la app o del navegador, o cambias de móvil, se pierden. Usa **Personalizar → Exportar copia** de vez en cuando. En la web se descarga un archivo; en el APK la copia se pone en el portapapeles para que la pegues en una nota. Para recuperarla usa **Importar copia** o **Pegar una copia en texto**.
-- La app de la pantalla de inicio y Safari guardan sus datos por separado en el iPhone. Usa siempre la misma.
+¿Le prestas más? Abre su deuda → **Le presto más**.
 
-## Estructura
+</td>
+<td width="50%" valign="top">
+
+**Pagaste la cuenta por varios**
+
+1. Ve a **Repartir** → **Dividir una cuenta**.
+2. Escribe el total y marca a quién se reparte.
+3. Pulsa **Apuntar en Me deben**: cada uno queda con su parte pendiente.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+**Un viaje o un piso compartido**
+
+1. **Repartir** → **Nuevo grupo** y añade a las personas.
+2. Apunta cada gasto con **+**: qué fue, cuánto, quién pagó y para quién.
+3. En **Quién debe** verás los pagos que dejan el grupo a cero.
+
+</td>
+<td valign="top">
+
+**Cerrar las cuentas**
+
+- **Ya me pagó** o **Marcar como pagado**: el grupo se recalcula.
+- **Pasar a Me deben**: lleva lo que te deben a tu lista personal.
+- **Exportar**: resumen para WhatsApp o archivo CSV para Excel.
+
+</td>
+</tr>
+</table>
+
+<p align="center">
+  <img src="docs/capturas/1-me-deben.png" width="220" alt="Lo que te deben">
+  &nbsp;&nbsp;
+  <img src="docs/capturas/4-gastos.png" width="220" alt="Gastos de un grupo, con su categoría y lo que supone para ti">
+</p>
+
+### 🔒 Tus datos
+
+- Todo se guarda **en tu dispositivo**. No hay servidor ni cuenta, y no se envía nada a ningún sitio.
+- Si cambias de móvil o borras los datos del navegador, se pierden. Haz una copia de vez en cuando en **Personalizar → Exportar copia** y recupérala con **Importar copia**.
+- En el iPhone, Safari y la app de la pantalla de inicio guardan los datos por separado: usa siempre la misma.
+
+## 🤝 Cómo contribuir
+
+¡Las ideas y mejoras son bienvenidas!
+
+1. **¿Has encontrado un fallo o tienes una idea?** Abre un [issue](https://github.com/N23GR045/Reparto-de-deudas-/issues) contando qué esperabas y qué pasó. Una captura de pantalla ayuda mucho.
+2. **¿Quieres cambiar código?** Haz un *fork*, crea una rama (`git checkout -b mejora-recordatorios`) y abre `index.html` en el navegador para probar. No hace falta instalar nada.
+3. **Pruébalo en el móvil** o con el navegador a tamaño de móvil (unos 390 px de ancho), en tema claro y oscuro.
+4. **Escribe el mensaje del commit pensando en quien usa la app.** La primera línea y las viñetas se convierten en las *Novedades* que ve la gente al actualizar. Por ejemplo: `Recordatorio automático cuando vence una deuda`.
+5. Abre un **Pull Request** contra `main` explicando el cambio.
+
+<details>
+<summary><b>Detalles técnicos</b></summary>
+
+| Pieza | Tecnología |
+|---|---|
+| App | Un solo `index.html` con HTML, CSS y JavaScript, sin dependencias |
+| Datos | `localStorage` del dispositivo; copia de seguridad en `.json` |
+| Android | [Capacitor 6](https://capacitorjs.com/), compilado por GitHub Actions |
+| Web e iPhone | GitHub Pages + `manifest.webmanifest` + `sw.js` (funciona sin conexión) |
+| Versiones | Cada *push* a `main` publica la versión `1.N` en Releases y en Pages |
 
 ```
-index.html              La app completa (HTML, CSS y JavaScript)
+index.html              La app completa
 manifest.webmanifest    Nombre, colores e iconos para instalarla
-sw.js                   Permite abrir la web sin conexión
-icons/                  Iconos de la web
-assets/                 Icono y pantalla de carga del APK
-android-config/         Firma fija del APK, para que las actualizaciones se instalen encima
+sw.js                   Funcionamiento sin conexión y actualizaciones de la web
+icons/  assets/         Iconos de la web y del APK, y pantallas de carga
+android-config/         Firma fija del APK para que las actualizaciones se instalen encima
 capacitor.config.json   Configuración de la app Android
-package.json            Dependencias para compilar el APK
 .github/workflows/      Publicación automática del APK y de la web
+docs/capturas/          Imágenes de este README
 ```
 
-## Licencia
+Para compilar el APK en tu ordenador: `npm install`, `npm run web`, `npx cap add android` y `npx cap open android` (necesitas Android Studio).
 
-MIT. Consulta el archivo [LICENSE](LICENSE).
+Para publicar la web la primera vez: **Settings → Pages → Source: GitHub Actions**.
+
+</details>
+
+## 📄 Licencia
+
+Distribuido bajo la licencia **MIT**. Puedes usarlo, modificarlo y compartirlo libremente. Consulta [LICENSE](LICENSE).
+
+<div align="center">
+<sub>Hecho para que el dinero no estropee ninguna amistad.</sub>
+</div>
