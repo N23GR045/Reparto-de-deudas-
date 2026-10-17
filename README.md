@@ -133,7 +133,14 @@ La primera vez que la abres, la app te pregunta **qué quieres resolver hoy** y 
 1. **¿Has encontrado un fallo o tienes una idea?** Abre un [issue](https://github.com/N23GR045/Reparto-de-deudas-/issues) contando qué esperabas y qué pasó. Una captura de pantalla ayuda mucho.
 2. **¿Quieres cambiar código?** Haz un *fork*, crea una rama (`git checkout -b mejora-recordatorios`) y abre `index.html` en el navegador para probar. No hace falta instalar nada.
 3. **Pruébalo en el móvil** o con el navegador a tamaño de móvil (unos 390 px de ancho), en tema claro y oscuro.
-4. **Escribe el mensaje del commit pensando en quien usa la app.** La primera línea y las viñetas se convierten en las *Novedades* que ve la gente al actualizar. Por ejemplo: `Recordatorio automático cuando vence una deuda`.
+4. **Escribe el mensaje del commit pensando en quien usa la app.** Cada viñeta (`- …`) se convierte en una línea de las *Novedades* que ve la gente al actualizar; si no hay viñetas, se usa el título. Se ordenan solas en **Nuevo**, **Mejoras** y **Correcciones**, y puedes forzar la sección empezando la viñeta por `Nuevo:`, `Mejora:` o `Corrección:`. Por ejemplo:
+   ```
+   Recordatorios de deudas
+
+   - Nuevo: aviso en el móvil el día que vence una deuda.
+   - Mejora: el mensaje de recordatorio incluye la fecha.
+   - Corrección: los importes con punto ya se guardan bien.
+   ```
 5. Abre un **Pull Request** contra `main` explicando el cambio.
 
 <details>
@@ -146,7 +153,7 @@ La primera vez que la abres, la app te pregunta **qué quieres resolver hoy** y 
 | Idiomas | Español e inglés (capa de traducción `EN` / `EN_RULES` en `index.html`; se elige en Personalizar o según el idioma del móvil) |
 | Android | [Capacitor 6](https://capacitorjs.com/), compilado por GitHub Actions |
 | Web e iPhone | GitHub Pages + `manifest.webmanifest` + `sw.js` (funciona sin conexión) |
-| Versiones | Cada *push* a `main` publica la versión `1.N` en Releases y en Pages |
+| Versiones | Cada *push* a `main` publica la versión `1.N` en Releases y en Pages, con notas generadas por `.github/scripts/notas.py` |
 
 ```
 index.html              La app completa

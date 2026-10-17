@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Descargar el código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # historial completo para juntar las novedades desde la versión anterior
 
       - name: Preparar Node
         uses: actions/setup-node@v4
@@ -93,21 +95,10 @@ jobs:
           path: reparto-de-deudas.apk
 
       - name: Preparar las novedades
-        env:
-          MSG: ${{ github.event.head_commit.message }}
+        # Junta los commits desde la versión anterior y los ordena en Nuevo, Mejoras y Correcciones.
         run: |
-          {
-            echo "## Novedades"
-            if [ -n "$MSG" ]; then
-              printf '%s\n' "$MSG" | grep -viE '^(co-authored-by|claude-session|signed-off-by):' | sed '/^[[:space:]]*$/d'
-            else
-              echo "- Mejoras y correcciones."
-            fi
-            echo
-            echo "## Instalar"
-            echo "Descarga \`reparto-de-deudas.apk\` en el móvil Android y ábrelo. Si ya tenías la app, se instala encima sin borrar tus datos."
-            echo "La app avisa sola cuando hay una versión nueva."
-          } > notas.md
+          git fetch --tags --force --quiet
+          python3 .github/scripts/notas.py ${{ github.run_number }} > notas.md
           cat notas.md
 
       - name: Publicar el APK en Releases

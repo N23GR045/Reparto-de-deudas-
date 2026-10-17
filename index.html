@@ -494,6 +494,16 @@ details.exp summary .side2 small{font-size:12px;font-weight:500;white-space:nowr
 .bkp b{display:block;font-size:15px}
 .bkp span{font-size:13px;color:var(--muted)}
 
+/* Notas de versión */
+.nbox{display:flex;flex-direction:column;gap:10px}
+.nsec{display:flex;flex-direction:column;gap:4px}
+.nsec-t{margin:0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.nsec-t::before{content:"";width:8px;height:8px;border-radius:99px;background:currentColor}
+.nsec-t.new{color:var(--accent)} .nsec-t.imp{color:var(--ok)} .nsec-t.fix{color:var(--warn)}
+.nsec .notes{margin:0}
+.relcard{gap:10px}
+#relList{display:flex;flex-direction:column;gap:12px}
+
 /* Descarga de la actualización */
 .dlbox{display:flex;flex-direction:column;gap:6px;align-items:flex-start;width:100%}
 .dlbox .bar{width:100%}
@@ -704,6 +714,9 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     "Es el menor número de pagos posible para que todo cuadre. Cuando alguien pague, márcalo y el grupo se recalcula solo.":"This is the fewest payments needed to settle up. When someone pays, mark it and the group updates itself.",
     "Simplificar deudas está desactivado: cada uno paga directamente a quien pagó por él. Puedes activarlo en Editar grupo. Cuando alguien pague, márcalo y el grupo se recalcula solo.":"Simplify debts is off: everyone pays back whoever paid for them. You can turn it on in Edit group. When someone pays, mark it and the group updates itself.",
     "Pagado por":"Paid by", "Grupo de ejemplo":"Example group",
+    "Nuevo":"New", "Mejoras":"Improvements", "Correcciones":"Fixes", "Novedades":"What's new", "Ver novedades de todas las versiones":"See what's new in every version",
+    "Cargando versiones…":"Loading versions…", "la tuya":"yours", "Aún no hay versiones publicadas.":"No versions published yet.", "Mejoras y correcciones.":"Improvements and fixes.",
+    "No se pudieron cargar las novedades. Comprueba la conexión.":"Couldn't load the release notes. Check your connection.", "Ver en GitHub":"See on GitHub",
     "Abriendo el instalador… Si Android lo pide, permite instalar apps de Reparto de Deudas.":"Opening the installer… If Android asks, allow installing apps from Reparto de Deudas.",
     "No se pudo descargar la actualización. Comprueba la conexión e inténtalo otra vez.":"Couldn't download the update. Check your connection and try again.", "Descargar con el navegador":"Download with the browser"
   };
@@ -721,7 +734,8 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     [/^(.+) pagó (.+) a (.+)$/, (m,a,c,b)=> who_(a)+" paid "+c+" to "+who_(b)], [/^(.+): (.+) pasados a Me deben$/, "$1: $2 moved to Owed to me"],
     [/^Cambiado: (.+)$/, (m,x)=> "Changed: "+x.replace(/nombre a «(.+?)»/,"name to “$1”").replace(/moneda a /,"currency to ").replace("simplificar deudas activado","simplify debts on").replace("simplificar deudas desactivado","simplify debts off").replace(/presupuesto /,"budget ").replace("sin presupuesto","no budget").replace("desarchivado","unarchived").replace("archivado","archived")],
     [/^de desarrollo( · (web|Android))?$/, (m,_a,w)=> "development build"+(w?" · "+w:"")],
-    [/^Descargando… (\d+) %$/, "Downloading… $1 %"],
+    [/^Descargando… (\d+) %$/, "Downloading… $1 %"], [/^Versión (.+)$/, "Version $1"],
+    [/^Ver (\d+) novedad(?:es)? más$/, (m,n)=> "See "+n+" more"],
     [/^Venció hace (\d+) días$/, "Overdue by $1 days"], [/^Vence en (\d+) días$/, "Due in $1 days"], [/^Hasta el (.+)$/, "Until $1"],
     [/^Próximos (\d+) días$/, "Next $1 days"], [/^Archivados \((\d+)\)$/, "Archived ($1)"],
     [/^Te deben (.+)$/, "You're owed $1"], [/^Debes (.+)$/, "You owe $1"], [/^Debe (.+)$/, "Owes $1"], [/^Le deben (.+)$/, "Is owed $1"],
@@ -2101,18 +2115,40 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
   const isApk = !!window.Capacitor;
   const canUpdate = !window.claude;
   const UPD_EVERY = 6 * 3600 * 1000;
-  const upd = {state:"idle", build:0, name:"", notes:[], url:"", page:"", date:"", swReady:false};
+  const upd = {sections:[], state:"idle", build:0, name:"", notes:[], url:"", page:"", date:"", swReady:false};
   const verName = b => b ? "1." + b : "de desarrollo";
+  // Las notas vienen en secciones «### Nuevo / ### Mejoras / ### Correcciones».
+  // Las versiones antiguas (sin secciones) se muestran como «Novedades».
   function notesFrom(body){
-    const txt = String(body||"");
-    const m = txt.match(/##\s*Novedades\s*\n([\s\S]*?)(\n##|\n\*\*Instalar|$)/i);
-    return (m ? m[1] : "").split("\n").map(l=>l.replace(/^[\s>*\-•]+/,"").replace(/[`*_]/g,"").trim())
-      .filter(l=>l && !/^(co-authored-by|claude-session|signed-off-by)/i.test(l)).slice(0,8);
+    const txt = String(body||"").replace(/\r/g,"");
+    const m = txt.match(/##\s*Novedades[^\n]*\n([\s\S]*?)(\n---|\n##(?!#)|\n\*\*Instalar|$)/i);
+    const sections = []; let cur = null;
+    (m ? m[1] : "").split("\n").forEach(l=>{
+      const h = l.match(/^###\s*(.+)$/);
+      if (h){ cur = {t: h[1].replace(/[^\p{L}\s]/gu,"").trim(), items: []}; sections.push(cur); return; }
+      const t = l.replace(/^[\s>*\-•]+/,"").replace(/[`*_]/g,"").trim();
+      if (!t || /^(co-authored-by|claude-session|signed-off-by)/i.test(t) || /^\d{1,2} de \p{L}+ de \d{4}$/u.test(t)) return;
+      if (!cur){ cur = {t: "Novedades", items: []}; sections.push(cur); }
+      cur.items.push(t);
+    });
+    return sections.filter(x=>x.items.length);
+  }
+  const secKind = t => /^nuevo/i.test(t) ? "new" : /^correc/i.test(t) ? "fix" : "imp";
+  const secLabel = t => ({new:"Nuevo", fix:"Corrección", imp:"Mejora"})[secKind(t)];
+  function notesHTML(sections, max){
+    let n = 0; const out = [];
+    for (const sc of sections){
+      if (max && n>=max) break;
+      const items = max ? sc.items.slice(0, max-n) : sc.items; n += items.length;
+      out.push(`<div class="nsec"><p class="nsec-t ${secKind(sc.t)}">${esc(sc.t)}</p><ul class="notes">${items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`);
+    }
+    const total = sections.reduce((a,x)=>a+x.items.length,0);
+    return out.join("") + (max && total>n ? `<button type="button" class="linkbtn" data-act="allnotes" style="font-size:13px;padding:2px 0">Ver ${total-n} ${total-n===1?"novedad más":"novedades más"}</button>` : "");
   }
   function applyRelease(j){
     upd.build = parseInt(String(j.tag_name||"").replace(/\D+/g,""),10) || 0;
     upd.name = j.name || ("Versión " + verName(upd.build));
-    upd.notes = notesFrom(j.body);
+    upd.sections = notesFrom(j.body); upd.notes = upd.sections.flatMap(x=>x.items);
     const asset = (j.assets||[]).find(a=>/\.apk$/i.test(a.name||""));
     upd.url = asset ? asset.browser_download_url : (j.html_url||"");
     upd.page = j.html_url || `https://github.com/${REPO}/releases`;
@@ -2190,7 +2226,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     const sub = isApk ? "Descárgala e instálala encima. No perderás tus datos." : "Recarga para usarla. Tus datos se mantienen.";
     return `<section class="upd stg" id="updBanner" role="status">
       <div class="u1"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><div><b>${esc(title)}</b><span>${sub}</span></div></div>
-      ${upd.notes.length && upd.state==="available" ? `<ul>${upd.notes.slice(0,3).map(n=>`<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+      ${upd.notes.length && upd.state==="available" ? `<div class="nbox">${notesHTML(upd.sections, 3)}</div>` : ""}
       <div class="btnrow">${updAction("small")}<button type="button" class="btn ghost small" data-act="skipupd">Ahora no</button></div>
       <div data-dlslot>${dlHTML()}</div>
     </section>`;
@@ -2201,13 +2237,32 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
       <p class="step-t">Actualizaciones</p>
       <div class="vrow"><span>Versión instalada</span><b>${verName(APP_BUILD)}${isApk?" · Android":" · web"}</b></div>
       ${status?`<div class="vrow"><span>Estado</span><b style="color:${upd.state==="available"?"var(--accent)":upd.state==="error"||upd.state==="offline"?"var(--bad)":"var(--ink)"}">${esc(status)}</b></div>`:""}
-      ${upd.notes.length ? `<div><p class="hint" style="margin-bottom:6px">Novedades de la ${verName(upd.build)}${upd.date?" · "+fmtDate(upd.date.slice(0,10)):""}</p><ul class="notes">${upd.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
+      ${upd.notes.length ? `<div class="nbox"><p class="hint">Novedades de la ${verName(upd.build)}${upd.date?" · "+fmtDate(upd.date.slice(0,10)):""}</p>${notesHTML(upd.sections)}</div>` : ""}
+      <button type="button" class="btn ghost wide" data-act="allnotes">Ver novedades de todas las versiones</button>
       <div class="grid2">${upd.state==="available" ? updAction() : `<button type="button" class="btn soft" data-act="checkupd" ${upd.state==="checking"?"disabled":""}>Buscar ahora</button>`}
         <a class="btn ghost" href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Todas las versiones</a></div>
       <div data-dlslot>${dlHTML()}</div>
       <label class="switch"><span>Buscar actualizaciones al abrir</span><input type="checkbox" data-toggle="autoUpdate" ${S.autoUpdate?"checked":""}></label>
       ${!APP_BUILD ? `<p class="hint">Esta copia no viene de una versión publicada, así que no se puede comparar. Instala la app desde GitHub para recibir avisos.</p>` : ""}
     </div>`;
+  }
+  let relCache = null;
+  async function showAllNotes(){
+    openSheet(head("Novedades", {back: sheetRef==="settings" ? "settings" : null}) + `<div id="relList"><p class="hint">Cargando versiones…</p></div>`, "notes");
+    try {
+      if (!relCache){
+        const r = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=15`, {headers:{Accept:"application/vnd.github+json"}, cache:"no-store"});
+        if (!r.ok) throw new Error("http " + r.status);
+        relCache = (await r.json()).map(j=>({build: parseInt(String(j.tag_name||"").replace(/\D+/g,""),10)||0, date: j.published_at||"", sections: notesFrom(j.body)}));
+      }
+      const box = $("#relList"); if (!box) return;
+      box.innerHTML = relCache.length ? relCache.map(v=>`<div class="card relcard">
+          <div class="vrow"><b>Versión ${esc(verName(v.build))}${v.build===APP_BUILD?` <span class="pill-m">la tuya</span>`:""}</b><span class="hint">${v.date?fmtDate(v.date.slice(0,10)):""}</span></div>
+          ${v.sections.length ? notesHTML(v.sections) : `<p class="hint">Mejoras y correcciones.</p>`}
+        </div>`).join("") : `<p class="hint">Aún no hay versiones publicadas.</p>`;
+    } catch(e){
+      const box = $("#relList"); if (box) box.innerHTML = `<p class="hint" style="color:var(--bad)">No se pudieron cargar las novedades. Comprueba la conexión.</p><a class="btn ghost" href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Ver en GitHub</a>`;
+    }
   }
   async function applyWebUpdate(){
     try {
@@ -2388,6 +2443,7 @@ a.btn{display:inline-grid;place-items:center;text-decoration:none;text-align:cen
     else if (act==="checkupd") checkUpdates(true);
     else if (act==="applyupd") applyWebUpdate();
     else if (act==="apkupd") apkUpdate();
+    else if (act==="allnotes") showAllNotes();
     else if (act==="skipupd"){ try { localStorage.setItem("rd-upd-skip", String(upd.build)); } catch(_){} upd.swReady = false; refreshUpd(); }
     else if (act==="pastecopy"){
       $("#confirmBox").innerHTML = `<div class="notice"><span>Pega aquí el texto de tu copia.</span><textarea rows="5" id="pasteText" placeholder='{"app":"reparto-de-deudas"…'></textarea><button type="button" class="btn small" data-act="checkpaste">Revisar copia</button></div>`;
